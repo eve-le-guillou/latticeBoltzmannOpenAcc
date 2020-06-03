@@ -3,6 +3,7 @@
 
 #include "FloatType.h"
 #include "Arguments.h"
+
 /**
  * @author Istvan Tamas Jozsa (jozsait@gmail.com) - 2D version
  * @author Maciej Kubat (m.j.kubat@cranfield.ac.uk) - development of the existing functions into 3D version
@@ -67,7 +68,7 @@ int readResultFile(const char *filename, FLOAT_TYPE ***results);
  * @param f1,f2 files to compare
  * @return 0 for identical files and 1 for different files
  */
-__host__ int compareFiles(const char* f1, const char* f2);
+int compareFiles(const char* f1, const char* f2);
 
 /**
  * Gets the last value of the array

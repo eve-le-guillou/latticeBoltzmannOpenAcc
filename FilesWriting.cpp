@@ -1,6 +1,7 @@
 #include <stdio.h>   // for calloc();
 #include "FilesWriting.h"
 #include <math.h>
+#include <cstring>
 
 void WriteResultsMultiPhase(char* OutputFile, int* fluid, FLOAT_TYPE* CoordX, FLOAT_TYPE* CoordY,
 		FLOAT_TYPE* CoordZ,

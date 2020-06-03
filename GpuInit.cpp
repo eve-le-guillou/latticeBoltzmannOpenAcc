@@ -7,9 +7,9 @@
 #include "BcMacros.h"
 #include "BcMacros3D.h"
 #include <cmath>
-#include "cuda.h"
+//#include "cuda.h"
 #include "math.h"
-
+/*
 __constant__ InletProfile inletProfile_d;
 __constant__ BoundaryType boundaryType_d;
 __constant__ OutletProfile outletProfile_d;
@@ -45,47 +45,48 @@ __constant__ FLOAT_TYPE velMomMap3D_d[361];
 __constant__ FLOAT_TYPE momCollMtx3D_d[361];
 __constant__ FLOAT_TYPE wIn_d;
 __constant__ FLOAT_TYPE g_d;
-
+*/
 //COLOR GRADIENT //
-__constant__ FLOAT_TYPE beta_d;
-__constant__ FLOAT_TYPE r_alpha_d;
-__constant__ FLOAT_TYPE b_alpha_d;
-__constant__ FLOAT_TYPE bubble_radius_d;
-__constant__ FLOAT_TYPE A_d;
-__constant__ FLOAT_TYPE r_density_d;
-__constant__ FLOAT_TYPE b_density_d;
-__constant__ bool external_force_d;
+ FLOAT_TYPE beta_d;
+ FLOAT_TYPE r_alpha_d;
+ FLOAT_TYPE b_alpha_d;
+ FLOAT_TYPE bubble_radius_d;
+ FLOAT_TYPE A_d;
+ FLOAT_TYPE r_density_d;
+ FLOAT_TYPE b_density_d;
+ bool external_force_d;
 
 //COLOR GRADIENT 2D//
-__constant__ FLOAT_TYPE control_param_d;
-__constant__ FLOAT_TYPE phi_d[9];
-__constant__ FLOAT_TYPE teta_d[9];
-__constant__ FLOAT_TYPE chi_d[9];
-__constant__ FLOAT_TYPE psi_d[9];
-__constant__ FLOAT_TYPE w_pert_d[9];
-__constant__ FLOAT_TYPE g_limit_d;
-__constant__ FLOAT_TYPE c_norms_d[9];
-__constant__ FLOAT_TYPE cg_w_d[9];
-__constant__ FLOAT_TYPE hocg_w_d[25];
-__constant__ int hocg_cx_d[25];
-__constant__ int hocg_cy_d[25];
+ FLOAT_TYPE control_param_d;
+ FLOAT_TYPE phi_d[9];
+ FLOAT_TYPE teta_d[9];
+ FLOAT_TYPE chi_d[9];
+ FLOAT_TYPE psi_d[9];
+ FLOAT_TYPE w_pert_d[9];
+ FLOAT_TYPE g_limit_d;
+ FLOAT_TYPE c_norms_d[9];
+ FLOAT_TYPE cg_w_d[9];
+ FLOAT_TYPE hocg_w_d[25];
+ int hocg_cx_d[25];
+ int hocg_cy_d[25];
 
 //COLOR GRADIENT 3D//
-__constant__ FLOAT_TYPE r_viscosity_d;
-__constant__ FLOAT_TYPE b_viscosity_d;
-__constant__ FLOAT_TYPE c_norms3D_d[19];
-__constant__ FLOAT_TYPE w_pert3D_d[19];
-__constant__ FLOAT_TYPE phi3D_d[19];
-__constant__ FLOAT_TYPE teta3D_d[19];
-__constant__ FLOAT_TYPE chi3D_d[19];
-__constant__ FLOAT_TYPE psi3D_d[19];
-__constant__ FLOAT_TYPE cg_w3D_d[19];
-__constant__ FLOAT_TYPE hocg_w3D_d[105];
-__constant__ int hocg_cx3D_d[105];
-__constant__ int hocg_cy3D_d[105];
-__constant__ int hocg_cz3D_d[105];
-__constant__ int hoc3D_d[105];
+ FLOAT_TYPE r_viscosity_d;
+ FLOAT_TYPE b_viscosity_d;
+ FLOAT_TYPE c_norms3D_d[19];
+ FLOAT_TYPE w_pert3D_d[19];
+ FLOAT_TYPE phi3D_d[19];
+ FLOAT_TYPE teta3D_d[19];
+ FLOAT_TYPE chi3D_d[19];
+ FLOAT_TYPE psi3D_d[19];
+ FLOAT_TYPE cg_w3D_d[19];
+ FLOAT_TYPE hocg_w3D_d[105];
+ int hocg_cx3D_d[105];
+ int hocg_cy3D_d[105];
+ int hocg_cz3D_d[105];
+ int hoc3D_d[105];
 
+/*
 __host__ void initConstants2D(Arguments *args,
 		FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minInletCoordY,
 		FLOAT_TYPE delta, int m, int n) {
@@ -1053,8 +1054,8 @@ __global__ void gpuInitInletProfile3D(FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d,
 
 	}
 }
-
-__host__ int initBoundaryConditions2D(int *bcNodeIdX, int *bcNodeIdY,
+*/
+int initBoundaryConditions2D(int *bcNodeIdX, int *bcNodeIdY,
 		FLOAT_TYPE *q, int *bcBoundId, int *fluid,
 		FLOAT_TYPE *bcX, FLOAT_TYPE *bcY, FLOAT_TYPE *nodeX, FLOAT_TYPE *nodeY,
 		int *latticeId, int *stream, int *bcType, int *bcMask, int *bcIdx,
@@ -1122,7 +1123,7 @@ __host__ int initBoundaryConditions2D(int *bcNodeIdX, int *bcNodeIdY,
 	}
 	return num;
 }
-
+/*
 __host__ void collapseBc2D(int *bcIdx, int *bcIdxCollapsed_d, int *bcMask,
 		int *bcMaskCollapsed_d,
 		FLOAT_TYPE *q, FLOAT_TYPE *qCollapsed_d, int *mask, int m, int n,
@@ -1276,4 +1277,4 @@ __host__ void collapseBc3D(int *bcIdx, int *bcIdxCollapsed_d,
 		free(QCollapsed);
 	}
 
-}
+}*/
