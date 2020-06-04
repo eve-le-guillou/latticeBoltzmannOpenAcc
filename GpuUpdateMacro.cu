@@ -143,8 +143,7 @@ __global__ void gpuUpdateMacro3D(int *fluid_d, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* f_d, FLOAT_TYPE g, unsigned long long *bcMask_d,int updateInltOutl)
 {
 	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
-	int ind = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x)
-																																									+ threadIdx.x;
+	int ind = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
 	int ms = depth_d * length_d * height_d;
 
 	FLOAT_TYPE r, rU, rV, rW;

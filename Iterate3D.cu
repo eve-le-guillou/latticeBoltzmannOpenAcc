@@ -532,12 +532,12 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 #if !CUDA
 			streamMP3D(n, m, h, r_f, b_f, r_fColl, b_fColl, stream);
 #else
-			gpuStreaming3D<<<bpg1, tpb>>>(fluid_d, stream_d, r_f_d, r_fColl_d);
-			gpuStreaming3D<<<bpg1, tpb>>>(fluid_d, stream_d, b_f_d, b_fColl_d);
+			cpuStreaming3D(fluid_d, stream_d, r_f_d, r_fColl_d);
+			cpuStreaming3D(fluid_d, stream_d, b_f_d, b_fColl_d);
 #endif
 		}
 		else{
-			gpuStreaming3D<<<bpg1, tpb>>>(fluid_d, stream_d, f_d, fColl_d);
+			cpuStreaming3D(fluid_d, stream_d, f_d, fColl_d);
 		}
 
 		CHECK(cudaEventRecord(stop, 0));
@@ -631,8 +631,8 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 					bcBoundId_d, f_d, args->g,bcMask_d,args->UpdateInltOutl, r_f_d, b_f_d, r_rho_d, b_rho_d, p_in_d, p_out_d, num_in_d, num_out_d, args->test_case);
 			switch(args->test_case){
 			case 1:
-				p_in_mean = gpu_sum_h(p_in_d, p_in_d, ms) / gpu_sum_int_h(num_in_d, num_in_d, ms);
-				p_out_mean = gpu_sum_h(p_out_d, p_out_d, ms) / gpu_sum_int_h(num_out_d, num_out_d, ms);
+				p_in_mean = cpu_sum_h(p_in_d, p_in_d, ms) / cpu_sum_int_h(num_in_d, num_in_d, ms);
+				p_out_mean = cpu_sum_h(p_out_d, p_out_d, ms) / cpu_sum_int_h(num_out_d, num_out_d, ms);
 				st_error[iter] = calculateSurfaceTension3D(p_in_mean, p_out_mean,args->r_alpha, args->b_alpha, args->bubble_radius * n, st_predicted);
 				break;
 			default:
@@ -691,22 +691,22 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 					CHECK(cudaMalloc(&d_divergence,sizeof(bool)));
 					CHECK(cudaMemcpy(d_divergence,&h_divergence,sizeof(bool),cudaMemcpyHostToDevice));
 					if(args->multiPhase){
-						gpu_abs_sub<<<bpg1, tpb>>>(f_d, f_prev_d, temp19a_d, n * m * h * 19, d_divergence);
-						fMaxDiff = gpu_max_h(temp19a_d, temp19b_d, n * m * h * 19);
+						cpu_abs_sub(f_d, f_prev_d, temp19a_d, n * m * h * 19, d_divergence);
+						fMaxDiff = cpu_max_h(temp19a_d, temp19b_d, n * m * h * 19);
 					}
 					else{
-						gpu_abs_sub<<<bpg1, tpb>>>(u_d, u_prev_d, tempA_d,
+						cpu_abs_sub(u_d, u_prev_d, tempA_d,
 								n * m * h, d_divergence);
-						uMaxDiff = gpu_max_h(tempA_d, tempB_d, n * m * h);
-						gpu_abs_sub<<<bpg1, tpb>>>(v_d, v_prev_d, tempA_d,
+						uMaxDiff = cpu_max_h(tempA_d, tempB_d, n * m * h);
+						cpu_abs_sub(v_d, v_prev_d, tempA_d,
 								n * m * h, d_divergence);
-						vMaxDiff = gpu_max_h(tempA_d, tempB_d, n * m * h);
-						gpu_abs_sub<<<bpg1, tpb>>>(w_d, w_prev_d, tempA_d,
+						vMaxDiff = cpu_max_h(tempA_d, tempB_d, n * m * h);
+						cpu_abs_sub(w_d, w_prev_d, tempA_d,
 								n * m * h, d_divergence);
-						wMaxDiff = gpu_max_h(tempA_d, tempB_d, n * m * h);
-						gpu_abs_sub<<<bpg1, tpb>>>(rho_d, rho_prev_d, tempA_d,
+						wMaxDiff = cpu_max_h(tempA_d, tempB_d, n * m * h);
+						cpu_abs_sub(rho_d, rho_prev_d, tempA_d,
 								n * m * h, d_divergence);
-						rhoMaxDiff = gpu_max_h(tempA_d, tempB_d, n * m * h);
+						rhoMaxDiff = cpu_max_h(tempA_d, tempB_d, n * m * h);
 					}
 					CHECK(cudaMemcpy(&h_divergence,d_divergence,sizeof(bool),cudaMemcpyDeviceToHost));
 					CHECK(cudaFree(d_divergence));

@@ -1,6 +1,6 @@
 /**
  * Command line parameter handling
- * @file Arguments.cu
+ * @file Arguments.cpp
  * @author Adam Koleszar (adam.koleszar@gmail.com)
  */
 #include <string.h>

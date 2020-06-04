@@ -423,14 +423,14 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 #if !CUDA
 			streamMP(n, m, r_f, b_f, r_fColl, b_fColl);
 #else
-			//			gpuStreaming2D<<<bpg1, tpb>>>(fluid_d, stream_d, r_f_d, r_fColl_d);
-			//			gpuStreaming2D<<<bpg1, tpb>>>(fluid_d, stream_d, b_f_d, b_fColl_d);
-			gpuStreaming2DCG<<<bpg1, tpb>>>(fluid_d, stream_d, r_f_d, r_fColl_d, b_f_d, b_fColl_d, cg_dir_d);
+			//			cpuStreaming2D(fluid_d, stream_d, r_f_d, r_fColl_d);
+			//			cpuStreaming2D(fluid_d, stream_d, b_f_d, b_fColl_d);
+			cpuStreaming2DCG(fluid_d, stream_d, r_f_d, r_fColl_d, b_f_d, b_fColl_d, cg_dir_d);
 
 #endif
 		}
 		else{
-			gpuStreaming2D<<<bpg1, tpb>>>(fluid_d, stream_d, f_d, fColl_d);
+			cpuStreaming2D(fluid_d, stream_d, f_d, fColl_d);
 		}
 		CHECK(cudaEventRecord(stop, 0));
 		CHECK(cudaEventSynchronize(stop));
@@ -488,8 +488,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			//gpu reduction is faster than serial surface tension
 			switch(args->test_case){
 			case 1:
-				p_in_mean = gpu_sum_h(p_in_d, p_in_d, ms) / gpu_sum_int_h(num_in_d, num_in_d, ms);
-				p_out_mean = gpu_sum_h(p_out_d, p_out_d, ms) / gpu_sum_int_h(num_out_d, num_out_d, ms);
+				p_in_mean = cpu_sum_h(p_in_d, p_in_d, ms) / cpu_sum_int_h(num_in_d, num_in_d, ms);
+				p_out_mean = cpu_sum_h(p_out_d, p_out_d, ms) / cpu_sum_int_h(num_out_d, num_out_d, ms);
 				st_error[iter] = calculateSurfaceTension(p_in_mean, p_out_mean,args->r_alpha, args->b_alpha, args->bubble_radius * n, st_predicted);
 				break;
 			case 5:
@@ -523,8 +523,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			CHECK(cudaEventRecord(start, 0));
 			FLOAT_TYPE r;
 			if(args->multiPhase){
-				//				gpu_abs_sub<<<bpg1, tpb>>>(f_d, f_prev_d, temp9a_d, n * m * 9, d_divergence);
-				gpu_abs_relSub<<<bpg1, tpb>>>(f_d, f_prev_d, temp9a_d, n * m * 9, d_divergence);
+				//				cpu_abs_sub(f_d, f_prev_d, temp9a_d, n * m * 9, d_divergence);
+				cpu_abs_relSub(f_d, f_prev_d, temp9a_d, n * m * 9, d_divergence);
 				fMaxDiff = gpu_max_h(temp9a_d, temp9b_d, n * m * 9);
 				//	printf("MAX diff "FLOAT_FORMAT"\n", fMaxDiff);
 				CHECK(cudaMemcpy(&h_divergence,d_divergence,sizeof(bool),cudaMemcpyDeviceToHost));
