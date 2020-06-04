@@ -2,7 +2,6 @@
 #include <errno.h>
 #include "LogWriter.h"
 #include "cuda.h"
-#include <cstring>
 void writeInitLog(const char* filename, Arguments *args, FLOAT_TYPE delta,
 		int m, int n, int h, int numInletNodes, FLOAT_TYPE maxInletCoordY,
 		FLOAT_TYPE minInletCoordY,
@@ -148,7 +147,7 @@ void writeEndLog(const char *filename, FLOAT_TYPE *taskTimes) {
 	FILE* logFile = fopen(filename, "a");
 		size_t free, total;
 
-	/*cuMemGetInfo(&free, &total);
+	cuMemGetInfo(&free, &total);
 	fprintf(logFile,"^^^^ Free : %llu Mbytes \n",
 			(unsigned long long) free / 1024 / 1024);
 
@@ -156,7 +155,7 @@ void writeEndLog(const char *filename, FLOAT_TYPE *taskTimes) {
 			(unsigned long long) total / 1024 / 1024);
 
 	fprintf(logFile,"^^^^ %f%% free, %f%% used\n", 100.0 * free / (double) total,
-			100.0 * (total - free) / (double) total);*/
+			100.0 * (total - free) / (double) total);
 	fprintf(logFile, "\nOverall calculations took %f seconds",
 			taskTimes[T_OALL]);
 	fprintf(logFile, "\nMain while loop took %f seconds\n", taskTimes[T_ITER]);

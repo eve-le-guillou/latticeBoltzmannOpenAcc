@@ -1,6 +1,6 @@
 /**
  * Command line parameter handling
- * @file Arguments.cpp
+ * @file Arguments.cu
  * @author Adam Koleszar (adam.koleszar@gmail.com)
  */
 #include <string.h>
@@ -12,8 +12,7 @@
 
 #include "Arguments.h"
 #include "FilesReading.h"
-#include "include/argtable2.h"
-
+#include "argtable2.h"
 
 /**
  * @brief Get inlet profile from command line parameter

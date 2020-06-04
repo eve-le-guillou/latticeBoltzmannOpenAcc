@@ -1,28 +1,21 @@
 /**
  * Memory allocation wrappers for host and gpu arrays
- * @file ArrayUtils.cpp
+ * @file ArrayUtils.cu
  * @author Adam Koleszar (adam.koleszar@gmail.com)
  */
 #include <stdlib.h>
 #include <stdio.h>
-//#include <cuda.h>
+#include <cuda.h>
 #include <time.h>
-#include <cstring>
 #include <assert.h>    // ensure successfull allocation
 #include "ArrayUtils.h"
 #include "LogWriter.h"
 
-/*
+
 __constant__ FLOAT_TYPE fill_fd; ///< value to fill into floating point array
 __constant__ int        fill_id; ///< value to fill into integer array
 __constant__ int        fill_idBool; ///< value to fill into integer array
 __constant__ unsigned long long        fill_idLL; ///< value to fill into integer array
-*/
-
- FLOAT_TYPE fill_fd; ///< value to fill into floating point array
- int        fill_id; ///< value to fill into integer array
- int        fill_idBool; ///< value to fill into integer array
- unsigned long long        fill_idLL; ///< value to fill into integer array
 
 FLOAT_TYPE getRandom(unsigned long *seed) {
     *seed = (*seed * 279470273u) % 4294967291u;
@@ -34,11 +27,10 @@ FLOAT_TYPE getRandom(unsigned long *seed) {
  * @param seed seed for the random number (initialise with time(NULL))
  * @return uniform random number
  */
-FLOAT_TYPE getRandomDev(unsigned long seed) {
+__device__ FLOAT_TYPE getRandomDev(unsigned long seed) {
     seed = (seed * 279470273u) % 4294967291u;
     return (FLOAT_TYPE)seed / 4294967291.;
 }
-/*
 bool *createGpuArrayBool(int length, ArrayOption op, bool fill, bool *copy)
 {
     bool *array_d;
@@ -182,7 +174,7 @@ FLOAT_TYPE *createGpuArrayFlt(int length, ArrayOption op, FLOAT_TYPE fill, FLOAT
     printf("cm - %p (%ldB)\n", array_d, SIZEFLT(length));
 #endif
     return array_d;
-}*/
+}
 
 bool *createHostArrayBool(int length, ArrayOption op, bool fill, bool *copy)
 {
@@ -364,7 +356,6 @@ bool ***create3DHostArrayBool(int width, int height, int depth)
     }
     return MyMatrix;
 }
-/*
 __global__ void gpuArrayFillBool(bool *array_d, int size)
 {
 	int blockId = blockIdx.x
@@ -411,7 +402,7 @@ __global__ void gpuArrayFillRandom(FLOAT_TYPE *array_d, unsigned long seed, int 
 		+ (threadIdx.y * blockDim.x)
 		+ threadIdx.x;
     if (i<size) array_d[i] = getRandomDev(seed+i);
-}*/
+}
 void hostArrayFillBool(bool *array_h, bool fill, int size)
 {
     int i;
@@ -453,7 +444,7 @@ void freeAllHost(void **as, int n)
     }
     as = NULL;
 }
-/*
+
 void freeAllGpu(void **as, int n)
 {
     int i;
@@ -463,4 +454,4 @@ void freeAllGpu(void **as, int n)
         as[i] = NULL;
     }
     as = NULL;
-}*/
+}

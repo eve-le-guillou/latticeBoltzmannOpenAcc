@@ -5,8 +5,8 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-
-//#include "GpuSum.h"
+#include <errno.h>
+#include "GpuSum.h"
 #include "FilesReading.h"
 #include "ArrayUtils.h"
 #include "math.h"
@@ -14,13 +14,11 @@
 #include <iostream>
 #include<fstream>
 #include<stdexcept>
-#include <errno.h>
-#include <cstring>
-
 int getNumberOfLines(const char *filename) {
 	FILE *f = fopen(filename, "r");
 	if (!f) {
-		fprintf(stderr, "Error reading file %s: %s\n", filename, strerror(errno));
+		fprintf(stderr, "Error reading file %s: %s\n", filename,
+				strerror(errno));
 		return 0;
 	}
 
@@ -407,7 +405,7 @@ int readResultFile(const char *filename, FLOAT_TYPE ***results) {
 	fclose(f);
 	return n;
 }
-/*
+
 __host__ int compareFiles(const char* f1, const char* f2) {
 	printf("Comparing results\n");
 	int l1 = getNumberOfLines(f1);
@@ -466,7 +464,7 @@ __host__ int compareFiles(const char* f1, const char* f2) {
 	free(res2);
 
 	return b;
-}*/
+}
 
 int getLastValue(int *arr, int n) {
 	return arr[n - 1] + 1;

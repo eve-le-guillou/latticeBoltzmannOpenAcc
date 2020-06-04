@@ -1,7 +1,7 @@
 FLOAT_TYPE=USE_DOUBLE
 
-CFLAGS=-Llibs -largtable2 -DUSE_DOUBLE -Iinclude -Wall
-#-ta=tesla:rdc -Mcuda -Minfo=accel -largtable2 -DUSE_DOUBLE -Iinclude -Llibs
+CFLAGS=-arch=sm_35 -rdc=true
+PGIFLAGS=-x cu -ccbin pgc++ -Xcompiler " -ta=tesla:rdc -Mcuda -Minfo=accel -largtable2 -DUSE_DOUBLE -Iinclude -Llibs"
 DEFINES=-D$(FLOAT_TYPE)
 INCLUDES=-Iinclude
 OS := $(shell uname)
@@ -11,28 +11,28 @@ CC=/Developer/NVIDIA/CUDA-7.5/bin/nvcc
 LIBDIR=-LlibsMac
 LIBS=-largtable2
 else
-LDFLAGS=#-ta=tesla
-CC=g++
+LDFLAGS=-arch=sm_35
+CC=nvcc
 LIBDIR=-Llibs
-LIBS=-largtable2
+LIBS=-largtable2 -lcuda
 endif
 
 
-CU_FILES=main.cpp Iterate.cpp CellFunctions.cpp FilesReading.cpp FilesWriting.cpp \
-         ShellFunctions.cpp LogWriter.cpp GpuInit.cpp\
-         ArrayUtils.cpp Arguments.cpp Multiphase.cpp
-ITER_FILES=Iterate.cpp ComputeResiduals.cu\
-           ArrayUtils.cpp Arguments.cpp
+CU_FILES=main.cu Iterate.cu Iterate3D.cu CellFunctions.cu ComputeResiduals.cu FilesReading.cu FilesWriting.cu \
+         ShellFunctions.cu GpuInit.cu GpuBoundaries.cu GpuCollision.cu GpuStream.cu LogWriter.cu \
+         ArrayUtils.cu Arguments.cu GpuSum.cu Check.cu GpuUpdateMacro.cu Multiphase.cu
+ITER_FILES=Iterate.cu GpuInit.cu ComputeResiduals.cu GpuBoundaries.cu GpuCollision.cu GpuStream.cu \
+           ArrayUtils.cu Arguments.cu GpuSum.cu Check.cu GpuUpdateMacro.cu
 ITER_FILE=IterateCombined.cu
-RLSE_FILES=main.cpp $(ITER_FILE) CellFunctions.cpp FilesReading.cpp FilesWriting.cpp \
-           ShellFunctions.cpp LogWriter.cpp GpuInit.cpp
-HEADRF=FilesReading.h FilesWriting.h Iterate.h CellFunctions.h ShellFunctions.h \
-       LogWriter.h Arguments.h ArrayUtils.h Multiphase.h GpuFunctions.h GpuConstants.h argtable2.h
+RLSE_FILES=main.cu $(ITER_FILE) CellFunctions.cu FilesReading.cu FilesWriting.cu \
+           ShellFunctions.cu LogWriter.cu
+HEADRF=FilesReading.h FilesWriting.h Iterate.h CellFunctions.h ComputeResiduals.h ShellFunctions.h \
+       GpuFunctions.h LogWriter.h Arguments.h ArrayUtils.h GpuSum.h Multiphase.h
 HEADERS=$(patsubst %,include/%,$(HEADRF))
 ifeq ($(OS),Windows_NT)
-OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CU_FILES:.cpp=.obj))
+OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CU_FILES:.cu=.obj))
 else
-OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CU_FILES:.cpp=.o))
+OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CU_FILES:.cu=.o))
 endif
 OBJ_DIR=obj
 DOC_DIR=docs
@@ -48,7 +48,7 @@ debug: CFLAGS+= -g -G -lineinfo
 debug: DEFINES+= -DDEBUG
 debug: all
 
-release: CFLAGS=-ta=tesla
+release: CFLAGS=-arch=sm_35 -O3
 release: DEFINES+= -DRELEASE
 release: $(RLSE)
 
@@ -61,10 +61,10 @@ $(ITER_FILE): $(ITER_FILES); \
 $(OBJ_DIR):; \
 	mkdir -p $(OBJ_DIR)
 
-$(OBJ_DIR)/%.o: %.cpp; \
+$(OBJ_DIR)/%.o: %.cu; \
 	$(CC) $(CFLAGS) $(LIBS) $(DEFINES) $(INCLUDES) -c $< -o $@
 
-$(OBJ_DIR)/%.obj: %.cpp; \
+$(OBJ_DIR)/%.obj: %.cu; \
 	$(CC) $(CFLAGS) $(LIBS) $(DEFINES) $(INCLUDES) -c $< -o $@
 
 $(DOC_DIR):; \
