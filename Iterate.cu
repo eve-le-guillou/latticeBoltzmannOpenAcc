@@ -234,7 +234,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 		v0_d = createGpuArrayFlt(m * n, ARRAY_ZERO);
 	}
 	if (args->inletProfile == INLET) {
-		gpuInitInletProfile2D<<<bpg1, tpb>>>(u0_d, v0_d, coordY_d, m * n);
+		cpuInitInletProfile2D(u0_d, v0_d, coordY_d, m * n);
 	}
 	FLOAT_TYPE *drag_d = createGpuArrayFlt(m * n, ARRAY_ZERO);
 	FLOAT_TYPE *lift_d = createGpuArrayFlt(m * n, ARRAY_ZERO);
@@ -393,21 +393,21 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 						args->g_limit, args->r_A, args->b_A, r_fColl, b_fColl, weight, cx, cy, args->r_viscosity, args->b_viscosity);
 #else
 				if(!args->enhanced_distrib)
-					gpuCollBgkwGC2D<<<bpg1, tpb>>>(rho_d, r_rho_d, b_rho_d, u_d, v_d, f_d, r_fColl_d, b_fColl_d, cg_dir_d, args->high_order);
+					cpuCollBgkwGC2D(rho_d, r_rho_d, b_rho_d, u_d, v_d, f_d, r_fColl_d, b_fColl_d, cg_dir_d, args->high_order);
 				else
-					gpuCollEnhancedBgkwGC2D<<<bpg1, tpb>>>(rho_d, r_rho_d, b_rho_d, u_d, v_d, f_d, r_fColl_d, b_fColl_d, cg_dir_d, args->high_order);
+					cpuCollEnhancedBgkwGC2D(rho_d, r_rho_d, b_rho_d, u_d, v_d, f_d, r_fColl_d, b_fColl_d, cg_dir_d, args->high_order);
 #endif
 			}else{
-				gpuCollBgkw2D<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, f_d,
+				cpuCollBgkw2D(fluid_d, rho_d, u_d, v_d, f_d,
 						fColl_d);
 			}
 			break;
 		case TRT:
-			gpuCollTrt<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, f_d, fColl_d);
+			cpuCollTrt(fluid_d, rho_d, u_d, v_d, f_d, fColl_d);
 			break;
 
 		case MRT:
-			gpuCollMrt2D<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, f_d, fColl_d);
+			cpuCollMrt2D(fluid_d, rho_d, u_d, v_d, f_d, fColl_d);
 			break;
 		}
 
@@ -454,17 +454,17 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 #if !CUDA
 			peridicBoundaries(n, m, r_f, b_f,u,v,r_rho,b_rho, rho, args->test_case);
 #else
-			gpuBcPeriodic2D<<<bpg1, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, r_f_d, b_f_d,bcCount, cg_dir_d, args->test_case, r_rho_d, b_rho_d, rho_d,
+			cpuBcPeriodic2D(bcIdxCollapsed_d, bcMaskCollapsed_d, r_f_d, b_f_d,bcCount, cg_dir_d, args->test_case, r_rho_d, b_rho_d, rho_d,
 					u_d, v_d);
 
 #endif
 
 		} else{
-			gpuBcInlet2D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
+			cpuBcInlet2D(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
 					u0_d, v0_d, bcCount);
-			gpuBcWall2D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
+			cpuBcWall2D(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
 					fColl_d, qCollapsed_d, bcCount);
-			gpuBcOutlet2D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
+			cpuBcOutlet2D(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
 					u0_d, v0_d, bcCount);
 		}
 
@@ -481,7 +481,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			updateMacroMP(n,m,u,v,r_rho, b_rho, r_f, b_f, rho, args->control_param,args->r_alpha, args->b_alpha,
 					args->bubble_radius,st_error, iter,st_predicted,args->test_case);
 #else
-			gpuUpdateMacro2DCG<<<bpg1, tpb>>>(rho_d, u_d, v_d, r_f_d, b_f_d, f_d, r_rho_d, b_rho_d, p_in_d, p_out_d, num_in_d, num_out_d, cg_dir_d,
+			cpuUpdateMacro2DCG(rho_d, u_d, v_d, r_f_d, b_f_d, f_d, r_rho_d, b_rho_d, p_in_d, p_out_d, num_in_d, num_out_d, cg_dir_d,
 					args->test_case);
 
 			//			updateSurfaceTension(r_rho,b_rho,args->control_param, st_predicted, st_error, iter,args->r_alpha, args->b_alpha, args->bubble_radius, n ,m);
@@ -508,7 +508,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 
 #endif
 		}
-		else gpuUpdateMacro2D<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, bcMask_d,
+		else cpuUpdateMacro2D(fluid_d, rho_d, u_d, v_d, bcMask_d,
 				drag_d, lift_d, coordX_d, coordY_d, f_d);
 
 		tInstant2 = clock();

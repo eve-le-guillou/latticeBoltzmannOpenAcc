@@ -201,7 +201,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 		printf(
 				"Inlet profile is not currently available! Please initiate Inlet profile from file!\n");
 		return 0;
-		//		gpuInitInletProfile3D<<<(int) (m * h / THREADS) + 1, tpb>>>(u1_d, v1_d,
+		//		cpuInitInletProfile3D(u1_d, v1_d,
 		//				w1_d, coordY_d, coordZ_d, m * h);
 	}
 	FLOAT_TYPE *u_prev_d, *v_prev_d, *w_prev_d, *rho_prev_d, *f_prev_d;
@@ -497,24 +497,24 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 						args->b_viscosity, args->r_alpha, args->b_alpha, chi, phi, psi, teta, cg_w);
 #else
 				if(!args->enhanced_distrib)
-					gpuCollBgkwGC3D<<<bpg1, tpb>>>(fluid_d, rho_d, r_rho_d, b_rho_d, u_d, v_d, w_d, f_d, r_fColl_d, b_fColl_d, cg_dir_d, args->high_order);
+					cpuCollBgkwGC3D(fluid_d, rho_d, r_rho_d, b_rho_d, u_d, v_d, w_d, f_d, r_fColl_d, b_fColl_d, cg_dir_d, args->high_order);
 				else
-					gpuCollEnhancedBgkwGC3D<<<bpg1, tpb>>>(fluid_d, rho_d, r_rho_d, b_rho_d, u_d, v_d, w_d, f_d, r_fColl_d, b_fColl_d, cg_dir_d, args->high_order);
+					cpuCollEnhancedBgkwGC3D(fluid_d, rho_d, r_rho_d, b_rho_d, u_d, v_d, w_d, f_d, r_fColl_d, b_fColl_d, cg_dir_d, args->high_order);
 #endif
 			}
 			else{
-				gpuCollBgkw3D<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, w_d, f_d,
+				cpuCollBgkw3D(fluid_d, rho_d, u_d, v_d, w_d, f_d,
 						fColl_d);
 			}
 			break;
 
 		case TRT:
 			printf("TRT not implemented in 3D go for MRT \n");
-			//        gpuCollTrt<<<bpg1,tpb>>>(fluid_d, rho_d, u_d, v_d, w_d, f_d, fColl_d);
+			//        cpuCollTrt(fluid_d, rho_d, u_d, v_d, w_d, f_d, fColl_d);
 			break;
 
 		case MRT:
-			gpuCollMrt3D<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, w_d, f_d,
+			cpuCollMrt3D(fluid_d, rho_d, u_d, v_d, w_d, f_d,
 					fColl_d);
 			break;
 		}
@@ -564,53 +564,53 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 #if !CUDA
 			peridicBoundaries3D(n, m, h,r_f, b_f, r_rho, b_rho);
 #else
-			gpuBcInlet3D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, r_f_d,
+			cpuBcInlet3D(bcIdxCollapsed_d, bcMaskCollapsed_d, r_f_d,
 					u1_d, v1_d, w1_d, bcCount);
-			gpuBcInlet3D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, b_f_d,
+			cpuBcInlet3D(bcIdxCollapsed_d, bcMaskCollapsed_d, b_f_d,
 					u1_d, v1_d, w1_d, bcCount);
 			switch (args->bcwallmodel) {
 			case SIMPLE:
-				gpuBcSimpleWall3D<<<bpgB, tpb>>>(bcIdxCollapsed_d,
+				cpuBcSimpleWall3D(bcIdxCollapsed_d,
 						bcMaskCollapsed_d, r_f_d, r_fColl_d, qCollapsed_d, bcCount);
-				gpuBcSimpleWall3D<<<bpgB, tpb>>>(bcIdxCollapsed_d,
+				cpuBcSimpleWall3D(bcIdxCollapsed_d,
 						bcMaskCollapsed_d, b_f_d, b_fColl_d, qCollapsed_d, bcCount);
 
 				break;
 			case COMPLEX:
-				gpuBcComplexWall3D<<<bpgB, tpb>>>(bcIdxCollapsed_d,
+				cpuBcComplexWall3D(bcIdxCollapsed_d,
 						bcMaskCollapsed_d, r_f_d, r_fColl_d, qCollapsed_d, bcCount);
-				gpuBcComplexWall3D<<<bpgB, tpb>>>(bcIdxCollapsed_d,
+				cpuBcComplexWall3D(bcIdxCollapsed_d,
 						bcMaskCollapsed_d, b_f_d, b_fColl_d, qCollapsed_d, bcCount);
 
 				break;
 			}
 
-			gpuBcPeriodic3D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, r_f_d,
+			cpuBcPeriodic3D(bcIdxCollapsed_d, bcMaskCollapsed_d, r_f_d,
 					bcCount);
-			gpuBcPeriodic3D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, b_f_d,
+			cpuBcPeriodic3D(bcIdxCollapsed_d, bcMaskCollapsed_d, b_f_d,
 					bcCount);
 #endif
 		}
 		else{
-			gpuBcInlet3D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
+			cpuBcInlet3D(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
 					u1_d, v1_d, w1_d, bcCount);
 			switch (args->bcwallmodel) {
 			case SIMPLE:
-				gpuBcSimpleWall3D<<<bpgB, tpb>>>(bcIdxCollapsed_d,
+				cpuBcSimpleWall3D(bcIdxCollapsed_d,
 						bcMaskCollapsed_d, f_d, fColl_d, qCollapsed_d, bcCount);
 
 				break;
 			case COMPLEX:
-				gpuBcComplexWall3D<<<bpgB, tpb>>>(bcIdxCollapsed_d,
+				cpuBcComplexWall3D(bcIdxCollapsed_d,
 						bcMaskCollapsed_d, f_d, fColl_d, qCollapsed_d, bcCount);
 
 				break;
 			}
-			gpuBcOutlet3D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
+			cpuBcOutlet3D(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
 					u_d, v_d, w_d, rho_d, bcCount);
-			gpuBcPeriodic3D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
+			cpuBcPeriodic3D(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
 					bcCount);
-			gpuBcSymm3D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
+			cpuBcSymm3D(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
 					bcCount);
 		}
 		CHECK(cudaEventRecord(stop, 0));
@@ -627,7 +627,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 			updateMacroMP3D(n, m, h, u, v, w, r_rho, b_rho, r_f, b_f, rho, args->control_param,args->r_alpha, args->b_alpha,
 					args->bubble_radius,st_error, iter, 1, cx, cy, cz, f);
 #else
-			gpuUpdateMacro3DCG<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, w_d,
+			cpuUpdateMacro3DCG(fluid_d, rho_d, u_d, v_d, w_d,
 					bcBoundId_d, f_d, args->g,bcMask_d,args->UpdateInltOutl, r_f_d, b_f_d, r_rho_d, b_rho_d, p_in_d, p_out_d, num_in_d, num_out_d, args->test_case);
 			switch(args->test_case){
 			case 1:
@@ -641,7 +641,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 #endif
 		}
 		else{
-			gpuUpdateMacro3D<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, w_d,
+			cpuUpdateMacro3D(fluid_d, rho_d, u_d, v_d, w_d,
 					bcBoundId_d, coordX_d, coordY_d, coordZ_d, f_d, args->g,bcMask_d,args->UpdateInltOutl);
 		}
 		tInstant2 = clock();

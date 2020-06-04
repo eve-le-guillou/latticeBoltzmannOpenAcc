@@ -19,15 +19,15 @@ endif
 
 
 CU_FILES=main.cu Iterate.cu Iterate3D.cu CellFunctions.cpp ComputeResiduals.cu FilesReading.cpp FilesWriting.cpp \
-         ShellFunctions.cu GpuInit.cu GpuBoundaries.cu GpuCollision.cu GpuStream.cu LogWriter.cpp \
-         ArrayUtils.cu Arguments.cpp CpuSum.cpp Check.cu GpuUpdateMacro.cu Multiphase.cu
-ITER_FILES=Iterate.cu GpuInit.cu ComputeResiduals.cu GpuBoundaries.cu GpuCollision.cu GpuStream.cu \
-           ArrayUtils.cu Arguments.cpp CpuSum.cpp Check.cu GpuUpdateMacro.cu
+         ShellFunctions.cu CpuInit.cpp CpuBoundaries.cpp CpuCollision.cpp CpuStream.cpp LogWriter.cpp \
+         ArrayUtils.cpp Arguments.cpp CpuSum.cpp Check.cu CpuUpdateMacro.cpp Multiphase.cu
+ITER_FILES=Iterate.cu CpuInit.cpp ComputeResiduals.cu CpuBoundaries.cpp CpuCollision.cpp CpuStream.cpp \
+           ArrayUtils.cpp Arguments.cpp CpuSum.cpp Check.cu CpuUpdateMacro.cpp
 ITER_FILE=IterateCombined.cu
 RLSE_FILES=main.cu $(ITER_FILE) CellFunctions.cpp FilesReading.cpp FilesWriting.cpp \
            ShellFunctions.cu LogWriter.cpp
 HEADRF=FilesReading.h FilesWriting.h Iterate.h CellFunctions.h ComputeResiduals.h ShellFunctions.h \
-       GpuFunctions.h LogWriter.h Arguments.h ArrayUtils.h CpuSum.h Multiphase.h
+       CpuFunctions.h LogWriter.h Arguments.h ArrayUtils.h CpuSum.h Multiphase.h
 HEADERS=$(patsubst %,include/%,$(HEADRF))
 ifeq ($(OS),Windows_NT)
 OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CU_FILES:.cu=.obj))
