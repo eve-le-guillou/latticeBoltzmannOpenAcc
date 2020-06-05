@@ -9,17 +9,17 @@
 #include <cmath>
 #include "math.h"
 
- InletProfile inletProfile_d;
- BoundaryType boundaryType_d;
- OutletProfile outletProfile_d;
- int dlBoundaryId_d;
- int cx2D_d[9];
- int cy2D_d[9];
+ //InletProfile inletProfile_d;
+ //BoundaryType boundaryType_d;
+ //OutletProfile outletProfile_d;
+ //int dlBoundaryId_d;
+ int cx2D[9];
+ int cy2D[9];
  int length_d;
  int depth_d;
  int height_d;
- int c2D_d[9];
- int opp2D_d[9];
+ int c2D[9];
+ int opp2D[9];
  FLOAT_TYPE delta_d;
  FLOAT_TYPE w2D_d[9];
  FLOAT_TYPE omega_d;
@@ -92,10 +92,11 @@ void initConstants2D(Arguments *args,
     int s = m * n;
     FLOAT_TYPE w2D[9] = { 4. / 9., 1. / 9., 1. / 9., 1. / 9., 1. / 9., 1. / 36.,
                           1. / 36., 1. / 36., 1. / 36. };
-    int opp2D[9] = { 0, 3 * s, 4 * s, 1 * s, 2 * s, 7 * s, 8 * s, 5 * s, 6 * s };
-    int cx2D[9] = { 0, 1, 0, -1, 0, 1, -1, -1, 1 };
-    int cy2D[9] = { 0, 0, 1, 0, -1, 1, 1, -1, -1 };
-    int c2D[9] = { 0, -1, -1 * n, 1, n, -1 * n - 1, -1 * n + 1, n + 1, n - 1 };
+
+    opp2D[0] = 0; opp2D[1] = 3*s; opp2D[2] = 4*s; opp2D[3] = 1*s; opp2D[4] = 2*s; opp2D[5] = 7*s; opp2D[6] = 8*s; opp2D[7] = 5*s; opp2D[8] = 6*s;
+    cx2D[0] = 0; cx2D[1] = 1; cx2D[2] = 0; cx2D[3] =-1; cx2D[4] = 0; cx2D[5] = 1; cx2D[6] = -1; cx2D[7] = -1; cx2D[8] = 1;
+    cy2D[0] = 0; cy2D[1] = 0; cy2D[2] = 1; cy2D[3] = 0; cy2D[4] = -1; cy2D[5] = 1; cy2D[6] = 1; cy2D[7] = -1; cy2D[8] = -1;
+    c2D[0] = 0; c2D[1] = -1; c2D[2] = -1*n; c2D[3] = 1; c2D[4] = n; c2D[5] = -1*n-1; c2D[6] = -1*n+1; c2D[7] = n+1; c2D[8] = n-1;
 
     // Calculate collision freq
     FLOAT_TYPE omega = 1.0 / (3. * args->viscosity + 0.5);

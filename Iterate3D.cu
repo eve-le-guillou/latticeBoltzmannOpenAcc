@@ -571,9 +571,9 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 			switch (args->bcwallmodel) {
 			case SIMPLE:
 				cpuBcSimpleWall3D(bcIdxCollapsed_d,
-						bcMaskCollapsed_d, r_f_d, r_fColl_d, qCollapsed_d, bcCount);
+						bcMaskCollapsed_d, r_f_d, r_fColl_d, qCollapsed_d, bcCount, args->boundaryType);
 				cpuBcSimpleWall3D(bcIdxCollapsed_d,
-						bcMaskCollapsed_d, b_f_d, b_fColl_d, qCollapsed_d, bcCount);
+						bcMaskCollapsed_d, b_f_d, b_fColl_d, qCollapsed_d, bcCount, args->boundaryType);
 
 				break;
 			case COMPLEX:
@@ -597,7 +597,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 			switch (args->bcwallmodel) {
 			case SIMPLE:
 				cpuBcSimpleWall3D(bcIdxCollapsed_d,
-						bcMaskCollapsed_d, f_d, fColl_d, qCollapsed_d, bcCount);
+						bcMaskCollapsed_d, f_d, fColl_d, qCollapsed_d, bcCount, args->boundaryType);
 
 				break;
 			case COMPLEX:
@@ -607,7 +607,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 				break;
 			}
 			cpuBcOutlet3D(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
-					u_d, v_d, w_d, rho_d, bcCount);
+					u_d, v_d, w_d, rho_d, bcCount, args->outletProfile);
 			cpuBcPeriodic3D(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
 					bcCount);
 			cpuBcSymm3D(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,

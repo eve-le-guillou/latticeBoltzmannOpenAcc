@@ -9,7 +9,6 @@ void mp2DColl(int n, int m, FLOAT_TYPE *rho, FLOAT_TYPE *u,
 		FLOAT_TYPE r_omega, FLOAT_TYPE b_omega, FLOAT_TYPE control_param, FLOAT_TYPE del,
 		FLOAT_TYPE beta, FLOAT_TYPE g_limit,  FLOAT_TYPE r_A,  FLOAT_TYPE b_A, FLOAT_TYPE *r_fPert, FLOAT_TYPE *b_fPert,
 		FLOAT_TYPE *weight, int *cx, int *cy, FLOAT_TYPE r_nu, FLOAT_TYPE b_nu){
-	printf("Multiphaseeeeee\n");
 	FLOAT_TYPE cu1, cu2, r_CollPert, b_CollPert;
 	FLOAT_TYPE cosin;
 	FLOAT_TYPE color_gradient_norm;

@@ -198,9 +198,9 @@ void cpuBcInlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
  * @ingroup solver
  */
 void cpuBcWall2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
-                            FLOAT_TYPE *fColl_d, FLOAT_TYPE *Q_d, int size);
+                            FLOAT_TYPE *fColl_d, FLOAT_TYPE *Q_d, int size, BoundaryType boundaryType);
 void cpuBcSimpleWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
-                                  FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size);
+                                  FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size, BoundaryType boundaryType);
 
 void cpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
                                    FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size);
@@ -228,11 +228,11 @@ void cpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
  * @ingroup solver
  */
 void cpuBcOutlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
-                              FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d, int size);
+                              FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d, int size, OutletProfile outletProfile);
 
 void cpuBcOutlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
                               FLOAT_TYPE *f_d, FLOAT_TYPE *u_d, FLOAT_TYPE *v_d, FLOAT_TYPE *w_d,
-                              FLOAT_TYPE *rho_d, int size);
+                              FLOAT_TYPE *rho_d, int size, OutletProfile outletProfile);
 
 void cpuBcPeriodic3D(int *bcIdx_d, unsigned long long *bcMask_d,
                                 FLOAT_TYPE* f_d, int size);
@@ -416,7 +416,7 @@ void cpuStreaming3D(int* fluid_d, bool* stream_d, FLOAT_TYPE* f_d,
 void cpuUpdateMacro2D(int *fluid_d, FLOAT_TYPE* rho_d,
                                  FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, int *bcMask_d, FLOAT_TYPE* drag_d,
                                  FLOAT_TYPE* lift_d,
-                                 FLOAT_TYPE* coordX_d, FLOAT_TYPE* coordY_d, FLOAT_TYPE* f_d);
+                                 FLOAT_TYPE* coordX_d, FLOAT_TYPE* coordY_d, FLOAT_TYPE* f_d, int dlBoundaryId);
 
 void cpuUpdateMacro3D(int *fluid_d, FLOAT_TYPE* rho_d,
                                  FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, FLOAT_TYPE* w_d, int* bcBoundId_d,

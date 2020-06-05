@@ -6,7 +6,7 @@
 void cpuUpdateMacro2D(int *fluid_d, FLOAT_TYPE* rho_d,
                                  FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, int *bcMask_d, FLOAT_TYPE* drag_d,
                                  FLOAT_TYPE* lift_d,
-                                 FLOAT_TYPE* coordX_d, FLOAT_TYPE* coordY_d, FLOAT_TYPE* f_d) {
+                                 FLOAT_TYPE* coordX_d, FLOAT_TYPE* coordY_d, FLOAT_TYPE* f_d, int dlBoundaryId) {
 
     int ms = depth_d * length_d;
 
@@ -29,8 +29,8 @@ void cpuUpdateMacro2D(int *fluid_d, FLOAT_TYPE* rho_d,
             v_d[ind] = ((bcMask_d[ind] & BC_OUTL_E) == BC_OUTL_E) ? 0.0 : v / r;
 
             //   DRAG/LIFT FORCE
-            if (dlBoundaryId_d
-                != 0&& (bcMask_d[ind] & BND_ID_ALL) == BOUND_ID(dlBoundaryId_d)) {
+            if (dlBoundaryId
+                != 0&& (bcMask_d[ind] & BND_ID_ALL) == BOUND_ID(dlBoundaryId)) {
                 // printf("draglift: %d\n",ind);
                 drag_d[ind] = 0.33333333 * r * (20 - coordX_d[ind]) * 0.2;
                 lift_d[ind] = 0.33333333 * r * (20 - coordY_d[ind]) * 0.2;

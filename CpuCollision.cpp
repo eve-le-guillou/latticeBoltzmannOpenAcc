@@ -119,63 +119,63 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
         case 0:
             #pragma unroll 8
             for(i = 1; i < 9; i++){
-                ind = index + cx2D_d[i] + cy2D_d[i] * length_d;
+                ind = index + cx2D[i] + cy2D[i] * length_d;
                 aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
                 aux2 = cg_w_d[i] * rho_d[ind];
 
-                grx += aux2 * cx2D_d[i];
-                gry += aux2 * cy2D_d[i];
+                grx += aux2 * cx2D[i];
+                gry += aux2 * cy2D[i];
 
-                cgx += aux1 * cx2D_d[i];
-                cgy += aux1 * cy2D_d[i];
+                cgx += aux1 * cx2D[i];
+                cgy += aux1 * cy2D[i];
             }
             break;
         case 1: //NORTH
             #pragma unroll 8
             for(i = 1; i < 9; i++){
-                ind = index + cx2D_d[i] - abs(cy2D_d[i]) * length_d;
+                ind = index + cx2D[i] - abs(cy2D[i]) * length_d;
                 aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
                 aux2 = cg_w_d[i] * rho_d[ind];
-                grx += aux2 * cx2D_d[i];
-                cgx += aux1 * cx2D_d[i];
+                grx += aux2 * cx2D[i];
+                cgx += aux1 * cx2D[i];
             }
             break;
         case 2: //SOUTH
             #pragma unroll 8
             for(i = 1; i < 9; i++){
-                ind = index + cx2D_d[i] + abs(cy2D_d[i]) * length_d;
+                ind = index + cx2D[i] + abs(cy2D[i]) * length_d;
 
                 aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
                 aux2 = cg_w_d[i] * rho_d[ind];
 
-                grx += aux2 * cx2D_d[i];
-                cgx += aux1 * cx2D_d[i];
+                grx += aux2 * cx2D[i];
+                cgx += aux1 * cx2D[i];
             }
             break;
         case 3: //EAST
             #pragma unroll 8
             for(i = 1; i < 9; i++){
-                ind = index - abs(cx2D_d[i]) + cy2D_d[i] * length_d;
+                ind = index - abs(cx2D[i]) + cy2D[i] * length_d;
 
                 aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
                 aux2 = cg_w_d[i] * rho_d[ind];
 
-                gry += aux2 * cy2D_d[i];
+                gry += aux2 * cy2D[i];
 
-                cgy += aux1 * cy2D_d[i];
+                cgy += aux1 * cy2D[i];
             }
             break;
         case 4: //WEST
             #pragma unroll 8
             for(i = 1; i < 9; i++){
-                ind = index + abs(cx2D_d[i]) + cy2D_d[i] * length_d;
+                ind = index + abs(cx2D[i]) + cy2D[i] * length_d;
 
                 aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
                 aux2 = cg_w_d[i] * rho_d[ind];
 
-                gry += aux2 * cy2D_d[i];
+                gry += aux2 * cy2D[i];
 
-                cgy += aux1 * cy2D_d[i];
+                cgy += aux1 * cy2D[i];
             }
             break;
         default:
@@ -212,59 +212,59 @@ void calculateHOColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TY
             break;
         case 1: //NORTH
             for(i = 1; i < 9; i++){
-                ind = index + cx2D_d[i] - abs(cy2D_d[i]) * length_d;
+                ind = index + cx2D[i] - abs(cy2D[i]) * length_d;
                 aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
                 aux2 = cg_w_d[i] * rho_d[ind];
 
-                grx += aux2 * cx2D_d[i];
+                grx += aux2 * cx2D[i];
 
-                cgx += aux1 * cx2D_d[i];
+                cgx += aux1 * cx2D[i];
             }
             break;
         case 2: //SOUTH
             for(i = 1; i < 9; i++){
-                ind = index + cx2D_d[i] + abs(cy2D_d[i]) * length_d;
+                ind = index + cx2D[i] + abs(cy2D[i]) * length_d;
                 aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
                 aux2 = cg_w_d[i] * rho_d[ind];
 
-                grx += aux2 * cx2D_d[i];
+                grx += aux2 * cx2D[i];
 
-                cgx += aux1 * cx2D_d[i];
+                cgx += aux1 * cx2D[i];
             }
             break;
         case 3: //EAST
             for(i = 1; i < 9; i++){
-                ind = index - abs(cx2D_d[i]) + cy2D_d[i] * length_d;
+                ind = index - abs(cx2D[i]) + cy2D[i] * length_d;
                 aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
                 aux2 = cg_w_d[i] * rho_d[ind];
 
-                gry += aux2 * cy2D_d[i];
+                gry += aux2 * cy2D[i];
 
-                cgy += aux1 * cy2D_d[i];
+                cgy += aux1 * cy2D[i];
             }
             break;
         case 4: //WEST
             for(i = 1; i < 9; i++){
-                ind = index + abs(cx2D_d[i]) + cy2D_d[i] * length_d;
+                ind = index + abs(cx2D[i]) + cy2D[i] * length_d;
                 aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
                 aux2 = cg_w_d[i] * rho_d[ind];
 
-                gry += aux2 * cy2D_d[i];
+                gry += aux2 * cy2D[i];
 
-                cgy += aux1 * cy2D_d[i];
+                cgy += aux1 * cy2D[i];
             }
             break;
         case 11:
             for(i = 1; i < 9; i++){
-                ind = index + cx2D_d[i] + cy2D_d[i] * length_d;
+                ind = index + cx2D[i] + cy2D[i] * length_d;
                 aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
                 aux2 = cg_w_d[i] * rho_d[ind];
 
-                grx += aux2 * cx2D_d[i];
-                gry += aux2 * cy2D_d[i];
+                grx += aux2 * cx2D[i];
+                gry += aux2 * cy2D[i];
 
-                cgx += aux1 * cx2D_d[i];
-                cgy += aux1 * cy2D_d[i];
+                cgx += aux1 * cx2D[i];
+                cgy += aux1 * cy2D[i];
             }
             break;
         default:
@@ -607,8 +607,8 @@ void cpuCollBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d
 
         #pragma unroll 9
         for (int k=0;k<9;k++){
-            cx = cx2D_d[k];
-            cy = cy2D_d[k];
+            cx = cx2D[k];
+            cy = cy2D[k];
             if (color_gradient_norm > g_limit_d){
                 prod_c_g=cx * cg_x + cy * cg_y;
                 if (k!=0){
@@ -685,8 +685,8 @@ void cpuCollEnhancedBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE 
 
         #pragma unroll 9
         for (int k=0;k<9;k++){
-            cx = cx2D_d[k];
-            cy = cy2D_d[k];
+            cx = cx2D[k];
+            cy = cy2D[k];
             if (color_gradient_norm > g_limit_d){
                 prod_c_g=cx * cg_x + cy * cg_y;
                 if (k!=0){

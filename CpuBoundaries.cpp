@@ -393,7 +393,7 @@ void cpuBcInlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
     }
 }
 void cpuBcWall2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
-                            FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size) {
+                            FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size, BoundaryType boundaryType) {
     int ms = depth_d * length_d;
     int dir;
 
@@ -405,29 +405,29 @@ void cpuBcWall2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
                     == (bcMask_d[bci] & BC_MASK(BC_WALL, dir))
                     && (bcMask_d[bci] & BC_MASK(BC_WALL, dir))) {
                     // printf("%d: %X-%X-%X\n", ind, bcMask_d[bci], bcMask_d[bci] & BC_MASK(BC_ALL, dir), bcMask_d[bci] & BC_MASK(BC_WALL, dir));
-                    switch (boundaryType_d) {
+                    switch (boundaryType) {
                         case CURVED: //curved
                             if (q_d[bci * 8 + dir - 1] < 0.5) // if the distance from the boundary is less than 0.5?
                             {
-                                f_d[ind + opp2D_d[dir]] = 2 * q_d[bci * 8 + dir]
+                                f_d[ind + opp2D[dir]] = 2 * q_d[bci * 8 + dir]
                                                           * fColl_d[ind + dir * ms]
                                                           + (1 - 2 * q_d[bci * 8 + dir - 1])
                                                             * fColl_d[ind + dir * ms
-                                                                      + c2D_d[dir]];
+                                                                      + c2D[dir]];
 
                                 // printf("if %d: dir: %d, Q:%f, F:%f; ", ind, dir, q_d[bci*8+dir], f_d[ind+opp_d[dir]]);
                             } else {
-                                f_d[ind + opp2D_d[dir]] = fColl_d[ind + dir * ms]
+                                f_d[ind + opp2D[dir]] = fColl_d[ind + dir * ms]
                                                           / 2 / q_d[bci * 8 + dir - 1]
                                                           + (2 * q_d[bci * 8 + dir - 1] - 1)
                                                             / (2 * q_d[bci * 8 + dir - 1])
-                                                            * fColl_d[ind + opp2D_d[dir]];
+                                                            * fColl_d[ind + opp2D[dir]];
 
                                 // printf("else %d: dir: %d, Q:%f,  F: %f; ", ind, dir, q_d[bci*8+dir], f_d[ind+opp_d[dir]]);
                             }
                             break;
                         case STRAIGHT: //half-way bounce back
-                            f_d[ind + opp2D_d[dir]] = f_d[ind + dir * ms];
+                            f_d[ind + opp2D[dir]] = f_d[ind + dir * ms];
                             break;
                     }
                 }
@@ -437,7 +437,7 @@ void cpuBcWall2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
 }
 
 void cpuBcSimpleWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
-                                  FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size) {
+                                  FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size, BoundaryType boundaryType) {
     int ms = depth_d * length_d * height_d;
     int dir;
 
@@ -449,7 +449,7 @@ void cpuBcSimpleWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
                     == (bcMask_d[bci] & BC3D_MASK(BC3D_WALL, dir))
                     && (bcMask_d[bci] & BC3D_MASK(BC3D_WALL, dir))) {
                     // printf("%d: %X-%X-%X\n", ind, bcMask_d[bci], bcMask_d[bci] & BC3D_MASK(BC3D_ALL, dir), bcMask_d[bci] & BC3D_MASK(BC3D_WALL, dir));
-                    switch (boundaryType_d) { //TODO review curved 3D
+                    switch (boundaryType) { //TODO review curved 3D
                         case CURVED: //curved
                             if (q_d[bci * 18 + dir - 1] < 0.5) // if the distance from the boundary is less than 0.5?
                             {
@@ -1549,13 +1549,13 @@ void cpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 }
 
 void cpuBcOutlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
-                              FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d, int size) {
+                              FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d, int size, OutletProfile outletProfile) {
     int ms = depth_d * length_d;
 
     for (int bci = 0; bci < size; bci++) {
         int ind = bcIdx_d[bci];
         if (bcMask_d[bci] & BC_FLUID) {
-            switch (outletProfile_d) {
+            switch (outletProfile) {
                 case OUTLET: //Zou-He
                     if ((bcMask_d[bci] & BC_OUTL_E) == BC_OUTL_E) {
                         ///@todo code: simplify code even though it will change accuracy
@@ -1642,7 +1642,7 @@ void cpuBcOutlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
 
 void cpuBcOutlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
                               FLOAT_TYPE *f_d, FLOAT_TYPE *u_d, FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *rho_d,
-                              int size) {
+                              int size, OutletProfile outletProfile) {
     int ms = depth_d * length_d;
     int n = length_d;
     int l = length_d * depth_d;
@@ -1652,7 +1652,7 @@ void cpuBcOutlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
     for (int bci = 0; bci < size; bci++) {
         int ind = bcIdx_d[bci];
         if (bcMask_d[bci] & BC3D_FLUID) {
-            switch (outletProfile_d) {
+            switch (outletProfile) {
                 case OUTLET: //Zou-He
                     if ((bcMask_d[bci] & BC3D_OUTL_1) == BC3D_OUTL_1) {
                         printf(

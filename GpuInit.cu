@@ -112,7 +112,7 @@ __host__ void initConstants2D(Arguments *args,
 	cudaMemcpyToSymbol(boundaryType_d, &args->boundaryType,
 			sizeof(BoundaryType));
 	cudaMemcpyToSymbol(dlBoundaryId_d, &args->boundaryId, sizeof(int));
-
+    // Arrived here
 	cudaMemcpyToSymbol(depth_d, &m, sizeof(int));
 	cudaMemcpyToSymbol(length_d, &n, sizeof(int));
 	cudaMemcpyToSymbol(w2D_d, w2D, 9 * sizeof(FLOAT_TYPE));

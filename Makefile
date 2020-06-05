@@ -18,14 +18,14 @@ LIBS=-largtable2 -lcuda
 endif
 
 
-CU_FILES=main.cu Iterate.cu Iterate3D.cu CellFunctions.cpp ComputeResiduals.cu FilesReading.cpp FilesWriting.cpp \
-         ShellFunctions.cu CpuInit.cpp CpuBoundaries.cpp CpuCollision.cpp CpuStream.cpp LogWriter.cpp \
-         ArrayUtils.cpp Arguments.cpp CpuSum.cpp Check.cu CpuUpdateMacro.cpp Multiphase.cu
-ITER_FILES=Iterate.cu CpuInit.cpp ComputeResiduals.cu CpuBoundaries.cpp CpuCollision.cpp CpuStream.cpp \
+CU_FILES=main.cpp Iterate.cu Iterate3D.cu CellFunctions.cpp ComputeResiduals.cpp FilesReading.cpp FilesWriting.cpp \
+         ShellFunctions.cpp CpuInit.cpp CpuBoundaries.cpp CpuCollision.cpp CpuStream.cpp LogWriter.cpp \
+         ArrayUtils.cpp Arguments.cpp CpuSum.cpp Check.cu CpuUpdateMacro.cpp Multiphase.cpp
+ITER_FILES=Iterate.cu CpuInit.cpp ComputeResiduals.cpp CpuBoundaries.cpp CpuCollision.cpp CpuStream.cpp \
            ArrayUtils.cpp Arguments.cpp CpuSum.cpp Check.cu CpuUpdateMacro.cpp
 ITER_FILE=IterateCombined.cu
-RLSE_FILES=main.cu $(ITER_FILE) CellFunctions.cpp FilesReading.cpp FilesWriting.cpp \
-           ShellFunctions.cu LogWriter.cpp
+RLSE_FILES=main.cpp $(ITER_FILE) CellFunctions.cpp FilesReading.cpp FilesWriting.cpp \
+           ShellFunctions.cpp LogWriter.cpp
 HEADRF=FilesReading.h FilesWriting.h Iterate.h CellFunctions.h ComputeResiduals.h ShellFunctions.h \
        CpuFunctions.h LogWriter.h Arguments.h ArrayUtils.h CpuSum.h Multiphase.h
 HEADERS=$(patsubst %,include/%,$(HEADRF))
