@@ -8,7 +8,7 @@ void cpuUpdateMacro2D(int *fluid_d, FLOAT_TYPE* rho_d,
                                  FLOAT_TYPE* lift_d,
                                  FLOAT_TYPE* coordX_d, FLOAT_TYPE* coordY_d, FLOAT_TYPE* f_d, int dlBoundaryId) {
 
-    int ms = depth_d * length_d;
+    int ms = depth * length;
 
     FLOAT_TYPE r, u, v;
 
@@ -43,7 +43,7 @@ void cpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
                                    FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE *f_d, FLOAT_TYPE* r_rho_d,
                                    FLOAT_TYPE* b_rho_d, FLOAT_TYPE *p_in_d, FLOAT_TYPE *p_out_d,
                                    int *num_in_d, int *num_out_d, int *cg_direction, int test_case) {
-    int ms = depth_d * length_d;
+    int ms = depth * length;
 
     FLOAT_TYPE r_r, b_r, u, v, r, chi;
     FLOAT_TYPE aux1, mean_nu, omega_eff;
@@ -58,7 +58,7 @@ void cpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
 
         if (cg_direction[ind] == 0 || (test_case != 6) || (cg_direction[ind] == 3 || cg_direction[ind] == 4)) {
 
-            aux1 = r_rho_d[ind] / (rho_d[ind] * r_viscosity_d) + b_rho_d[ind] /(rho_d[ind] * b_viscosity_d);
+            aux1 = r_rho_d[ind] / (rho_d[ind] * r_viscosity) + b_rho_d[ind] /(rho_d[ind] * b_viscosity);
             mean_nu = 1.0/aux1;
             omega_eff = 1.0/(3.0*mean_nu+0.5);
 
@@ -114,18 +114,18 @@ void cpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
                 (r_f_d[ind + 8 * ms] + b_f_d[ind + 8 * ms]);
 
 
-            u_d[ind] = u / r + external_force_d * g_d / (r * omega_eff);
-            v_d[ind] = v / r + (1-external_force_d) * g_d / omega_eff;
+            u_d[ind] = u / r + external_force * g / (r * omega_eff);
+            v_d[ind] = v / r + (1-external_force) * g / omega_eff;
 
             if(test_case == 1){
                 // p_in and p_out for the surface tension
                 chi=(r_r-b_r)/r;
 
-                if (chi >= control_param_d){
+                if (chi >= control_param){
                     num_in_d[ind] = 1;
                     p_in_d[ind] = r_r;
                 }
-                else if (chi <= -control_param_d){
+                else if (chi <= -control_param){
                     num_out_d[ind] = 1;
                     p_out_d[ind] = b_r;
                 }
@@ -137,9 +137,9 @@ void cpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
 void cpuUpdateMacro3D(int *fluid_d, FLOAT_TYPE* rho_d,
                                  FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, FLOAT_TYPE* w_d, int* bcBoundId_d,
                                  FLOAT_TYPE* coordX_d, FLOAT_TYPE* coordY_d, FLOAT_TYPE* coordZ_d,
-                                 FLOAT_TYPE* f_d, FLOAT_TYPE g, unsigned long long *bcMask_d,int updateInltOutl)
+                                 FLOAT_TYPE* f_d, FLOAT_TYPE g_arg, unsigned long long *bcMask_d,int updateInltOutl)
 {
-    int ms = depth_d * length_d * height_d;
+    int ms = depth * length * height;
 
     FLOAT_TYPE r, rU, rV, rW;
 
@@ -201,7 +201,7 @@ void cpuUpdateMacro3D(int *fluid_d, FLOAT_TYPE* rho_d,
                  f_d[ind + 18 * ms];
 
             rho_d[ind] = r;
-            u_d[ind] = rU / r + g / (omega_d);
+            u_d[ind] = rU / r + g_arg / (omega);
             v_d[ind] = rV / r;
             w_d[ind] = rW / r;
         }
@@ -211,11 +211,11 @@ void cpuUpdateMacro3D(int *fluid_d, FLOAT_TYPE* rho_d,
 
 void cpuUpdateMacro3DCG(int *fluid_d, FLOAT_TYPE* rho_d,
                                    FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, FLOAT_TYPE* w_d, int* bcBoundId_d,
-                                   FLOAT_TYPE* f_d, FLOAT_TYPE g, unsigned long long *bcMask_d,int updateInltOutl, FLOAT_TYPE* r_f_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE* r_rho_d,
+                                   FLOAT_TYPE* f_d, FLOAT_TYPE g_arg, unsigned long long *bcMask_d,int updateInltOutl, FLOAT_TYPE* r_f_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE* r_rho_d,
                                    FLOAT_TYPE* b_rho_d, FLOAT_TYPE *p_in_d, FLOAT_TYPE *p_out_d,
                                    int *num_in_d, int *num_out_d, int test_case)
 {
-   int ms = depth_d * length_d * height_d;
+   int ms = depth * length * height;
 
     FLOAT_TYPE r_r, b_r, r, rU, rV, rW, aux1, mean_nu, omega_eff;
 
@@ -229,7 +229,7 @@ void cpuUpdateMacro3DCG(int *fluid_d, FLOAT_TYPE* rho_d,
         }
         if (fluid_d[ind] == 1 && (!(((bcMask_d[ind] & BC3D_OUTL_B) ==BC3D_INLT_B))||updateInltOutl)) {
 
-            aux1 = r_rho_d[ind] / (rho_d[ind] * r_viscosity_d) + b_rho_d[ind] /(rho_d[ind] * b_viscosity_d);
+            aux1 = r_rho_d[ind] / (rho_d[ind] * r_viscosity) + b_rho_d[ind] /(rho_d[ind] * b_viscosity);
             mean_nu = 1.0/aux1;
             omega_eff = 1.0/(3.0*mean_nu+0.5);
 
@@ -333,19 +333,19 @@ void cpuUpdateMacro3DCG(int *fluid_d, FLOAT_TYPE* rho_d,
             r = r_r + b_r;
 
             rho_d[ind] = r;
-            u_d[ind] =  rU / r + external_force_d * g_d / (r * omega_eff);
-            v_d[ind] = rV / r + (1-external_force_d) * g_d / omega_eff;
+            u_d[ind] =  rU / r + external_force * g / (r * omega_eff);
+            v_d[ind] = rV / r + (1-external_force) * g / omega_eff;
             w_d[ind] = rW / r;
 
             if(test_case == 1){
                 // p_in and p_out for the surface tension
                 FLOAT_TYPE chi=(r_r-b_r)/r;
 
-                if (chi >= control_param_d){
+                if (chi >= control_param){
                     num_in_d[ind] = 1;
                     p_in_d[ind] = r_r;
                 }
-                else if (chi <= -control_param_d){
+                else if (chi <= -control_param){
                     num_out_d[ind] = 1;
                     p_out_d[ind] = b_r;
                 }

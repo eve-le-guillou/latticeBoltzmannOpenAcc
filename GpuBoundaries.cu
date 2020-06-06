@@ -12,7 +12,7 @@
 __global__ void gpuBcInlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE* f_d,
 		FLOAT_TYPE* u0_d, FLOAT_TYPE* v0_d, int size) {
 	int bci = blockIdx.x * blockDim.x + threadIdx.x;
-	int ms = depth_d * length_d;
+	int ms = depth * length_d;
 
 	if (bci < size) {
 		int ind = bcIdx_d[bci];
@@ -76,7 +76,7 @@ __global__ void gpuBcInlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
 	int bci = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x)
 																																									+ threadIdx.x;
 
-	int ms = depth_d * length_d * height_d;
+	int ms = depth * length_d * height_d;
 	FLOAT_TYPE uW, vW, wW, dW;
 	FLOAT_TYPE uE, vE, wE, dE;
 	FLOAT_TYPE uS, vS, wS, dS;
@@ -400,7 +400,7 @@ __global__ void gpuBcInlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
 __global__ void gpuBcWall2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
 		FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size) {
 	int bci = blockIdx.x * blockDim.x + threadIdx.x;
-	int ms = depth_d * length_d;
+	int ms = depth * length_d;
 	int dir;
 
 	if (bci < size) {
@@ -447,7 +447,7 @@ __global__ void gpuBcSimpleWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
 	int bci = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x)
 																																									+ threadIdx.x;
-	int ms = depth_d * length_d * height_d;
+	int ms = depth * length_d * height_d;
 	int dir;
 
 	if (bci < size) {
@@ -494,7 +494,7 @@ __global__ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
 	int bci = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x)
 																																									+ threadIdx.x;
-	int ms = depth_d * length_d * height_d;
+	int ms = depth * length_d * height_d;
 	int dir;
 
 	int NoOfDirs;
@@ -1562,7 +1562,7 @@ __global__ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 __global__ void gpuBcOutlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
 		FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d, int size) {
 	int bci = blockIdx.x * blockDim.x + threadIdx.x;
-	int ms = depth_d * length_d;
+	int ms = depth * length_d;
 
 	if (bci < size) {
 		int ind = bcIdx_d[bci];
@@ -1658,9 +1658,9 @@ __global__ void gpuBcOutlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
 	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
 	int bci = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x)
 																																									+ threadIdx.x;
-	int ms = depth_d * length_d;
+	int ms = depth * length_d;
 	int n = length_d;
-	int l = length_d * depth_d;
+	int l = length_d * depth;
 
 	FLOAT_TYPE r, u, v, w;
 
@@ -1877,8 +1877,8 @@ __global__ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 		FLOAT_TYPE* r_f_d,FLOAT_TYPE* b_f_d, int size, int *orientation_d, int test_case, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *rho_d,
 		FLOAT_TYPE *u_d, FLOAT_TYPE *v_d) {
 	int ind = blockIdx.x * blockDim.x + threadIdx.x;
-	int ms = depth_d * length_d;
-	int offsetY = length_d * (depth_d - 1);
+	int ms = depth * length_d;
+	int offsetY = length_d * (depth - 1);
 	int offsetX = length_d - 1;
 	if (ind < ms) {
 
@@ -2026,10 +2026,10 @@ __global__ void gpuBcPeriodic3D(int *bcIdx_d, unsigned long long *bcMask_d,
 	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
 	int bci = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x)
 																																									+ threadIdx.x;
-	int ms = depth_d * length_d * height_d;
+	int ms = depth * length_d * height_d;
 	int offsetX = length_d - 1; //to get from west to east pairs of periodic nodes
-	int offsetY = length_d * (depth_d - 1); //to get from north to south pairs of periodic nodes
-	int offsetZ = length_d * depth_d * (height_d - 1); //to get from north to south pairs of periodic nodes
+	int offsetY = length_d * (depth - 1); //to get from north to south pairs of periodic nodes
+	int offsetZ = length_d * depth * (height_d - 1); //to get from north to south pairs of periodic nodes
 
 	if (bci < size) {
 		int ind = bcIdx_d[bci];
@@ -2090,7 +2090,7 @@ __global__ void gpuBcSymm3D(int *bcIdx_d, unsigned long long *bcMask_d,
 	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
 	int bci = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x)
 																																									+ threadIdx.x;
-	int ms = depth_d * length_d * height_d;
+	int ms = depth * length_d * height_d;
 
 	if (bci < size) {
 		int ind = bcIdx_d[bci];

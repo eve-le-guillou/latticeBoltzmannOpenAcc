@@ -11,7 +11,7 @@
 
 void cpuBcInlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE* f_d,
                              FLOAT_TYPE* u0_d, FLOAT_TYPE* v0_d, int size) {
-    int ms = depth_d * length_d;
+    int ms = depth * length;
 
     for (int bci = 0; bci < size; bci++) {
         int ind = bcIdx_d[bci];
@@ -71,7 +71,7 @@ void cpuBcInlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE* f_d,
 
 void cpuBcInlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
                              FLOAT_TYPE* f_d, FLOAT_TYPE* u1_d, FLOAT_TYPE* v1_d, FLOAT_TYPE* w1_d, int size) {
-    int ms = depth_d * length_d * height_d;
+    int ms = depth * length * height;
     FLOAT_TYPE uW, vW, wW, dW;
     FLOAT_TYPE uE, vE, wE, dE;
     FLOAT_TYPE uS, vS, wS, dS;
@@ -394,7 +394,7 @@ void cpuBcInlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
 }
 void cpuBcWall2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
                             FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size, BoundaryType boundaryType) {
-    int ms = depth_d * length_d;
+    int ms = depth * length;
     int dir;
 
     for (int bci = 0; bci < size; bci++) {
@@ -438,7 +438,7 @@ void cpuBcWall2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
 
 void cpuBcSimpleWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
                                   FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size, BoundaryType boundaryType) {
-    int ms = depth_d * length_d * height_d;
+    int ms = depth * length * height;
     int dir;
 
     for (int bci = 0; bci < size; bci++) {
@@ -453,25 +453,25 @@ void cpuBcSimpleWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
                         case CURVED: //curved
                             if (q_d[bci * 18 + dir - 1] < 0.5) // if the distance from the boundary is less than 0.5?
                             {
-                                f_d[ind + opp3D_d[dir]] = 2 * q_d[bci * 18 + dir]
+                                f_d[ind + opp3D[dir]] = 2 * q_d[bci * 18 + dir]
                                                           * fColl_d[ind + dir * ms]
                                                           + (1 - 2 * q_d[bci * 18 + dir - 1])
                                                             * fColl_d[ind + dir * ms
-                                                                      + c3D_d[dir]];
+                                                                      + c3D[dir]];
 
                                 // printf("if %d: dir: %d, Q:%f, F:%f; ", ind, dir, q_d[bci*8+dir], f_d[ind+opp_d[dir]]);
                             } else {
-                                f_d[ind + opp3D_d[dir]] = fColl_d[ind + dir * ms]
+                                f_d[ind + opp3D[dir]] = fColl_d[ind + dir * ms]
                                                           / 2 / q_d[bci * 18 + dir - 1]
                                                           + (2 * q_d[bci * 18 + dir - 1] - 1)
                                                             / (2 * q_d[bci * 18 + dir - 1])
-                                                            * fColl_d[ind + opp3D_d[dir]];
+                                                            * fColl_d[ind + opp3D[dir]];
 
                                 // printf("else %d: dir: %d, Q:%f,  F: %f; ", ind, dir, q_d[bci*8+dir], f_d[ind+opp_d[dir]]);
                             }
                             break;
                         case STRAIGHT: //half-way bounce back
-                            f_d[ind + opp3D_d[dir]] = f_d[ind + dir * ms]; //TODO imposed two times, the directions are paired
+                            f_d[ind + opp3D[dir]] = f_d[ind + dir * ms]; //TODO imposed two times, the directions are paired
                             break;
                     }
                 }
@@ -483,7 +483,7 @@ void cpuBcSimpleWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 void cpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
                                    FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size) {
 
-    int ms = depth_d * length_d * height_d;
+    int ms = depth * length * height;
     int dir;
 
     int NoOfDirs;
@@ -1550,7 +1550,7 @@ void cpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 
 void cpuBcOutlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
                               FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d, int size, OutletProfile outletProfile) {
-    int ms = depth_d * length_d;
+    int ms = depth * length;
 
     for (int bci = 0; bci < size; bci++) {
         int ind = bcIdx_d[bci];
@@ -1643,9 +1643,9 @@ void cpuBcOutlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
 void cpuBcOutlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
                               FLOAT_TYPE *f_d, FLOAT_TYPE *u_d, FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *rho_d,
                               int size, OutletProfile outletProfile) {
-    int ms = depth_d * length_d;
-    int n = length_d;
-    int l = length_d * depth_d;
+    int ms = depth * length;
+    int n = length;
+    int l = length * depth;
 
     FLOAT_TYPE r, u, v, w;
 
@@ -1831,11 +1831,11 @@ void cpuBcOutlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
                     r = rho_d[ind];
                     //					printf("%f %f %f %f\n", u, v,w,r);
                     if ((bcMask_d[bci] & BC3D_OUTL_1) == BC3D_OUTL_1) {
-                        f_d[ind + 2 * ms] = feqc3D(u, cx3D_d[ 2 ], v, cy3D_d[ 2 ], w, cz3D_d[ 2 ], r, w3D_d[ 2 ]);
-                        f_d[ind + 8 * ms] = feqc3D(u, cx3D_d[ 8 ], v, cy3D_d[ 8 ], w, cz3D_d[ 8 ], r, w3D_d[ 8 ]);
-                        f_d[ind + 10 * ms] = feqc3D(u, cx3D_d[10 ], v, cy3D_d[10 ], w, cz3D_d[10 ], r, w3D_d[10 ]);
-                        f_d[ind + 12 * ms] = feqc3D(u, cx3D_d[12 ], v, cy3D_d[12 ], w, cz3D_d[12 ], r, w3D_d[12 ]);
-                        f_d[ind + 14 * ms] = feqc3D(u, cx3D_d[14 ], v, cy3D_d[14 ], w, cz3D_d[14 ], r, w3D_d[14 ]);
+                        f_d[ind + 2 * ms] = feqc3D(u, cx3D[ 2 ], v, cy3D[ 2 ], w, cz3D[ 2 ], r, w3D[ 2 ]);
+                        f_d[ind + 8 * ms] = feqc3D(u, cx3D[ 8 ], v, cy3D[ 8 ], w, cz3D[ 8 ], r, w3D[ 8 ]);
+                        f_d[ind + 10 * ms] = feqc3D(u, cx3D[10 ], v, cy3D[10 ], w, cz3D[10 ], r, w3D[10 ]);
+                        f_d[ind + 12 * ms] = feqc3D(u, cx3D[12 ], v, cy3D[12 ], w, cz3D[12 ], r, w3D[12 ]);
+                        f_d[ind + 14 * ms] = feqc3D(u, cx3D[14 ], v, cy3D[14 ], w, cz3D[14 ], r, w3D[14 ]);
                     }
                     if ((bcMask_d[bci] & BC3D_OUTL_3) == BC3D_OUTL_3) {
                         //TODO
@@ -1861,9 +1861,9 @@ void cpuBcOutlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
 void cpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
                                 FLOAT_TYPE* r_f_d,FLOAT_TYPE* b_f_d, int size, int *orientation_d, int test_case, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *rho_d,
                                 FLOAT_TYPE *u_d, FLOAT_TYPE *v_d) {
-    int ms = depth_d * length_d;
-    int offsetY = length_d * (depth_d - 1);
-    int offsetX = length_d - 1;
+    int ms = depth * length;
+    int offsetY = length * (depth - 1);
+    int offsetX = length - 1;
     for (int bci = 0; bci < size; bci++) {
         int ori = orientation_d[ind];
         switch(ori){
@@ -2006,10 +2006,10 @@ void cpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 
 void cpuBcPeriodic3D(int *bcIdx_d, unsigned long long *bcMask_d,
                                 FLOAT_TYPE* f_d, int size) {
-    int ms = depth_d * length_d * height_d;
-    int offsetX = length_d - 1; //to get from west to east pairs of periodic nodes
-    int offsetY = length_d * (depth_d - 1); //to get from north to south pairs of periodic nodes
-    int offsetZ = length_d * depth_d * (height_d - 1); //to get from north to south pairs of periodic nodes
+    int ms = depth * length * height;
+    int offsetX = length - 1; //to get from west to east pairs of periodic nodes
+    int offsetY = length * (depth - 1); //to get from north to south pairs of periodic nodes
+    int offsetZ = length * depth * (height - 1); //to get from north to south pairs of periodic nodes
 
     for (int bci = 0; bci < size; bci++) {
         int ind = bcIdx_d[bci];
@@ -2067,7 +2067,7 @@ void cpuBcPeriodic3D(int *bcIdx_d, unsigned long long *bcMask_d,
 }
 void cpuBcSymm3D(int *bcIdx_d, unsigned long long *bcMask_d,
                             FLOAT_TYPE* f_d, int size) {
-    int ms = depth_d * length_d * height_d;
+    int ms = depth * length * height;
 
     for (int bci = 0; bci < size; bci++) {
         int ind = bcIdx_d[bci];

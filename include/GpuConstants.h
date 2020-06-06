@@ -55,8 +55,8 @@ extern __constant__ FLOAT_TYPE minInletCoordY_d;     ///< maximum inlet coordina
 extern __constant__ FLOAT_TYPE maxInletCoordY_d;     ///< minimum inlet coordinate y
 extern __constant__ FLOAT_TYPE minInletCoordZ_d;     ///< maximum inlet coordinate z
 extern __constant__ FLOAT_TYPE maxInletCoordZ_d;     ///< minimum inlet coordinate z
-extern __constant__ FLOAT_TYPE omega_d;            ///< collision frequency for D2Q9 \f$ \omega = \frac{1}{3\nu + 0.5} \f$
-extern __constant__ FLOAT_TYPE omegaA_d;           ///< asymmetric collision frequency \f$ \omega_a = \frac{8(2-\omega)}{8-\omega} \f$
+extern __constant__ FLOAT_TYPE omega;            ///< collision frequency for D2Q9 \f$ \omega = \frac{1}{3\nu + 0.5} \f$
+extern __constant__ FLOAT_TYPE omegaA;           ///< asymmetric collision frequency \f$ \omega_a = \frac{8(2-\omega)}{8-\omega} \f$
 extern __constant__ FLOAT_TYPE g_d;
 //#### 2D d2q9 ####//
 extern __constant__ int cx2D_d[9];                   ///< velocity x unit vector components

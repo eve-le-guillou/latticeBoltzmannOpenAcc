@@ -23,8 +23,8 @@ __constant__ int c2D_d[9];
 __constant__ int opp2D_d[9];
 __constant__ FLOAT_TYPE delta_d;
 __constant__ FLOAT_TYPE w2D_d[9];
-__constant__ FLOAT_TYPE omega_d;
-__constant__ FLOAT_TYPE omegaA_d;
+__constant__ FLOAT_TYPE omega;
+__constant__ FLOAT_TYPE omegaA;
 __constant__ FLOAT_TYPE rhoIn_d;
 __constant__ FLOAT_TYPE uIn_d;
 __constant__ FLOAT_TYPE vIn_d;
@@ -117,7 +117,7 @@ __host__ void initConstants2D(Arguments *args,
 	cudaMemcpyToSymbol(length_d, &n, sizeof(int));
 	cudaMemcpyToSymbol(w2D_d, w2D, 9 * sizeof(FLOAT_TYPE));
 	cudaMemcpyToSymbol(omega_d, &omega, sizeof(FLOAT_TYPE));
-	cudaMemcpyToSymbol(omegaA_d, &omegaA, sizeof(FLOAT_TYPE));
+	cudaMemcpyToSymbol(omegaA, &omegaA, sizeof(FLOAT_TYPE));
 	cudaMemcpyToSymbol(delta_d, &delta, sizeof(FLOAT_TYPE));
 
 	cudaMemcpyToSymbol(inletProfile_d, &args->inletProfile,
@@ -865,8 +865,8 @@ __host__ void initConstants3D(Arguments *args,
 	cudaMemcpyToSymbol(depth_d, &m, sizeof(int));
 	cudaMemcpyToSymbol(length_d, &n, sizeof(int));
 	cudaMemcpyToSymbol(height_d, &h, sizeof(int));
-	cudaMemcpyToSymbol(omega_d, &omega, sizeof(FLOAT_TYPE));
-	cudaMemcpyToSymbol(omegaA_d, &omegaA, sizeof(FLOAT_TYPE));
+	cudaMemcpyToSymbol(omega, &omega, sizeof(FLOAT_TYPE));
+	cudaMemcpyToSymbol(omegaA, &omegaA, sizeof(FLOAT_TYPE));
 	cudaMemcpyToSymbol(delta_d, &delta, sizeof(FLOAT_TYPE));
 
 	cudaMemcpyToSymbol(inletProfile_d, &args->inletProfile,
