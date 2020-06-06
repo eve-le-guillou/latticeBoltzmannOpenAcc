@@ -17,11 +17,12 @@ LIBDIR=-Llibs
 LIBS=-largtable2 -lcuda
 endif
 
-
-CU_FILES=main.cpp Iterate.cu Iterate3D.cu CellFunctions.cpp ComputeResiduals.cpp FilesReading.cpp FilesWriting.cpp \
+CPP_FILES=main.cpp Iterate.cpp CellFunctions.cpp ComputeResiduals.cpp FilesReading.cpp FilesWriting.cpp \
          ShellFunctions.cpp CpuInit.cpp CpuBoundaries.cpp CpuCollision.cpp CpuStream.cpp LogWriter.cpp \
-         ArrayUtils.cpp Arguments.cpp CpuSum.cpp Check.cu CpuUpdateMacro.cpp Multiphase.cpp
-ITER_FILES=Iterate.cu CpuInit.cpp ComputeResiduals.cpp CpuBoundaries.cpp CpuCollision.cpp CpuStream.cpp \
+         ArrayUtils.cpp Arguments.cpp CpuSum.cpp CpuUpdateMacro.cpp Multiphase.cpp
+
+CU_FILES=Iterate3D.cu Check.cu 
+ITER_FILES=Iterate.cpp CpuInit.cpp ComputeResiduals.cpp CpuBoundaries.cpp CpuCollision.cpp CpuStream.cpp \
            ArrayUtils.cpp Arguments.cpp CpuSum.cpp Check.cu CpuUpdateMacro.cpp
 ITER_FILE=IterateCombined.cu
 RLSE_FILES=main.cpp $(ITER_FILE) CellFunctions.cpp FilesReading.cpp FilesWriting.cpp \
@@ -32,7 +33,7 @@ HEADERS=$(patsubst %,include/%,$(HEADRF))
 ifeq ($(OS),Windows_NT)
 OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CU_FILES:.cu=.obj))
 else
-OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CU_FILES:.cu=.o))
+OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CU_FILES:.cu=.o))+$(patsubst %,$(OBJ_DIR)/%,$(CU_FILES:.cpp=.o))
 endif
 OBJ_DIR=obj
 DOC_DIR=docs
@@ -63,6 +64,13 @@ $(OBJ_DIR):; \
 
 $(OBJ_DIR)/%.o: %.cu; \
 	$(CC) $(CFLAGS) $(LIBS) $(DEFINES) $(INCLUDES) -c $< -o $@
+
+$(OBJ_DIR)/%.o: %.cpp; \
+        $(CC) $(CFLAGS) $(LIBS) $(DEFINES) $(INCLUDES) -c $< -o $@
+
+$(OBJ_DIR)/%.obj: %.cpp; \
+        $(CC) $(CFLAGS) $(LIBS) $(DEFINES) $(INCLUDES) -c $< -o $@
+
 
 $(OBJ_DIR)/%.obj: %.cu; \
 	$(CC) $(CFLAGS) $(LIBS) $(DEFINES) $(INCLUDES) -c $< -o $@
