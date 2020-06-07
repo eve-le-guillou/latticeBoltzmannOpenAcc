@@ -19,9 +19,8 @@ endif
 
 CPP_FILES=main.cpp Iterate.cpp CellFunctions.cpp ComputeResiduals.cpp FilesReading.cpp FilesWriting.cpp \
          ShellFunctions.cpp CpuInit.cpp CpuBoundaries.cpp CpuCollision.cpp CpuStream.cpp LogWriter.cpp \
-         ArrayUtils.cpp Arguments.cpp CpuSum.cpp CpuUpdateMacro.cpp Multiphase.cpp
+         ArrayUtils.cpp Arguments.cpp CpuSum.cpp CpuUpdateMacro.cpp Multiphase.cpp Iterate3D.cpp
 
-CU_FILES=Iterate3D.cu Check.cu 
 ITER_FILES=Iterate.cpp CpuInit.cpp ComputeResiduals.cpp CpuBoundaries.cpp CpuCollision.cpp CpuStream.cpp \
            ArrayUtils.cpp Arguments.cpp CpuSum.cpp Check.cu CpuUpdateMacro.cpp
 ITER_FILE=IterateCombined.cu
@@ -30,11 +29,7 @@ RLSE_FILES=main.cpp $(ITER_FILE) CellFunctions.cpp FilesReading.cpp FilesWriting
 HEADRF=FilesReading.h FilesWriting.h Iterate.h CellFunctions.h ComputeResiduals.h ShellFunctions.h \
        CpuFunctions.h LogWriter.h Arguments.h ArrayUtils.h CpuSum.h Multiphase.h
 HEADERS=$(patsubst %,include/%,$(HEADRF))
-ifeq ($(OS),Windows_NT)
-OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CU_FILES:.cu=.obj))
-else
-OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CU_FILES:.cu=.o))+$(patsubst %,$(OBJ_DIR)/%,$(CU_FILES:.cpp=.o))
-endif
+OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CPP_FILES:.cpp=.o))
 OBJ_DIR=obj
 DOC_DIR=docs
 
