@@ -7,13 +7,10 @@
 #include "math.h"
 #include <cmath>
 
-__global__ void gpu_abs_sub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C,
+void gpu_abs_sub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C,
 		int size, bool *divergence) {
-	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
-	int ind = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x)
-			+ threadIdx.x;
 	*divergence = false;
-	if (ind < size) {
+	for (int ind = 0; ind < size; ind++) {
 		if(A[ind]!=A[ind]||B[ind]!=B[ind]) {
 			*divergence=true;
 		}
@@ -22,13 +19,10 @@ __global__ void gpu_abs_sub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C,
 	}
 }
 
-__global__ void gpu_abs_relSub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C,
+void gpu_abs_relSub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C,
 		int size, bool *divergence) {
-	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
-	int ind = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x)
-			+ threadIdx.x;
 	*divergence = false;
-	if (ind < size) {
+	for (int ind = 0; ind < size; ind++) {
 		if(A[ind]!=A[ind]||B[ind]!=B[ind]) {
 			*divergence=true;
 		}
@@ -238,29 +232,12 @@ __host__ int gpu_sum_int_h(int *C, int *D, int size) {
 	return result;
 }
 
-__host__ FLOAT_TYPE gpu_max_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size) {
-	dim3 grid_dim;
-
-	int remaining = size;
-	int shared_size = 256 * sizeof(FLOAT_TYPE);
-	int req_blocks = 0;
-	while (remaining > 1) {
-		req_blocks = (remaining - 1) / 256 / 2 + 1;
-		grid_dim.x = static_cast<int>(ceil(sqrt(req_blocks)));
-		grid_dim.y = (req_blocks - 1) / grid_dim.x + 1;
-		gpu_max256<<<grid_dim, 256, shared_size>>>(C, D, remaining);
-
-		//swap
-		FLOAT_TYPE *temp = C;
-		C = D;
-		D = temp;
-
-		remaining = req_blocks;
-	}
-
-	FLOAT_TYPE result = 0.0;
-	CHECK(cudaMemcpy(&result, C, sizeof(FLOAT_TYPE), cudaMemcpyDeviceToHost));
-	return result;
+FLOAT_TYPE gpu_max_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size) {
+    FLOAT_TYPE max = C[0];
+    for (int ind = 1; ind < size; ind++){
+        if (C[ind] >max) max = C[ind];
+    }
+	return max;
 }
 
 __global__ void gpu_cond_copy_mask2D(FLOAT_TYPE *A, FLOAT_TYPE *B, int *mask,

@@ -1,6 +1,6 @@
 FLOAT_TYPE=USE_DOUBLE
 
-CFLAGS=-arch=sm_35 -rdc=true
+CFLAGS=-arch=sm_35 -rdc=true -g -G
 PGIFLAGS=-x cu -ccbin pgc++ -Xcompiler " -ta=tesla:rdc -Mcuda -Minfo=accel -largtable2 -DUSE_DOUBLE -Iinclude -Llibs"
 DEFINES=-D$(FLOAT_TYPE)
 INCLUDES=-Iinclude
@@ -17,19 +17,23 @@ LIBDIR=-Llibs
 LIBS=-largtable2 -lcuda
 endif
 
-CPP_FILES=main.cpp Iterate.cpp CellFunctions.cpp ComputeResiduals.cpp FilesReading.cpp FilesWriting.cpp \
-         ShellFunctions.cpp CpuInit.cpp CpuBoundaries.cpp CpuCollision.cpp CpuStream.cpp LogWriter.cpp \
-         ArrayUtils.cpp Arguments.cpp CpuSum.cpp CpuUpdateMacro.cpp Multiphase.cpp Iterate3D.cpp
 
-ITER_FILES=Iterate.cpp CpuInit.cpp ComputeResiduals.cpp CpuBoundaries.cpp CpuCollision.cpp CpuStream.cpp \
-           ArrayUtils.cpp Arguments.cpp CpuSum.cpp Check.cu CpuUpdateMacro.cpp
+CU_FILES=main.cu Iterate.cu Iterate3D.cu CellFunctions.cu ComputeResiduals.cu FilesReading.cu FilesWriting.cu \
+         ShellFunctions.cu GpuInit.cu GpuBoundaries.cu GpuCollision.cu GpuStream.cu LogWriter.cu \
+         ArrayUtils.cu Arguments.cu GpuSum.cu Check.cu GpuUpdateMacro.cu Multiphase.cu
+ITER_FILES=Iterate.cu GpuInit.cu ComputeResiduals.cu GpuBoundaries.cu GpuCollision.cu GpuStream.cu \
+           ArrayUtils.cu Arguments.cu GpuSum.cu Check.cu GpuUpdateMacro.cu
 ITER_FILE=IterateCombined.cu
-RLSE_FILES=main.cpp $(ITER_FILE) CellFunctions.cpp FilesReading.cpp FilesWriting.cpp \
-           ShellFunctions.cpp LogWriter.cpp
+RLSE_FILES=main.cu $(ITER_FILE) CellFunctions.cu FilesReading.cu FilesWriting.cu \
+           ShellFunctions.cu LogWriter.cu
 HEADRF=FilesReading.h FilesWriting.h Iterate.h CellFunctions.h ComputeResiduals.h ShellFunctions.h \
-       CpuFunctions.h LogWriter.h Arguments.h ArrayUtils.h CpuSum.h Multiphase.h
+       GpuFunctions.h LogWriter.h Arguments.h ArrayUtils.h GpuSum.h Multiphase.h
 HEADERS=$(patsubst %,include/%,$(HEADRF))
-OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CPP_FILES:.cpp=.o))
+ifeq ($(OS),Windows_NT)
+OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CU_FILES:.cu=.obj))
+else
+OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CU_FILES:.cu=.o))
+endif
 OBJ_DIR=obj
 DOC_DIR=docs
 
@@ -59,13 +63,6 @@ $(OBJ_DIR):; \
 
 $(OBJ_DIR)/%.o: %.cu; \
 	$(CC) $(CFLAGS) $(LIBS) $(DEFINES) $(INCLUDES) -c $< -o $@
-
-$(OBJ_DIR)/%.o: %.cpp; \
-        $(CC) $(CFLAGS) $(LIBS) $(DEFINES) $(INCLUDES) -c $< -o $@
-
-$(OBJ_DIR)/%.obj: %.cpp; \
-        $(CC) $(CFLAGS) $(LIBS) $(DEFINES) $(INCLUDES) -c $< -o $@
-
 
 $(OBJ_DIR)/%.obj: %.cu; \
 	$(CC) $(CFLAGS) $(LIBS) $(DEFINES) $(INCLUDES) -c $< -o $@

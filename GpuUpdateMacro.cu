@@ -9,7 +9,7 @@ __global__ void gpuUpdateMacro2D(int *fluid_d, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* coordX_d, FLOAT_TYPE* coordY_d, FLOAT_TYPE* f_d) {
 	int ind = threadIdx.x + blockIdx.x * blockDim.x;
 
-	int ms = depth * length_d;
+	int ms = depth_d * length_d;
 
 	FLOAT_TYPE r, u, v;
 
@@ -40,17 +40,16 @@ __global__ void gpuUpdateMacro2D(int *fluid_d, FLOAT_TYPE* rho_d,
 	}
 }
 
-__global__ void gpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
+void gpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE *f_d, FLOAT_TYPE* r_rho_d,
 		FLOAT_TYPE* b_rho_d, FLOAT_TYPE *p_in_d, FLOAT_TYPE *p_out_d,
 		int *num_in_d, int *num_out_d, int *cg_direction, int test_case) {
-	int ind = threadIdx.x + blockIdx.x * blockDim.x;
 
-	int ms = depth * length_d;
+	int ms = depth_d * length_d;
 
 	FLOAT_TYPE r_r, b_r, u, v, r, chi;
 	FLOAT_TYPE aux1, mean_nu, omega_eff;
-	if (ind < ms) {
+	for (int ind = 0; ind < ms; ind++) {
 		//necessary because of sum
 		if(test_case == 1){
 			p_in_d[ind] = 0;
@@ -143,8 +142,9 @@ __global__ void gpuUpdateMacro3D(int *fluid_d, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* f_d, FLOAT_TYPE g, unsigned long long *bcMask_d,int updateInltOutl)
 {
 	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
-	int ind = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
-	int ms = depth * length_d * height_d;
+	int ind = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x)
+																																									+ threadIdx.x;
+	int ms = depth_d * length_d * height_d;
 
 	FLOAT_TYPE r, rU, rV, rW;
 
@@ -206,7 +206,7 @@ __global__ void gpuUpdateMacro3D(int *fluid_d, FLOAT_TYPE* rho_d,
 					f_d[ind + 18 * ms];
 
 			rho_d[ind] = r;
-			u_d[ind] = rU / r + g / (omega);
+			u_d[ind] = rU / r + g / (omega_d);
 			v_d[ind] = rV / r;
 			w_d[ind] = rW / r;
 		}
@@ -222,7 +222,7 @@ __global__ void gpuUpdateMacro3DCG(int *fluid_d, FLOAT_TYPE* rho_d,
 {
 	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
 	int ind = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
-	int ms = depth * length_d * height_d;
+	int ms = depth_d * length_d * height_d;
 
 	FLOAT_TYPE r_r, b_r, r, rU, rV, rW, aux1, mean_nu, omega_eff;
 

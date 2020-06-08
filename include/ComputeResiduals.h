@@ -24,17 +24,17 @@
  * @param n                 number of rows
  * @return norm of the difference
  */
-FLOAT_TYPE computeResidual2D(FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d,
+__host__ FLOAT_TYPE computeResidual2D(FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d,
                                     FLOAT_TYPE *temp9a_d, FLOAT_TYPE *temp9b_d,
                                     int m, int n);
 
-FLOAT_TYPE computeResidual3D(FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d,
+__host__ FLOAT_TYPE computeResidual3D(FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d,
                                     FLOAT_TYPE *temp19a_d, FLOAT_TYPE *temp19b_d,
                                     int m, int n, int h);
-FLOAT_TYPE computeNewResidual3D(FLOAT_TYPE *fn, FLOAT_TYPE *fnprev,
+__host__ FLOAT_TYPE computeNewResidual3D(FLOAT_TYPE *fn, FLOAT_TYPE *fnprev,
                                     FLOAT_TYPE *f1, FLOAT_TYPE *temp19a_d, FLOAT_TYPE *temp19b_d,
                                     int m, int n, int h);
-void cpu_NewResidual(FLOAT_TYPE *fn, FLOAT_TYPE *fnprev, FLOAT_TYPE *f1, FLOAT_TYPE *res, int size);
+__global__ void gpu_NewResidual(FLOAT_TYPE *fn, FLOAT_TYPE *fnprev, FLOAT_TYPE *f1, FLOAT_TYPE *res, int size);
 /**
  * @brief Compute drag or lift on GPU
  * 
@@ -46,11 +46,11 @@ void cpu_NewResidual(FLOAT_TYPE *fn, FLOAT_TYPE *fnprev, FLOAT_TYPE *f1, FLOAT_T
  * @param boundaryId       boundary to calculate drag/lift on
  * @return drag/lift
  */
-FLOAT_TYPE computeDragLift2D(int *bcMask_d, FLOAT_TYPE *dl_d,
+__host__ FLOAT_TYPE computeDragLift2D(int *bcMask_d, FLOAT_TYPE *dl_d,
                                     FLOAT_TYPE *tempA_d, FLOAT_TYPE *tempB_d,
                                     int m, int n, int boundaryId);
 									
-FLOAT_TYPE computeDragLift3D(int *bcBoundId_d, FLOAT_TYPE *dl_d,
+__host__ FLOAT_TYPE computeDragLift3D(int *bcBoundId_d, FLOAT_TYPE *dl_d,
                                     FLOAT_TYPE *tempA_d, FLOAT_TYPE *tempB_d,
                                     int m, int n, int h, int boundaryId);
 									

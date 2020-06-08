@@ -68,10 +68,10 @@ __global__ void gpu_cond_copy_mask3D(FLOAT_TYPE *A, FLOAT_TYPE *B, int *bcBoundI
  * @param size vector size
  * @return sum of the vector
  */
-__host__ FLOAT_TYPE gpu_sum_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size);
-__host__ FLOAT_TYPE gpu_max_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size);
+FLOAT_TYPE gpu_sum_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size);
+FLOAT_TYPE gpu_max_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size);
 
-__global__ void gpu_abs_relSub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C,
+void gpu_abs_relSub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C,
 		int size, bool *divergence);
 
 __host__ int gpu_sum_int_h(int *C, int *D, int size);

@@ -27,13 +27,12 @@ __global__ void gpuStreaming2D(int* fluid_d, int* stream_d, FLOAT_TYPE* f_d, FLO
 	}
 }
 
-__global__ void gpuStreaming2DCG(int* fluid_d, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE* r_fColl_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE* b_fColl_d, int *cg_dir_d)
+void gpuStreaming2DCG(int* fluid_d, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE* r_fColl_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE* b_fColl_d, int *cg_dir_d)
 {
-	int ind = blockIdx.x * blockDim.x + threadIdx.x;
 	int ms = depth_d*length_d;
 	FLOAT_TYPE *r_f, *r_mf, *b_f, *b_mf;
 	int n = length_d;
-	if (ind < ms)
+	if (int ind= 0;ind < ms; ind++)
 	{
 		int ori = cg_dir_d[ind];
 		r_f_d[ind] = r_fColl_d[ind];	//Update fNewStep = fColl
