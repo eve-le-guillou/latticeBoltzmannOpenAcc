@@ -9,7 +9,7 @@
 
 #include "FloatType.h"
 #include <cuda.h>
-__global__ void gpu_abs_sub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C, int size,bool *divergence);
+void gpu_abs_sub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C, int size,bool *divergence);
 /**
  * @brief Compute square of the difference of two vectors: \f$(A-B)^2\f$
  *

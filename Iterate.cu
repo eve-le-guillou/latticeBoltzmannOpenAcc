@@ -136,11 +136,11 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	sprintf(autosaveFilename, "NOWHERE!");
 	initConstants2D(args, maxInletCoordY, minInletCoordY, delta, m, n);
 
-	/*dim3 tpb(THREADS); 					 // THREADS/block
+	dim3 tpb(THREADS); 					 // THREADS/block
 	dim3 bpg1((int) (m * n / THREADS) + 1);     // blocks/grid  MxN
 	dim3 bpg8((int) (8 * m * n / THREADS) + 1);     // blocks/grid 8MxN
 	dim3 bpg9((int) (9 * m * n / THREADS) + 1);     // blocks/grid 9MxN
-	dim3 bpgBC((int) (numConns / THREADS) + 1); // blocks/grid N_BC*/
+	dim3 bpgBC((int) (numConns / THREADS) + 1); // blocks/grid N_BC
 	// residuals
 	FLOAT_TYPE *norm = createHostArrayFlt(args->iterations, ARRAY_ZERO);
 	FLOAT_TYPE *dragSum = createHostArrayFlt(args->iterations, ARRAY_ZERO);
@@ -226,7 +226,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	FLOAT_TYPE fMaxDiff = -1;
 	bool h_divergence;
 	bool *d_divergence;
-	malloc(&d_divergence,sizeof(bool)));
+	//d_divergence = malloc(sizeof(bool));
 
 	if (args->inletProfile == NO_INLET) {
 		u0_d = createHostArrayFlt(m * n, ARRAY_FILL, args->u);
@@ -236,7 +236,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 		v0_d = createHostArrayFlt(m * n, ARRAY_ZERO);
 	}
 	if (args->inletProfile == INLET) {
-		gpuInitInletProfile2D<<<bpg1, tpb>>>(u0_d, v0_d, coordY_d, m * n);
+		//gpuInitInletProfile2D<<<bpg1, tpb>>>(u0_d, v0_d, coordY_d, m * n);
 	}
 	FLOAT_TYPE *drag_d = createHostArrayFlt(m * n, ARRAY_ZERO);
 	FLOAT_TYPE *lift_d = createHostArrayFlt(m * n, ARRAY_ZERO);
@@ -282,7 +282,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	int *bcMaskCollapsed_d = createHostArrayInt(bcCount, ARRAY_ZERO);
 	FLOAT_TYPE *qCollapsed_d = createHostArrayFlt(8 * bcCount, ARRAY_ZERO);
 
-	//dim3 bpgB((int) (bcCount / THREADS) + 1); // blocks/grid
+	dim3 bpgB((int) (bcCount / THREADS) + 1); // blocks/grid
 	int *bcMask_d = createHostArrayInt(m * n, ARRAY_COPY, 0, bcMask);
 	int *bcIdx_d = createHostArrayInt(m * n, ARRAY_COPY, 0, bcIdx);
 
@@ -304,8 +304,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 
 #if CUDA
 	memcpy(u, u_d, SIZEFLT(m*n));
-	memcpy(v, v_d, SIZEFLT(m*n), cudaMemcpyDeviceToHost);
-	memcpy(rho, rho_d, SIZEFLT(m*n),);
+	memcpy(v, v_d, SIZEFLT(m*n));
+	memcpy(rho, rho_d, SIZEFLT(m*n));
 	if(args->multiPhase){
 		memcpy(r_rho, r_rho_d, SIZEFLT(m*n));
 		memcpy(b_rho, b_rho_d, SIZEFLT(m*n));
@@ -400,16 +400,16 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 					gpuCollEnhancedBgkwGC2D(rho_d, r_rho_d, b_rho_d, u_d, v_d, f_d, r_fColl_d, b_fColl_d, cg_dir_d, args->high_order);
 #endif
 			}else{
-				gpuCollBgkw2D<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, f_d,
-						fColl_d);
+				//gpuCollBgkw2D<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, f_d,
+				//		fColl_d);
 			}
 			break;
 		case TRT:
-			gpuCollTrt<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, f_d, fColl_d);
+			//gpuCollTrt<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, f_d, fColl_d);
 			break;
 
 		case MRT:
-			gpuCollMrt2D<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, f_d, fColl_d);
+			//gpuCollMrt2D<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, f_d, fColl_d);
 			break;
 		}
 
@@ -432,7 +432,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 #endif
 		}
 		else{
-			gpuStreaming2D<<<bpg1, tpb>>>(fluid_d, stream_d, f_d, fColl_d);
+			//gpuStreaming2D<<<bpg1, tpb>>>(fluid_d, stream_d, f_d, fColl_d);
 		}
 		/*CHECK(cudaEventRecord(stop, 0));
 		CHECK(cudaEventSynchronize(stop));
@@ -462,12 +462,12 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 #endif
 
 		} else{
-			gpuBcInlet2D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
-					u0_d, v0_d, bcCount);
+		/*	gpuBcInlet2D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
+				u0_d, v0_d, bcCount);
 			gpuBcWall2D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
 					fColl_d, qCollapsed_d, bcCount);
 			gpuBcOutlet2D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
-					u0_d, v0_d, bcCount);
+					u0_d, v0_d, bcCount);*/
 		}
 
 		/*CHECK(cudaEventRecord(stop, 0));
@@ -510,8 +510,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 
 #endif
 		}
-		else gpuUpdateMacro2D<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, bcMask_d,
-				drag_d, lift_d, coordX_d, coordY_d, f_d);
+		else; //gpuUpdateMacro2D<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, bcMask_d,
+			//	drag_d, lift_d, coordX_d, coordY_d, f_d);
 
 		/*tInstant2 = clock();
 		CHECK(cudaEventRecord(stop, 0));
@@ -529,7 +529,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 				gpu_abs_relSub(f_d, f_prev_d, temp9a_d, n * m * 9, d_divergence);
 				fMaxDiff = gpu_max_h(temp9a_d, temp9b_d, n * m * 9);
 				//	printf("MAX diff "FLOAT_FORMAT"\n", fMaxDiff);
-				memcpy(&h_divergence,d_divergence,sizeof(bool),cudaMemcpyDeviceToHost));
+				memcpy(&h_divergence,d_divergence,sizeof(bool));
 				if (h_divergence || fMaxDiff != fMaxDiff || !isfinite(fMaxDiff)) {
 					fprintf(stderr, "\nDIVERGENCE!\n");
 					break;
@@ -548,8 +548,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 
 					writeResiduals(residualsFilename, norm, dragSum, liftSum, m * n,
 							iter + 1);
-					cudaEventDestroy(start);
-					cudaEventDestroy(stop);
+				//	cudaEventDestroy(start);
+				//	cudaEventDestroy(stop);
 
 					freeAllHost(hostArrays, sizeof(hostArrays) / sizeof(hostArrays[0]));
 					freeAllGpu(gpuArrays, sizeof(gpuArrays) / sizeof(gpuArrays[0]));

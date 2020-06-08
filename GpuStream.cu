@@ -5,7 +5,7 @@
 #include "BcMacros3D.h"
 #include "GpuConstants.h"
 
-__global__ void gpuStreaming2D(int* fluid_d, int* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d)
+/*__global__ void gpuStreaming2D(int* fluid_d, int* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d)
 {
 	int ind = blockIdx.x * blockDim.x + threadIdx.x;
 	int ms = depth_d*length_d;
@@ -25,14 +25,14 @@ __global__ void gpuStreaming2D(int* fluid_d, int* stream_d, FLOAT_TYPE* f_d, FLO
 		f[ind+6*ms] = (stream_d[ind+6*ms] == 1) ? mf[ind+6*ms+n+1] : mf[ind+6*ms];
 		f[ind+7*ms] = (stream_d[ind+7*ms] == 1) ? mf[ind+7*ms+n-1] : mf[ind+7*ms];
 	}
-}
+}*/
 
 void gpuStreaming2DCG(int* fluid_d, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE* r_fColl_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE* b_fColl_d, int *cg_dir_d)
 {
 	int ms = depth_d*length_d;
 	FLOAT_TYPE *r_f, *r_mf, *b_f, *b_mf;
 	int n = length_d;
-	if (int ind= 0;ind < ms; ind++)
+	for (int ind= 0;ind < ms; ind++)
 	{
 		int ori = cg_dir_d[ind];
 		r_f_d[ind] = r_fColl_d[ind];	//Update fNewStep = fColl
@@ -156,7 +156,7 @@ void gpuStreaming2DCG(int* fluid_d, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE
 	}
 }
 
-__global__ void gpuStreaming3D(int* fluid_d, bool* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d)
+/*__global__ void gpuStreaming3D(int* fluid_d, bool* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d)
 {
 	int blockId = blockIdx.x
 			+ blockIdx.y * gridDim.x;
@@ -190,4 +190,4 @@ __global__ void gpuStreaming3D(int* fluid_d, bool* stream_d, FLOAT_TYPE* f_d, FL
 		f[ind+16 *ms]	=	(stream_d[ind+16 *ms]	==	1)	?	mf[ind+16 *ms +	c3D_d[17]]:	f[ind+16 *ms];
 		f[ind+17 *ms]	=	(stream_d[ind+17 *ms]	==	1)	?	mf[ind+17 *ms +	c3D_d[18]]:	f[ind+17 *ms];
 	}
-}
+}*/

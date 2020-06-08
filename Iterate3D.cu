@@ -45,7 +45,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 	logFilename[0] = '\0';
 	residualsFilename[0] = '\0';
 	timeFilename[0] = '\0';
-
+/*
 	if (strlen(inFn->result)) {
 		strcat(logFilename, inFn->result);
 		strcat(residualsFilename, inFn->result);
@@ -929,6 +929,6 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 	if (args->TypeOfResiduals != MacroDiff) {
 		freeAllGpu(nonMacroDiffGpuArrays, sizeof(nonMacroDiffGpuArrays) / sizeof(nonMacroDiffGpuArrays[0]));
 	}
-
+*/
 	return 0;
 }

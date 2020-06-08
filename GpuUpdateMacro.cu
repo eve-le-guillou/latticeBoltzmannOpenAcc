@@ -3,7 +3,7 @@
 #include "BcMacros3D.h"
 #include "GpuConstants.h"
 
-__global__ void gpuUpdateMacro2D(int *fluid_d, FLOAT_TYPE* rho_d,
+/*__global__ void gpuUpdateMacro2D(int *fluid_d, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, int *bcMask_d, FLOAT_TYPE* drag_d,
 		FLOAT_TYPE* lift_d,
 		FLOAT_TYPE* coordX_d, FLOAT_TYPE* coordY_d, FLOAT_TYPE* f_d) {
@@ -38,7 +38,7 @@ __global__ void gpuUpdateMacro2D(int *fluid_d, FLOAT_TYPE* rho_d,
 			}
 		}
 	}
-}
+}*/
 
 void gpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE *f_d, FLOAT_TYPE* r_rho_d,
@@ -136,7 +136,7 @@ void gpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
 	}
 }
 
-__global__ void gpuUpdateMacro3D(int *fluid_d, FLOAT_TYPE* rho_d,
+/*__global__ void gpuUpdateMacro3D(int *fluid_d, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, FLOAT_TYPE* w_d, int* bcBoundId_d,
 		FLOAT_TYPE* coordX_d, FLOAT_TYPE* coordY_d, FLOAT_TYPE* coordZ_d,
 		FLOAT_TYPE* f_d, FLOAT_TYPE g, unsigned long long *bcMask_d,int updateInltOutl)
@@ -212,9 +212,9 @@ __global__ void gpuUpdateMacro3D(int *fluid_d, FLOAT_TYPE* rho_d,
 		}
 	}
 
-}
+}*/
 
-__global__ void gpuUpdateMacro3DCG(int *fluid_d, FLOAT_TYPE* rho_d,
+/*__global__ void gpuUpdateMacro3DCG(int *fluid_d, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, FLOAT_TYPE* w_d, int* bcBoundId_d,
 		FLOAT_TYPE* f_d, FLOAT_TYPE g, unsigned long long *bcMask_d,int updateInltOutl, FLOAT_TYPE* r_f_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE* r_rho_d,
 		FLOAT_TYPE* b_rho_d, FLOAT_TYPE *p_in_d, FLOAT_TYPE *p_out_d,
@@ -360,4 +360,4 @@ __global__ void gpuUpdateMacro3DCG(int *fluid_d, FLOAT_TYPE* rho_d,
 		}
 	}
 
-}
+}*/

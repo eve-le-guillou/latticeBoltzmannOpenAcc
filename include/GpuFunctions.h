@@ -60,7 +60,7 @@ FLOAT_TYPE delta, int m, int n, int h);
  * @param y_d node coordinates y
  * @param size vector size (MxN)
  */
-void gpuInitInletProfile2D(FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d,
+__global__ void gpuInitInletProfile2D(FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d,
 		FLOAT_TYPE *y_d, int size);
 
 /**
@@ -172,7 +172,7 @@ __host__ void collapseBc3D(int *bcIdx, int *bcIdxCollapsed_d,
  * @param[in]  size number of boundary conditions
  * @ingroup solver
  */
-void gpuBcInlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE* f_d,
+__global__ void gpuBcInlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE* f_d,
 		FLOAT_TYPE* u0_d, FLOAT_TYPE* v0_d, int size);
 
 __global__ void gpuBcInlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
@@ -446,7 +446,7 @@ void initCGBubble(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *r_rho_d, FLOAT_T
 		FLOAT_TYPE *r_f_d, FLOAT_TYPE *b_f_d, FLOAT_TYPE *f_d, int test_case);
 FLOAT_TYPE calculateSurfaceTension(FLOAT_TYPE p_in_mean, FLOAT_TYPE p_out_mean);
 
-void gpuCollBgkwGC3D(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
+__global__ void gpuCollBgkwGC3D(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order);
 __host__ void initColorGradient3D(int *color_gradient_directions, int n, int m, int h);
 __global__ void gpuUpdateMacro3DCG(int *fluid_d, FLOAT_TYPE* rho_d,
