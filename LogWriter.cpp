@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <cstring>
 #include <errno.h>
 #include "LogWriter.h"
 #include "cuda.h"

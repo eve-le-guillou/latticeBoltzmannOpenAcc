@@ -3,6 +3,7 @@
 #include "BcMacros3D.h"
 #include "ArrayUtils.h"
 #include <stdio.h>
+#include <cstdlib>
 #include "math.h"
 #include <cmath>
 
@@ -44,14 +45,14 @@ void cpu_sqsubi(int *A, int *B, FLOAT_TYPE *C, int size) {
 void cpu_sum(FLOAT_TYPE *A, FLOAT_TYPE *B, int size) {
     B[0] = 0;
     for (int ind=0; ind < size; ind++){
-        B[0] += A[ind]
+        B[0] += A[ind];
     }
 }
 
 void cpu_sum_int(int *A, int *B, int size) {
     B[0] = 0;
     for (int ind=0; ind < size; ind++){
-        B[0] += A[ind]
+        B[0] += A[ind];
     }
 }
 
@@ -69,7 +70,7 @@ FLOAT_TYPE cpu_sum_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size) {
 }
 
 int cpu_sum_int_h(int *C, int *D, int size) {
-    cpu_sum(C, D, size);
+    cpu_sum_int(C, D, size);
     return D[0];
 }
 

@@ -153,7 +153,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	FLOAT_TYPE *u = createHostArrayFlt(m * n, ARRAY_ZERO);
 	FLOAT_TYPE *v = createHostArrayFlt(m * n, ARRAY_ZERO);
 	FLOAT_TYPE *w = createHostArrayFlt(m * n, ARRAY_ZERO);
-	FLOAT_TYPE *rho = createHostArrayFlt(m * n, ARRAY_ZERO);
+	FLOAT_TYPE *rho = createHostArrayFlt(m * n, ARRAY_FILL, args->rho);
 
 	//Multiphase
 	FLOAT_TYPE *r_rho = createHostArrayFlt(m * n, ARRAY_ZERO);
@@ -241,8 +241,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	} else {
 	    /*u0_d = createGpuArrayFlt(m * n, ARRAY_ZERO);
 		v0_d = createGpuArrayFlt(m * n, ARRAY_ZERO);*/
-		u0 = createGpuArrayFlt(m * n, ARRAY_ZERO);
-		v0 = createGpuArrayFlt(m * n, ARRAY_ZERO);
+		u0 = createHostArrayFlt(m * n, ARRAY_ZERO);
+		v0 = createHostArrayFlt(m * n, ARRAY_ZERO);
 	}
 	if (args->inletProfile == INLET) {
 		cpuInitInletProfile2D(u0, v0, nodeY, m * n);
@@ -280,7 +280,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 		else
 			initColorGradient(cg_directions, n, m);
 		//CHECK(cudaMemcpy(cg_dir_d, cg_directions, SIZEINT(m*n), cudaMemcpyHostToDevice));
-		initCGBubble(nodeX,nodeY,r_rho, b_rho, args->rho, r_f, b_f, f, args->test_case);
+		initCGBubble(nodeX,nodeY,r_rho, b_rho, rho, r_f, b_f, f, args->test_case);
 	}
 
 	//FLOAT_TYPE *f_prev_d = createGpuArrayFlt(9 * m * n, ARRAY_COPY,0,r_f_d);
@@ -311,8 +311,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
     int *bcMaskCollapsed = createHostArrayInt(bcCount, ARRAY_ZERO);
     FLOAT_TYPE *qCollapsed = createHostArrayFlt(8 * bcCount, ARRAY_ZERO);
 
-    int *bcMask = createHostArrayInt(m * n, ARRAY_COPY, 0, bcMask);
-    int *bcIdx = createHostArrayInt(m * n, ARRAY_COPY, 0, bcIdx);
+    /*int *bcMask = createHostArrayInt(m * n, ARRAY_COPY, 0, bcMask);
+    int *bcIdx = createHostArrayInt(m * n, ARRAY_COPY, 0, bcIdx);*/
 
 	collapseBc2D(bcIdx, bcIdxCollapsed, bcMask, bcMaskCollapsed, q,
 			qCollapsed, mask, m, n, bcCount);
@@ -425,21 +425,21 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 						args->g_limit, args->r_A, args->b_A, r_fColl, b_fColl, weight, cx, cy, args->r_viscosity, args->b_viscosity);
 #else
 				if(!args->enhanced_distrib)
-					cpuCollBgkwGC2D(args->rho, r_rho, b_rho, u, v, f, r_fColl, b_fColl, cg_directions, args->high_order);
+					cpuCollBgkwGC2D(rho, r_rho, b_rho, u, v, f, r_fColl, b_fColl, cg_directions, args->high_order);
 				else
-					cpuCollEnhancedBgkwGC2D(args->rho, r_rho, b_rho, u, v, f, r_fColl, b_fColl, cg_directions, args->high_order);
+					cpuCollEnhancedBgkwGC2D(rho, r_rho, b_rho, u, v, f, r_fColl, b_fColl, cg_directions, args->high_order);
 #endif
 			}else{
-				cpuCollBgkw2D(nodeType, args->rho, u, v, f,
+				cpuCollBgkw2D(nodeType, rho, u, v, f,
 						fColl);
 			}
 			break;
 		case TRT:
-			cpuCollTrt(nodeType, args->rho, u, v, f, fColl);
+			cpuCollTrt(nodeType, rho, u, v, f, fColl);
 			break;
 
 		case MRT:
-			cpuCollMrt2D(nodeType, args->rho, u, v, f, fColl);
+			cpuCollMrt2D(nodeType, rho, u, v, f, fColl);
 			break;
 		}
 
@@ -486,7 +486,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 #if !CUDA
 			peridicBoundaries(n, m, r_f, b_f,u,v,r_rho,b_rho, rho, args->test_case);
 #else
-			cpuBcPeriodic2D(bcIdxCollapsed, bcMaskCollapsed, r_f, b_f,bcCount, cg_directions, args->test_case, r_rho, b_rho, args->rho,
+			cpuBcPeriodic2D(bcIdxCollapsed, bcMaskCollapsed, r_f, b_f,bcCount, cg_directions, args->test_case, r_rho, b_rho, rho,
 					u, v);
 
 #endif
@@ -502,8 +502,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 
 		/*CHECK(cudaEventRecord(stop, 0));
 		CHECK(cudaEventSynchronize(stop));
-		CHECK(cudaEventElapsedTime(&cudatime, start, stop));*/
-		taskTime[T_BNDC] += cudatime;
+		CHECK(cudaEventElapsedTime(&cudatime, start, stop));
+		taskTime[T_BNDC] += cudatime;*/
 
 		// UPDATE VELOCITY AND DENSITY
 		//CHECK(cudaThreadSynchronize());
@@ -513,8 +513,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			updateMacroMP(n,m,u,v,r_rho, b_rho, r_f, b_f, rho, args->control_param,args->r_alpha, args->b_alpha,
 					args->bubble_radius,st_error, iter,st_predicted,args->test_case);
 #else
-			cpuUpdateMacro2DCG(args->rho, u, v, r_f, b_f, f, r_rho, b_rho, p_in, p_out, num_in, num_out, cg_directions,
-					args->test_case, args->boundaryId);
+			cpuUpdateMacro2DCG(rho, u, v, r_f, b_f, f, r_rho, b_rho, p_in, p_out, num_in, num_out, cg_directions,
+					args->test_case);
 
 			//			updateSurfaceTension(r_rho,b_rho,args->control_param, st_predicted, st_error, iter,args->r_alpha, args->b_alpha, args->bubble_radius, n ,m);
 			//gpu reduction is faster than serial surface tension
@@ -540,14 +540,14 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 
 #endif
 		}
-		else cpuUpdateMacro2D(nodeType, args->rho, u, v, bcMask,
-				drag, lift, nodeX, nodeY, f);
+		else cpuUpdateMacro2D(nodeType, rho, u, v, bcMask,
+				drag, lift, nodeX, nodeY, f, args->boundaryId);
 
 		tInstant2 = clock();
 		//CHECK(cudaEventRecord(stop, 0));
 		//CHECK(cudaEventSynchronize(stop));
 		//CHECK(cudaEventElapsedTime(&cudatime, start, stop));
-		taskTime[T_MACR] += cudatime;
+		//taskTime[T_MACR] += cudatime;
 
 		// COMPUTE RESIDUALS
 		if (AuxMacroDiff * args->ShowMacroDiff == iter + 1) {
@@ -556,8 +556,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			FLOAT_TYPE r;
 			if(args->multiPhase){
 				//				cpu_abs_sub(f_d, f_prev_d, temp9a_d, n * m * 9, d_divergence);
-				cpu_abs_relSub(f, f_prev, temp9a, n * m * 9, h_divergence);
-				fMaxDiff = gpu_max_h(temp9a, temp9b, n * m * 9);
+				cpu_abs_relSub(f, f_prev, temp9a, n * m * 9, &h_divergence);
+				fMaxDiff = cpu_max_h(temp9a, temp9b, n * m * 9);
 				//	printf("MAX diff "FLOAT_FORMAT"\n", fMaxDiff);
 				//CHECK(cudaMemcpy(&h_divergence,d_divergence,sizeof(bool),cudaMemcpyDeviceToHost));
 				if (h_divergence || fMaxDiff != fMaxDiff || !isfinite(fMaxDiff)) {

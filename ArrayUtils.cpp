@@ -4,6 +4,8 @@
  * @author Adam Koleszar (adam.koleszar@gmail.com)
  */
 #include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 #include <stdio.h>
 //#include <cuda.h>
 #include <time.h>

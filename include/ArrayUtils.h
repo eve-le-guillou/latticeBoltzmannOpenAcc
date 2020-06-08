@@ -10,6 +10,7 @@
 
 #include <stdbool.h>  // bool variables
 #include "FloatType.h"
+#include <cstddef>
 
 #define THREADS 16 ///< number of threads used for kernels
 

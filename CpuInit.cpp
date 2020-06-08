@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <stdio.h>
 #include <complex.h>
 #include <cuComplex.h>
@@ -876,7 +877,7 @@ void initConstants3D(Arguments *args,
 
         int ms = n * m;
         for(int i = 0; i < 105; i++){
-            hoc3D[i] = hocg_cz[i] * ms + hocg_cy[i] * n + hocg_cx[i];
+            hoc3D[i] = hocg_cz3D[i] * ms + hocg_cy3D[i] * n + hocg_cx3D[i];
         }
     }
 }
@@ -904,7 +905,7 @@ void cpuInitInletProfile3D(FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d,
     FLOAT_TYPE a1 = 0.296;
     FLOAT_TYPE c[5] = { 0.0, -0.046, 0.0, 0.0, 0.0 };  //Epsilon 1==square duct
 
-    if (int idx = 0; idx < size; idx++) {
+    for (int idx = 0; idx < size; idx++) {
         rad = sqrtf((powf(y_d[idx], 2)) + (powf(z_d[idx], 2))); //transform to polar coord
         Tta = atanf(z_d[idx] / y_d[idx]);					//radius and angle
 

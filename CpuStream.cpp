@@ -7,9 +7,9 @@
 
 void cpuStreaming2D(int* fluid_d, int* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d)
 {
-    int ms = depth*length_d;
+    int ms = depth*length;
     FLOAT_TYPE *f, *mf;
-    int n = length_d;
+    int n = length;
     for (int ind = 0; ind < ms; ind++) {
         if (fluid_d[ind] == 1) {
             f_d[ind] = fColl_d[ind];    //Update fNewStep = fColl
@@ -33,10 +33,10 @@ void cpuStreaming2D(int* fluid_d, int* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fC
 
 void cpuStreaming2DCG(int* fluid_d, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE* r_fColl_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE* b_fColl_d, int *cg_dir_d)
 {
-    int ms = depth*length_d;
+    int ms = depth*length;
     FLOAT_TYPE *r_f, *r_mf, *b_f, *b_mf;
-    int n = length_d;
-    for (ind = 0; ind <size; ind++)
+    int n = length;
+    for (int ind = 0; ind <ms; ind++)
     {
         int ori = cg_dir_d[ind];
         r_f_d[ind] = r_fColl_d[ind];	//Update fNewStep = fColl
@@ -162,9 +162,9 @@ void cpuStreaming2DCG(int* fluid_d, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE
 
 void cpuStreaming3D(int* fluid_d, bool* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d)
 {
-    int ms = depth*length_d*height;
+    int ms = depth*length*height;
     FLOAT_TYPE *f, *mf;
-    if (int ind = 0; ind < ms; ind ++){
+    for (int ind = 0; ind < ms; ind ++){
         if (fluid_d[ind] == 1) {
             f_d[ind] = fColl_d[ind];    //Update fNewStep = fColl
             f = f_d +

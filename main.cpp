@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
 		args.control_param = 0.9;
 		args.g_limit = 0;
 		args.bubble_radius = 9;
-		args.test_case = 2;
+		args.test_case = 6;
 		//Not file
 		args.b_density = args.r_density / args.gamma;
 		args.r_alpha = (1.0 - ((1.0 - args.b_alpha) / args.gamma));

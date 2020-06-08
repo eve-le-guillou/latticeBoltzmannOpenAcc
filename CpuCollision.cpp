@@ -6,6 +6,7 @@
 
 #include "CpuFunctions.h"
 #include "CpuConstants.h"
+#include <cstdlib>
 
 /**
  * @brief Compute the equilibrum distribution without the collision frequency
@@ -549,8 +550,6 @@ FLOAT_TYPE feq2DCG(FLOAT_TYPE u, FLOAT_TYPE v, int cx, int cy, FLOAT_TYPE chi, F
 void cpuCollBgkw2D(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
                               FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d)
 {
-    int ind = blockIdx.x * blockDim.x + threadIdx.x;
-
     int ms = depth*length;
     FLOAT_TYPE r, u, v;
     for (int ind = 0; ind < ms; ind++) {
@@ -642,7 +641,6 @@ void cpuCollBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d
 void cpuCollEnhancedBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
                                         FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order){
 
-    int ind = blockIdx.x * blockDim.x + threadIdx.x;
     int ms = depth*length;
     int cx, cy;
     FLOAT_TYPE r_r, b_r, r, u, v, cg_x, cg_y, gr_x, gr_y;
@@ -892,7 +890,6 @@ void cpuCollEnhancedBgkwGC3D(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_
 void cpuCollBgkw3D(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
                               FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d)
 {
-    int ind =  blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
 
     int ms = depth*length*height;
     FLOAT_TYPE r, u, v, w;
@@ -946,7 +943,6 @@ void cpuCollBgkw3D(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
 void cpuCollTrt(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
                            FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d)
 {
-    int ind = blockIdx.x * blockDim.x + threadIdx.x;
     int ms = depth*length;
     FLOAT_TYPE r, u, v;
     for (int ind = 0; ind < ms; ind++) {

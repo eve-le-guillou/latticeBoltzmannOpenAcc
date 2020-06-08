@@ -279,16 +279,17 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 		createBubble3D(nodeX, nodeY,nodeZ, n, m, h,args->bubble_radius, r_f, b_f,r_rho,b_rho, args->r_density, args->b_density, phi, rho, f);
 	}
 #endif
-	int *cg_directions, *cg_directions;
-	FLOAT_TYPE *r_rho, *b_rho, *r_f, *b_f, *r_fColl, *b_fColl, *p_in, *p_out;
+	int *cg_directions;
+	//FLOAT_TYPE *r_rho, *b_rho, *r_f, *b_f, *r_fColl, *b_fColl;
 	int *num_in, *num_out;
+	FLOAT_TYPE *p_in, *p_out;
 	if(args->multiPhase){
-		r_rho = createHostArrayFlt(m * n * h, ARRAY_ZERO);
+		/*r_rho = createHostArrayFlt(m * n * h, ARRAY_ZERO);
 		b_rho = createHostArrayFlt(m * n * h, ARRAY_ZERO);
 		r_f = createHostArrayFlt(m * n * h * 19, ARRAY_ZERO);
 		b_f = createHostArrayFlt(m * n * h * 19, ARRAY_ZERO);
 		r_fColl = createHostArrayFlt(m * n * h * 19, ARRAY_ZERO);
-		b_fColl = createHostArrayFlt(m * n * h * 19, ARRAY_ZERO);
+		b_fColl = createHostArrayFlt(m * n * h * 19, ARRAY_ZERO);*/
 		cg_directions = createHostArrayInt(n * m * h, ARRAY_ZERO);
 		if(args->test_case == 1){
 			p_in = createHostArrayFlt(n*m*h, ARRAY_ZERO);
@@ -298,7 +299,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 		}
 	}
 
-	FLOAT_TYPE *f = createHostArrayFlt(19 * m * n * h, ARRAY_ZERO);
+	//FLOAT_TYPE *f = createHostArrayFlt(19 * m * n * h, ARRAY_ZERO);
 	FLOAT_TYPE *fColl = createHostArrayFlt(19 * m * n * h, ARRAY_ZERO);
 	FLOAT_TYPE *f1, *fprev;
 	if (args->TypeOfResiduals == FdRelDiff) {
@@ -674,7 +675,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 					r = computeNewResidual3D(f, fprev, f1, temp19a,
 							temp19b, m, n, h);
 					//CHECK(cudaFree(fprev));
-					free(fprev);
+					delete[] fprev;
 					fprev = createHostArrayFlt(19 * n * m * h, ARRAY_CPYD, 0,
 							f);
 
@@ -683,21 +684,21 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 					//CHECK(cudaMalloc(&d_divergence,sizeof(bool)));
 					//CHECK(cudaMemcpy(d_divergence,&h_divergence,sizeof(bool),cudaMemcpyHostToDevice));
 					if(args->multiPhase){
-						cpu_abs_sub(f, f_prev, temp19a, n * m * h * 19, h_divergence);
+						cpu_abs_sub(f, f_prev, temp19a, n * m * h * 19, &h_divergence);
 						fMaxDiff = cpu_max_h(temp19a, temp19b, n * m * h * 19);
 					}
 					else{
 						cpu_abs_sub(u, u_prev, tempA,
-								n * m * h, h_divergence);
+								n * m * h, &h_divergence);
 						uMaxDiff = cpu_max_h(tempA, tempB, n * m * h);
 						cpu_abs_sub(v, v_prev, tempA,
-								n * m * h, h_divergence);
+								n * m * h, &h_divergence);
 						vMaxDiff = cpu_max_h(tempA, tempB, n * m * h);
 						cpu_abs_sub(w, w_prev, tempA,
-								n * m * h, h_divergence);
+								n * m * h, &h_divergence);
 						wMaxDiff = cpu_max_h(tempA, tempB, n * m * h);
 						cpu_abs_sub(rho_calc, rho_prev, tempA,
-								n * m * h, h_divergence);
+								n * m * h, &h_divergence);
 						rhoMaxDiff = cpu_max_h(tempA, tempB, n * m * h);
 					}
 					//CHECK(cudaMemcpy(&h_divergence,h_divergence,sizeof(bool),cudaMemcpyDeviceToHost));
@@ -723,7 +724,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 
 					if(args->multiPhase){
 						//CHECK(cudaFree(f_prev));
-						free(f_prev);
+						delete[] f_prev;
 						f_prev = createHostArrayFlt(n * m * h * 19, ARRAY_CPYD, 0, f);
 					}else{
 						writeMacroDiffs(iter + 1, uMaxDiff, vMaxDiff, wMaxDiff,	rhoMaxDiff);
@@ -731,10 +732,10 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 						//CHECK(cudaFree(v_prev));
 						//CHECK(cudaFree(w_prev));
 						//CHECK(cudaFree(rho_prev));
-						free(u_prev);
-                        free(v_prev);
-                        free(w_prev);
-                        free(rho_prev);
+						delete[] u_prev;
+                        delete[] v_prev;
+                        delete[] w_prev;
+                        delete[] rho_prev;
 						u_prev = createHostArrayFlt(n * m * h, ARRAY_CPYD, 0, u);
 						v_prev = createHostArrayFlt(n * m * h, ARRAY_CPYD, 0, v);
 						w_prev = createHostArrayFlt(n * m * h, ARRAY_CPYD, 0, w);
@@ -763,7 +764,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 		}
 		if(args->multiPhase){
 			//CHECK(cudaFree(f_prev));
-			free(f_prev);
+			delete[] f_prev;
 			f_prev = createHostArrayFlt(n * m * h * 19, ARRAY_CPYD, 0, f);
 		}
 		norm[iter] = r;
@@ -915,16 +916,16 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 	if(args->multiPhase){
 #if CUDA
 		if(args->test_case == 1)
-			freeAllHost(mpTC1HostArrays, sizeof(mpTC1HostArrays) / sizeof(mpTC1HostArrays[0]));
+			freeAllHost(mpTC1GpuArrays, sizeof(mpTC1GpuArrays) / sizeof(mpTC1GpuArrays[0]));
 #else
 		freeAllHost(mpHostArrays, sizeof(mpHostArrays) / sizeof(mpHostArrays[0]));
 #endif
 	}
 	if (args->TypeOfResiduals == FdRelDiff) {
-		freeAllHost(FDdifHostArrays, sizeof(FDdifHostArrays) / sizeof(FDdifHostArrays[0]));
+		freeAllHost(FDdifGpuArrays, sizeof(FDdifGpuArrays) / sizeof(FDdifGpuArrays[0]));
 	}
 	if (args->TypeOfResiduals != MacroDiff) {
-		freeAllHost(nonMacroDiffHostArrays, sizeof(nonMacroDiffHostArrays) / sizeof(nonMacroDiffHostArrays[0]));
+		freeAllHost(nonMacroDiffGpuArrays, sizeof(nonMacroDiffGpuArrays) / sizeof(nonMacroDiffGpuArrays[0]));
 	}
 
 	return 0;

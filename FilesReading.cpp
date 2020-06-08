@@ -6,7 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include "GpuSum.h"
+#include <cstring>
+#include "CpuSum.h"
 #include "FilesReading.h"
 #include "ArrayUtils.h"
 #include "math.h"

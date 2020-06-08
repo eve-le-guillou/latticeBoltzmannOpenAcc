@@ -1,4 +1,5 @@
 #include "Multiphase.h"
+#include <cstdlib>
 #include <math.h>
 #include <stdio.h>
 #include "ArrayUtils.h"

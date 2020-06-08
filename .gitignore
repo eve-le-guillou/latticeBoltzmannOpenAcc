@@ -4,3 +4,4 @@ gpu.sub
 gpu_lbmsolver.o*
 *.o
 .idea
+lbmsolver

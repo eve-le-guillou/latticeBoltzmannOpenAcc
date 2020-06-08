@@ -1864,7 +1864,7 @@ void cpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
     int ms = depth * length;
     int offsetY = length * (depth - 1);
     int offsetX = length - 1;
-    for (int bci = 0; bci < size; bci++) {
+    for (int ind = 0; ind < size; ind++) {
         int ori = orientation_d[ind];
         switch(ori){
             case 1: //NORTH
