@@ -395,8 +395,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			//gpu reduction is faster than serial surface tension
 			switch(args->test_case){
 			case 1:
-				p_in_mean = gpu_sum_h(p_in_d, p_in_d, ms) / gpu_sum_int_h(num_in_d, num_in_d, ms);
-				p_out_mean = gpu_sum_h(p_out_d, p_out_d, ms) / gpu_sum_int_h(num_out_d, num_out_d, ms);
+				//p_in_mean = gpu_sum_h(p_in_d, p_in_d, ms) / gpu_sum_int_h(num_in_d, num_in_d, ms);
+				//p_out_mean = gpu_sum_h(p_out_d, p_out_d, ms) / gpu_sum_int_h(num_out_d, num_out_d, ms);
 				st_error[iter] = calculateSurfaceTension(p_in_mean, p_out_mean,args->r_alpha, args->b_alpha, args->bubble_radius * n, st_predicted);
 				break;
 			case 5:

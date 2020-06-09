@@ -46,10 +46,10 @@ FLOAT_TYPE delta, int m, int n);
  * @param n number of rows
  * @param h number of layer
  */
-//__host__ void initConstants3D(Arguments *args,
+/*__host__ void initConstants3D(Arguments *args,
 FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minInletCoordY,
 FLOAT_TYPE maxInletCoordZ, FLOAT_TYPE minInletCoordZ,
-FLOAT_TYPE delta, int m, int n, int h);
+FLOAT_TYPE delta, int m, int n, int h);*/
 /**
  * @brief Initialise initial velocity vector for inlet profile
  * @details This function only sets the x velocity (u) to the following profile

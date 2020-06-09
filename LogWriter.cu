@@ -147,7 +147,7 @@ void writeEndLog(const char *filename, FLOAT_TYPE *taskTimes) {
 	FILE* logFile = fopen(filename, "a");
 		size_t free, total;
 
-	cuMemGetInfo(&free, &total);
+//	cuMemGetInfo(&free, &total);
 	fprintf(logFile,"^^^^ Free : %llu Mbytes \n",
 			(unsigned long long) free / 1024 / 1024);
 

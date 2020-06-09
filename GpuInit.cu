@@ -56,6 +56,7 @@ FLOAT_TYPE A_d;
 FLOAT_TYPE r_density_d;
 FLOAT_TYPE b_density_d;
 bool external_force_d;
+FLOAT_TYPE g_d;
 
 //COLOR GRADIENT 2D//
 FLOAT_TYPE control_param_d;
@@ -70,22 +71,22 @@ FLOAT_TYPE cg_w_d[9];
 FLOAT_TYPE hocg_w_d[25];
 int hocg_cx_d[25];
 int hocg_cy_d[25];
-/*
+
 //COLOR GRADIENT 3D//
-__constant__ FLOAT_TYPE r_viscosity_d;
-__constant__ FLOAT_TYPE b_viscosity_d;
-__constant__ FLOAT_TYPE c_norms3D_d[19];
-__constant__ FLOAT_TYPE w_pert3D_d[19];
-__constant__ FLOAT_TYPE phi3D_d[19];
-__constant__ FLOAT_TYPE teta3D_d[19];
-__constant__ FLOAT_TYPE chi3D_d[19];
-__constant__ FLOAT_TYPE psi3D_d[19];
-__constant__ FLOAT_TYPE cg_w3D_d[19];
-__constant__ FLOAT_TYPE hocg_w3D_d[105];
-__constant__ int hocg_cx3D_d[105];
-__constant__ int hocg_cy3D_d[105];
-__constant__ int hocg_cz3D_d[105];
-__constant__ int hoc3D_d[105];*/
+FLOAT_TYPE r_viscosity_d;
+FLOAT_TYPE b_viscosity_d;
+FLOAT_TYPE c_norms3D_d[19];
+FLOAT_TYPE w_pert3D_d[19];
+FLOAT_TYPE phi3D_d[19];
+FLOAT_TYPE teta3D_d[19];
+FLOAT_TYPE chi3D_d[19];
+FLOAT_TYPE psi3D_d[19];
+FLOAT_TYPE cg_w3D_d[19];
+FLOAT_TYPE hocg_w3D_d[105];
+int hocg_cx3D_d[105];
+int hocg_cy3D_d[105];
+int hocg_cz3D_d[105];
+int hoc3D_d[105];
 
 void initConstants2D(Arguments *args,
 		FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minInletCoordY,
