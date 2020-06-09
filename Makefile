@@ -1,6 +1,6 @@
 FLOAT_TYPE=USE_DOUBLE
 
-CFLAGS=-arch=sm_35 -rdc=true -g -G
+CFLAGS=-arch=sm_35 -rdc=true #-g -G
 PGIFLAGS=-x cu -ccbin pgc++ -Xcompiler " -ta=tesla:rdc -Mcuda -Minfo=accel -largtable2 -DUSE_DOUBLE -Iinclude -Llibs"
 DEFINES=-D$(FLOAT_TYPE)
 INCLUDES=-Iinclude
