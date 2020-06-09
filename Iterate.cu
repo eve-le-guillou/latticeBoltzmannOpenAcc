@@ -235,7 +235,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 		//CHECK(cudaMemcpy(u_d, u, SIZEFLT(m*n), cudaMemcpyHostToDevice));
 		//CHECK(cudaMemcpy(v_d, v, SIZEFLT(m*n), cudaMemcpyHostToDevice));
 	}
-	memcpy(u, u_d, SIZEFLT(m*n));
+
 	memcpy(v, v_d, SIZEFLT(m*n));
 
 	fclose(logFile);
@@ -311,20 +311,20 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			if(args->multiPhase){
 				//Collision
 				if(!args->enhanced_distrib)
-					gpuCollBgkwGC2D(rho, r_rho, b_rho, u_d, v_d, f_d, r_fColl_d, b_fColl_d, cg_directions, args->high_order);
+					gpuCollBgkwGC2D(rho, r_rho, b_rho, u, v_d, f_d, r_fColl_d, b_fColl_d, cg_directions, args->high_order);
 				else
-					gpuCollEnhancedBgkwGC2D(rho, r_rho, b_rho, u_d, v_d, f_d, r_fColl_d, b_fColl_d, cg_directions, args->high_order);
+					gpuCollEnhancedBgkwGC2D(rho, r_rho, b_rho, u, v_d, f_d, r_fColl_d, b_fColl_d, cg_directions, args->high_order);
 			}else{
-				//gpuCollBgkw2D<<<bpg1, tpb>>>(nodeType, rho, u_d, v_d, f_d,
+				//gpuCollBgkw2D<<<bpg1, tpb>>>(nodeType, rho, u, v_d, f_d,
 				//		fColl_d);
 			}
 			break;
 		case TRT:
-			//gpuCollTrt<<<bpg1, tpb>>>(nodeType, rho, u_d, v_d, f_d, fColl_d);
+			//gpuCollTrt<<<bpg1, tpb>>>(nodeType, rho, u, v_d, f_d, fColl_d);
 			break;
 
 		case MRT:
-			//gpuCollMrt2D<<<bpg1, tpb>>>(nodeType, rho, u_d, v_d, f_d, fColl_d);
+			//gpuCollMrt2D<<<bpg1, tpb>>>(nodeType, rho, u, v_d, f_d, fColl_d);
 			break;
 		}
 
@@ -364,7 +364,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 
 		if(args->multiPhase){
 			gpuBcPeriodic2D(bcIdxCollapsed_d, bcMaskCollapsed_d, r_f_d, b_f_d,bcCount, cg_directions, args->test_case, r_rho, b_rho, rho,
-					u_d, v_d);
+					u, v_d);
 
 		} else{
 		/*	gpuBcInlet2D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
@@ -384,7 +384,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 		//CHECK(cudaThreadSynchronize());
 		//CHECK(cudaEventRecord(start, 0));
 		if(args->multiPhase){
-			gpuUpdateMacro2DCG(rho, u_d, v_d, r_f_d, b_f_d, f_d, r_rho, b_rho, p_in_d, p_out_d, num_in_d, num_out_d, cg_directions,
+			gpuUpdateMacro2DCG(rho, u, v_d, r_f_d, b_f_d, f_d, r_rho, b_rho, p_in_d, p_out_d, num_in_d, num_out_d, cg_directions,
 					args->test_case);
 
 			//			updateSurfaceTension(r_rho,b_rho,args->control_param, st_predicted, st_error, iter,args->r_alpha, args->b_alpha, args->bubble_radius, n ,m);
@@ -405,7 +405,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 				break;
 			}
 		}
-		else; //gpuUpdateMacro2D<<<bpg1, tpb>>>(nodeType, rho, u_d, v_d, bcMask_d,
+		else; //gpuUpdateMacro2D<<<bpg1, tpb>>>(nodeType, rho, u, v_d, bcMask_d,
 			//	drag_d, lift_d, nodeX, nodeY, f_d);
 
 		/*tInstant2 = clock();
@@ -478,7 +478,6 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			if (iter > args->autosaveAfter) {
 				printf("autosave\n\n");
 				//////////// COPY VARIABLES TO HOST ////////////////
-				memcpy(u, u_d, SIZEFLT(m*n));
 				memcpy(v, v_d, SIZEFLT(m*n));
 				switch (args->outputFormat) {
 				case CSV:
@@ -516,7 +515,6 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			args->iterations);
 
 	//WRITE VARIABLES TO HOST
-	memcpy(u, u_d, SIZEFLT(m*n));
 	memcpy(v, v_d, SIZEFLT(m*n));
 	switch (args->outputFormat) {
 	case CSV:
