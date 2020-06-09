@@ -3,10 +3,10 @@
 #include "BcMacros3D.h"
 #include "GpuConstants.h"
 
-/*__global__ void gpuUpdateMacro2D(int *fluid_d, FLOAT_TYPE* rho_d,
+/*__global__ void gpuUpdateMacro2D(int *nodeType, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, int *bcMask_d, FLOAT_TYPE* drag_d,
 		FLOAT_TYPE* lift_d,
-		FLOAT_TYPE* coordX_d, FLOAT_TYPE* coordY_d, FLOAT_TYPE* f_d) {
+		FLOAT_TYPE* nodeX, FLOAT_TYPE* nodeY, FLOAT_TYPE* f_d) {
 	int ind = threadIdx.x + blockIdx.x * blockDim.x;
 
 	int ms = depth_d * length_d;
@@ -14,7 +14,7 @@
 	FLOAT_TYPE r, u, v;
 
 	if (ind < ms) {
-		if (fluid_d[ind] == 1) {
+		if (nodeType[ind] == 1) {
 			r = u = v = 0.0;
 			r = f_d[ind] + f_d[ind + ms] + f_d[ind + 2 * ms] + f_d[ind + 3 * ms]
 			                                                       + f_d[ind + 4 * ms] + f_d[ind + 5 * ms] + f_d[ind + 6 * ms]
@@ -33,8 +33,8 @@
 			if (dlBoundaryId_d
 					!= 0&& (bcMask_d[ind] & BND_ID_ALL) == BOUND_ID(dlBoundaryId_d)) {
 				// printf("draglift: %d\n",ind);
-				drag_d[ind] = 0.33333333 * r * (20 - coordX_d[ind]) * 0.2;
-				lift_d[ind] = 0.33333333 * r * (20 - coordY_d[ind]) * 0.2;
+				drag_d[ind] = 0.33333333 * r * (20 - nodeX[ind]) * 0.2;
+				lift_d[ind] = 0.33333333 * r * (20 - nodeY[ind]) * 0.2;
 			}
 		}
 	}
@@ -136,9 +136,9 @@ void gpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
 	}
 }
 
-/*__global__ void gpuUpdateMacro3D(int *fluid_d, FLOAT_TYPE* rho_d,
+/*__global__ void gpuUpdateMacro3D(int *nodeType, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, FLOAT_TYPE* w_d, int* bcBoundId_d,
-		FLOAT_TYPE* coordX_d, FLOAT_TYPE* coordY_d, FLOAT_TYPE* coordZ_d,
+		FLOAT_TYPE* nodeX, FLOAT_TYPE* nodeY, FLOAT_TYPE* coordZ_d,
 		FLOAT_TYPE* f_d, FLOAT_TYPE g, unsigned long long *bcMask_d,int updateInltOutl)
 {
 	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
@@ -149,7 +149,7 @@ void gpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
 	FLOAT_TYPE r, rU, rV, rW;
 
 	if (ind < ms) {
-		if (fluid_d[ind] == 1
+		if (nodeType[ind] == 1
 				&& (!(((bcMask_d[ind] & BC3D_OUTL_B) ==BC3D_INLT_B))||updateInltOutl)) {
 			r = rU = rV = rW = 0.0;
 			r = f_d[ind] +
@@ -214,7 +214,7 @@ void gpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
 
 }*/
 
-/*__global__ void gpuUpdateMacro3DCG(int *fluid_d, FLOAT_TYPE* rho_d,
+/*__global__ void gpuUpdateMacro3DCG(int *nodeType, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, FLOAT_TYPE* w_d, int* bcBoundId_d,
 		FLOAT_TYPE* f_d, FLOAT_TYPE g, unsigned long long *bcMask_d,int updateInltOutl, FLOAT_TYPE* r_f_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE* r_rho_d,
 		FLOAT_TYPE* b_rho_d, FLOAT_TYPE *p_in_d, FLOAT_TYPE *p_out_d,
@@ -234,7 +234,7 @@ void gpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
 			num_in_d[ind] = 0;
 			num_out_d[ind] = 0;
 		}
-		if (fluid_d[ind] == 1 && (!(((bcMask_d[ind] & BC3D_OUTL_B) ==BC3D_INLT_B))||updateInltOutl)) {
+		if (nodeType[ind] == 1 && (!(((bcMask_d[ind] & BC3D_OUTL_B) ==BC3D_INLT_B))||updateInltOutl)) {
 
 			aux1 = r_rho_d[ind] / (rho_d[ind] * r_viscosity_d) + b_rho_d[ind] /(rho_d[ind] * b_viscosity_d);
 			mean_nu = 1.0/aux1;

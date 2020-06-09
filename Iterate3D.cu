@@ -91,9 +91,9 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 		return 2;
 	}
 
-	int *fluid_d = createGpuArrayInt(numNodes, ARRAY_COPY, 0, nodeType);
-	FLOAT_TYPE *coordX_d = createGpuArrayFlt(numNodes, ARRAY_COPY, 0., nodeX);
-	FLOAT_TYPE *coordY_d = createGpuArrayFlt(numNodes, ARRAY_COPY, 0., nodeY);
+	int *nodeType = createGpuArrayInt(numNodes, ARRAY_COPY, 0, nodeType);
+	FLOAT_TYPE *nodeX = createGpuArrayFlt(numNodes, ARRAY_COPY, 0., nodeX);
+	FLOAT_TYPE *nodeY = createGpuArrayFlt(numNodes, ARRAY_COPY, 0., nodeY);
 	FLOAT_TYPE *coordZ_d = createGpuArrayFlt(numNodes, ARRAY_COPY, 0., nodeZ);
 
 	numConns = readConnFile(inFn->bc, &bcNodeIdX, &bcNodeIdY, &bcNodeIdZ,
@@ -202,7 +202,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 				"Inlet profile is not currently available! Please initiate Inlet profile from file!\n");
 		return 0;
 		//		gpuInitInletProfile3D<<<(int) (m * h / THREADS) + 1, tpb>>>(u1_d, v1_d,
-		//				w1_d, coordY_d, coordZ_d, m * h);
+		//				w1_d, nodeY, coordZ_d, m * h);
 	}
 	FLOAT_TYPE *u_prev_d, *v_prev_d, *w_prev_d, *rho_prev_d, *f_prev_d;
 	if (args->TypeOfResiduals == MacroDiff) {
@@ -317,7 +317,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 		else
 			initColorGradient3D(cg_directions, n, m, h);
 		CHECK(cudaMemcpy(cg_dir_d, cg_directions, SIZEINT(m*n*h), cudaMemcpyHostToDevice));
-		initCGBubble3D<<<bpg1,tpb>>>(coordX_d,coordY_d,coordZ_d,r_rho_d, b_rho_d, rho_d, r_f_d, b_f_d, f_d, args->test_case);
+		initCGBubble3D<<<bpg1,tpb>>>(nodeX,nodeY,coordZ_d,r_rho_d, b_rho_d, rho_d, r_f_d, b_f_d, f_d, args->test_case);
 	}
 #endif
 
@@ -406,7 +406,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 			norm, dragSum, liftSum, latFSum};
 
 	void *gpuArrays[] =
-	{ coordX_d, coordY_d, coordZ_d, fluid_d, bcNodeIdX_d, bcNodeIdY_d,
+	{ nodeX, nodeY, coordZ_d, nodeType, bcNodeIdX_d, bcNodeIdY_d,
 			bcNodeIdZ_d, latticeId_d, bcType_d, bcX_d, bcY_d, bcZ_d,
 			bcBoundId_d, u_d, v_d, w_d, rho_d, u1_d, v1_d, w1_d, f_d, fColl_d, tempA_d, tempB_d,
 			bcMaskCollapsed_d, bcIdx_d, bcIdxCollapsed_d,
@@ -497,24 +497,24 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 						args->b_viscosity, args->r_alpha, args->b_alpha, chi, phi, psi, teta, cg_w);
 #else
 				if(!args->enhanced_distrib)
-					gpuCollBgkwGC3D<<<bpg1, tpb>>>(fluid_d, rho_d, r_rho_d, b_rho_d, u_d, v_d, w_d, f_d, r_fColl_d, b_fColl_d, cg_dir_d, args->high_order);
+					gpuCollBgkwGC3D<<<bpg1, tpb>>>(nodeType, rho_d, r_rho_d, b_rho_d, u_d, v_d, w_d, f_d, r_fColl_d, b_fColl_d, cg_dir_d, args->high_order);
 				else
-					gpuCollEnhancedBgkwGC3D<<<bpg1, tpb>>>(fluid_d, rho_d, r_rho_d, b_rho_d, u_d, v_d, w_d, f_d, r_fColl_d, b_fColl_d, cg_dir_d, args->high_order);
+					gpuCollEnhancedBgkwGC3D<<<bpg1, tpb>>>(nodeType, rho_d, r_rho_d, b_rho_d, u_d, v_d, w_d, f_d, r_fColl_d, b_fColl_d, cg_dir_d, args->high_order);
 #endif
 			}
 			else{
-				gpuCollBgkw3D<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, w_d, f_d,
+				gpuCollBgkw3D<<<bpg1, tpb>>>(nodeType, rho_d, u_d, v_d, w_d, f_d,
 						fColl_d);
 			}
 			break;
 
 		case TRT:
 			printf("TRT not implemented in 3D go for MRT \n");
-			//        gpuCollTrt<<<bpg1,tpb>>>(fluid_d, rho_d, u_d, v_d, w_d, f_d, fColl_d);
+			//        gpuCollTrt<<<bpg1,tpb>>>(nodeType, rho_d, u_d, v_d, w_d, f_d, fColl_d);
 			break;
 
 		case MRT:
-			gpuCollMrt3D<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, w_d, f_d,
+			gpuCollMrt3D<<<bpg1, tpb>>>(nodeType, rho_d, u_d, v_d, w_d, f_d,
 					fColl_d);
 			break;
 		}
@@ -532,12 +532,12 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 #if !CUDA
 			streamMP3D(n, m, h, r_f, b_f, r_fColl, b_fColl, stream);
 #else
-			gpuStreaming3D<<<bpg1, tpb>>>(fluid_d, stream_d, r_f_d, r_fColl_d);
-			gpuStreaming3D<<<bpg1, tpb>>>(fluid_d, stream_d, b_f_d, b_fColl_d);
+			gpuStreaming3D<<<bpg1, tpb>>>(nodeType, stream_d, r_f_d, r_fColl_d);
+			gpuStreaming3D<<<bpg1, tpb>>>(nodeType, stream_d, b_f_d, b_fColl_d);
 #endif
 		}
 		else{
-			gpuStreaming3D<<<bpg1, tpb>>>(fluid_d, stream_d, f_d, fColl_d);
+			gpuStreaming3D<<<bpg1, tpb>>>(nodeType, stream_d, f_d, fColl_d);
 		}
 
 		CHECK(cudaEventRecord(stop, 0));
@@ -627,7 +627,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 			updateMacroMP3D(n, m, h, u, v, w, r_rho, b_rho, r_f, b_f, rho, args->control_param,args->r_alpha, args->b_alpha,
 					args->bubble_radius,st_error, iter, 1, cx, cy, cz, f);
 #else
-			gpuUpdateMacro3DCG<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, w_d,
+			gpuUpdateMacro3DCG<<<bpg1, tpb>>>(nodeType, rho_d, u_d, v_d, w_d,
 					bcBoundId_d, f_d, args->g,bcMask_d,args->UpdateInltOutl, r_f_d, b_f_d, r_rho_d, b_rho_d, p_in_d, p_out_d, num_in_d, num_out_d, args->test_case);
 			switch(args->test_case){
 			case 1:
@@ -641,8 +641,8 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 #endif
 		}
 		else{
-			gpuUpdateMacro3D<<<bpg1, tpb>>>(fluid_d, rho_d, u_d, v_d, w_d,
-					bcBoundId_d, coordX_d, coordY_d, coordZ_d, f_d, args->g,bcMask_d,args->UpdateInltOutl);
+			gpuUpdateMacro3D<<<bpg1, tpb>>>(nodeType, rho_d, u_d, v_d, w_d,
+					bcBoundId_d, nodeX, nodeY, coordZ_d, f_d, args->g,bcMask_d,args->UpdateInltOutl);
 		}
 		tInstant2 = clock();
 		CHECK(cudaEventRecord(stop, 0));

@@ -30,13 +30,13 @@ __device__ FLOAT_TYPE feqc3D(FLOAT_TYPE u, FLOAT_TYPE uc, FLOAT_TYPE v, FLOAT_TY
     return rho * weight * (1. + 3.*vec + 4.5*vec*vec - 1.5*(u*u + v*v+ w*w));
 }
 
-__global__ void gpuCollBgkw2D(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
+__global__ void gpuCollBgkw2D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
                             FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d)
 {
     int ind = blockIdx.x * blockDim.x + threadIdx.x;
     int ms = depth_d*length_d;
     FLOAT_TYPE r, u, v;
-    if (ind < ms && fluid_d[ind] == 1)
+    if (ind < ms && nodeType[ind] == 1)
     {
         u =   u_d[ind];
         v =   v_d[ind];
@@ -53,13 +53,13 @@ __global__ void gpuCollBgkw2D(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
     }
 }
 
-__global__ void gpuCollBgkw3D(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
+__global__ void gpuCollBgkw3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
 								FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d)
 {
     int ind = blockIdx.x * blockDim.x + threadIdx.x;
     int ms = depth_d*length_d*height_d;
     FLOAT_TYPE r, u, v, w;
-    if (ind < ms && fluid_d[ind] == 1)
+    if (ind < ms && nodeType[ind] == 1)
     {
         u = u_d[ind];
         v = v_d[ind];
@@ -87,13 +87,13 @@ __global__ void gpuCollBgkw3D(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
         fColl_d[ ind +18 *ms ] = omega_d * feqc3D(u, cx3D_d[18 ], v, cy3D_d[18 ], w, cz3D_d[18 ], r, w3D_d[18 ]) + (1.0-omega_d) * f_d[ind+18 *ms];
     }
 }
-__global__ void gpuCollTrt(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
+__global__ void gpuCollTrt(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
                         FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d)
 {
     int ind = blockIdx.x * blockDim.x + threadIdx.x;
     int ms = depth_d*length_d;
     FLOAT_TYPE r, u, v;
-    if (ind < ms && fluid_d[ind] == 1)
+    if (ind < ms && nodeType[ind] == 1)
     {
         u = u_d[ind];
         v = v_d[ind];
@@ -141,7 +141,7 @@ __global__ void gpuCollTrt(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
     }
 }
 
-__global__ void gpuCollMrt2D(int* fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d, FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d)
+__global__ void gpuCollMrt2D(int* nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d, FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d)
 {
     int ind = blockIdx.x * blockDim.x + threadIdx.x;
     int ms = depth_d*length_d;
@@ -149,7 +149,7 @@ __global__ void gpuCollMrt2D(int* fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d, F
 
     FLOAT_TYPE r,u,v;
 
-    if (ind < ms && fluid_d[ind] == 1)
+    if (ind < ms && nodeType[ind] == 1)
     {
         r = rho_d[ind];
         u = u_d[ind];
@@ -210,7 +210,7 @@ __global__ void gpuCollMrt2D(int* fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d, F
     }
 }
 
-__global__ void gpuCollMrt3D(int* fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
+__global__ void gpuCollMrt3D(int* nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
 				FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d)
 {
     int ind = blockIdx.x * blockDim.x + threadIdx.x;
@@ -219,7 +219,7 @@ __global__ void gpuCollMrt3D(int* fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
 
     FLOAT_TYPE r,u,v,w;
 
-    if (ind < ms && fluid_d[ind] == 1)
+    if (ind < ms && nodeType[ind] == 1)
     {
         r = rho_d[ind];
         u = u_d[ind];

@@ -245,14 +245,14 @@ __global__ void gpuBcSymm3D(int *bcIdx_d, unsigned long long *bcMask_d,
  * \f[ f_i^{eq} = \rho w (1 + 3(u c_{xi} + v c_{yi}) + \frac{9}{2}(u c_{xi} + v c_{yi})^2 - \frac{3}{2}(u^2 + v^2)) \f]
  * \f[ f_i^{coll} = \omega f_i^{eq} + (1-\omega) f_i^{eq} \f]
  *
- * @param[in]  fluid_d fluid condition
+ * @param[in]  nodeType fluid condition
  * @param[in]  rho_d density
  * @param[in]  u_d,v_d velocity vectors (x,y)
  * @param[in]  f_d distribution function from boundary step
  * @param[out] fColl_d distribution function
  * @ingroup solver
  */
-void gpuCollBgkw2D(int* fluid_d, FLOAT_TYPE* rho_d, FLOAT_TYPE* u_d,
+void gpuCollBgkw2D(int* nodeType, FLOAT_TYPE* rho_d, FLOAT_TYPE* u_d,
 		FLOAT_TYPE* v_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d);
 
 /**
@@ -261,14 +261,14 @@ void gpuCollBgkw2D(int* fluid_d, FLOAT_TYPE* rho_d, FLOAT_TYPE* u_d,
  * \f[ f_i^{eq} = \rho w (1 + 3(u c_{xi} + v c_{yi}) + \frac{9}{2}(u c_{xi} + v c_{yi})^2 - \frac{3}{2}(u^2 + v^2)) \f]
  * \f[ f_i^{coll} = \omega f_i^{eq} + (1-\omega) f_i^{eq} \f]
  *
- * @param[in]  fluid_d fluid condition
+ * @param[in]  nodeType fluid condition
  * @param[in]  rho_d density
  * @param[in]  u_d,v_d, w_d velocity vectors (x,y,z)
  * @param[in]  f_d distribution function from boundary step
  * @param[out] fColl_d distribution function
  * @ingroup solver
  */
-__global__ void gpuCollBgkw3D(int* fluid_d, FLOAT_TYPE* rho_d, FLOAT_TYPE* u_d,
+__global__ void gpuCollBgkw3D(int* nodeType, FLOAT_TYPE* rho_d, FLOAT_TYPE* u_d,
 		FLOAT_TYPE* v_d, FLOAT_TYPE* w_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d);
 
 /**
@@ -278,14 +278,14 @@ __global__ void gpuCollBgkw3D(int* fluid_d, FLOAT_TYPE* rho_d, FLOAT_TYPE* u_d,
  * \f[ f_i^{coll} = f_i - \frac{1}{2}\omega(f_i+f_i^{-1} - f_i^{eq}-f_i^{eq,-1}) - \frac{1}{2}\omega_a(f_i-f_i^{-1} - f_i^{eq}+f_i^{eq,-1}) \f]
  * \f[ f_i^{-1} = f_{opp(i)} \f]
  *
- * @param[in]  fluid_d fluid condition
+ * @param[in]  nodeType fluid condition
  * @param[in]  rho_d   density
  * @param[in]  u_d,v_d velocity vectors (x,y)
  * @param[in]  f_d     distribution function from boundary step
  * @param[out] fColl_d distribution function
  * @ingroup solver
  */
-__global__ void gpuCollTrt(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
+__global__ void gpuCollTrt(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d);
 
 /**
@@ -305,16 +305,16 @@ __global__ void gpuCollTrt(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
  * \f[ m_8^{eq} = j_x j_y \f]
  * For more details check A. A. Mohamad - Lattice Boltzmann Method (book)
  *
- * @param[in]  fluid_d fluid condition
+ * @param[in]  nodeType fluid condition
  * @param[in]  rho_d density
  * @param[in]  u_d,v_d velocity vectors (x,y)
  * @param[in]  f_d distribution function from boundary step
  * @param[out] fColl_d distribution function
  * @ingroup solver
  */
-__global__ void gpuCollMrt2D(int* fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
+__global__ void gpuCollMrt2D(int* nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d);
-__global__ void gpuCollMrt3D_short(int* fluid_d, FLOAT_TYPE *rho_d,
+__global__ void gpuCollMrt3D_short(int* nodeType, FLOAT_TYPE *rho_d,
 		FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d);
 
@@ -336,14 +336,14 @@ __global__ void gpuCollMrt3D_short(int* fluid_d, FLOAT_TYPE *rho_d,
  * \f[ m_8^{eq} = j_x j_y \f]
  * For more details check A. A. Mohamad - Lattice Boltzmann Method (book)
  *
- * @param[in]  fluid_d fluid condition
+ * @param[in]  nodeType fluid condition
  * @param[in]  rho_d density
  * @param[in]  u_d,v_d velocity vectors (x,y)
  * @param[in]  f_d distribution function from boundary step
  * @param[out] fColl_d distribution function
  * @ingroup solver
  */
-__global__ void gpuCollMrt3D(int* fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
+__global__ void gpuCollMrt3D(int* nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
 FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d);
 
 /**
@@ -361,13 +361,13 @@ FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d);
  * | j-3 |     |  /  |     |     | \|  |     |     |  \\ |     |
  * | j-4 | f7  |     |     |     | f4  |     |     |     | f8  |
  *
- * @param fluid_d fluid condition
+ * @param nodeType fluid condition
  * @param stream_d streaming array
  * @param f_d distribution function
  * @param fColl_d distribution function from the collison step
  * @ingroup solver
  */
-void gpuStreaming2D(int* fluid_d, int* stream_d, FLOAT_TYPE* f_d,
+void gpuStreaming2D(int* nodeType, int* stream_d, FLOAT_TYPE* f_d,
 		FLOAT_TYPE* fColl_d);
 
 /**
@@ -385,15 +385,15 @@ void gpuStreaming2D(int* fluid_d, int* stream_d, FLOAT_TYPE* f_d,
  * | j-3 |     |  /  |     |     | \|  |     |     |  \\ |     |
  * | j-4 | f7  |     |     |     | f4  |     |     |     | f8  |
  *
- * @param fluid_d fluid condition
+ * @param nodeType fluid condition
  * @param stream_d streaming array
  * @param f_d distribution function
  * @param fColl_d distribution function from the collison step
  * @ingroup solver
  */
-__global__ void gpuStreaming3D(int* fluid_d, bool* stream_d, FLOAT_TYPE* f_d,
+__global__ void gpuStreaming3D(int* nodeType, bool* stream_d, FLOAT_TYPE* f_d,
 		FLOAT_TYPE* fColl_d);
-//__global__ void gpuStreaming3D_BCS(int* fluid_d, int* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d);
+//__global__ void gpuStreaming3D_BCS(int* nodeType, int* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d);
 
 /**
  * @brief Update macroscopic values using bitmask
@@ -405,24 +405,24 @@ __global__ void gpuStreaming3D(int* fluid_d, bool* stream_d, FLOAT_TYPE* f_d,
  *
  * @see for \f$ \vec{c_i} \f$ see #cx_d and #cy_d in GpuConstants.h
  *
- * @param[in]  fluid_d fluid condition
+ * @param[in]  nodeType fluid condition
  * @param[out] rho_d density
  * @param[out] u_d,v_d velocity vectors (x,y)
  * @param[in]  bcMask_d boundary conditions bitmask (see BcMacros.h)
  * @param[out] drag_d drag
  * @param[out] lift_d lift
- * @param[in]  coordX_d,coordY_d node coordinates x,y
+ * @param[in]  nodeX,nodeY node coordinates x,y
  * @param[in]  f_d distribution function
  * @ingroup solver
  */
-void gpuUpdateMacro2D(int *fluid_d, FLOAT_TYPE* rho_d,
+void gpuUpdateMacro2D(int *nodeType, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, int *bcMask_d, FLOAT_TYPE* drag_d,
 		FLOAT_TYPE* lift_d,
-		FLOAT_TYPE* coordX_d, FLOAT_TYPE* coordY_d, FLOAT_TYPE* f_d);
+		FLOAT_TYPE* nodeX, FLOAT_TYPE* nodeY, FLOAT_TYPE* f_d);
 
-__global__ void gpuUpdateMacro3D(int *fluid_d, FLOAT_TYPE* rho_d,
+__global__ void gpuUpdateMacro3D(int *nodeType, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, FLOAT_TYPE* w_d, int* bcBoundId_d,
-		FLOAT_TYPE* coordX_d, FLOAT_TYPE* coordY_d, FLOAT_TYPE* coordZ_d,
+		FLOAT_TYPE* nodeX, FLOAT_TYPE* nodeY, FLOAT_TYPE* coordZ_d,
 		FLOAT_TYPE* f_d, FLOAT_TYPE g, unsigned long long *bcMask_d,int UpdateInltOutl); //FLOAT_TYPE* drag_d, FLOAT_TYPE* lift_d, FLOAT_TYPE* latF_d,
 
 //Multiphase Cg
@@ -431,7 +431,7 @@ __host__ void initColorGradient(int *color_gradient_directions_d, int n, int m);
 void gpuCollBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order);
 
-void gpuStreaming2DCG(int* fluid_d, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE* r_fColl_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE* b_fColl_d, int *cg_dir_d);
+void gpuStreaming2DCG(int* nodeType, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE* r_fColl_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE* b_fColl_d, int *cg_dir_d);
 
 void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 		FLOAT_TYPE* r_f_d,FLOAT_TYPE* b_f_d, int size, int *orientation_d, int test_case, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *rho_d,
@@ -446,10 +446,10 @@ void initCGBubble(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *r_rho_d, FLOAT_T
 		FLOAT_TYPE *r_f_d, FLOAT_TYPE *b_f_d, FLOAT_TYPE *f_d, int test_case);
 FLOAT_TYPE calculateSurfaceTension(FLOAT_TYPE p_in_mean, FLOAT_TYPE p_out_mean);
 
-__global__ void gpuCollBgkwGC3D(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
+__global__ void gpuCollBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order);
 __host__ void initColorGradient3D(int *color_gradient_directions, int n, int m, int h);
-__global__ void gpuUpdateMacro3DCG(int *fluid_d, FLOAT_TYPE* rho_d,
+__global__ void gpuUpdateMacro3DCG(int *nodeType, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, FLOAT_TYPE* w_d, int* bcBoundId_d,
 		FLOAT_TYPE* f_d, FLOAT_TYPE g, unsigned long long *bcMask_d,int updateInltOutl, FLOAT_TYPE* r_f_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE* r_rho_d,
 		FLOAT_TYPE* b_rho_d, FLOAT_TYPE *p_in_d, FLOAT_TYPE *p_out_d,
@@ -463,7 +463,7 @@ void initHOColorGradient(int *color_gradient_directions, int n, int m);
 
 void initHOColorGradient3D(int *color_gradient_directions, int n, int m, int h);
 
-__global__ void gpuCollEnhancedBgkwGC3D(int *fluid_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
+__global__ void gpuCollEnhancedBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order);
 
 void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,

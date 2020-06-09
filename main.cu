@@ -3,9 +3,15 @@
  * @file main.cu
  * @author Adam Koleszar (adam.koleszar@gmail.com)
  */
-#include <string.h>              // String operations#include <stdio.h>
+#include <string.h>              // String operations
+#include <stdio.h>
 
-#include "Iterate.h"             // Iteration takes place#include "ShellFunctions.h"      // For convenience#include "FilesReading.h"        // For reading files#include "FilesWriting.h"        // For writing files e.g. tecplot#include "CellFunctions.h"       // For cell modifications#include "ComputeResiduals.h"
+#include "Iterate.h"             // Iteration takes place
+#include "ShellFunctions.h"      // For convenience
+#include "FilesReading.h"        // For reading files
+#include "FilesWriting.h"        // For writing files e.g. tecplot
+#include "CellFunctions.h"       // For cell modifications
+#include "ComputeResiduals.h"
 #include "Arguments.h"
 #include "errno.h"
 #include "LogWriter.h"
@@ -70,7 +76,7 @@ int main(int argc, char* argv[]) {
 		args.b_density = args.r_density / args.gamma;
 		args.r_alpha = (1.0 - ((1.0 - args.b_alpha) / args.gamma));
 		args.external_force = 0; //0 is gravity, 1 for pressure difference
-		args.high_order = 0; // order of color gradient
+		args.r  _order = 0; // order of color gradient
 		args.enhanced_distrib = 1; // 1 to use enhanced
 	}
 

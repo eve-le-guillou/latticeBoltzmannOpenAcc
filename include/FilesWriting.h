@@ -23,7 +23,7 @@
  * @param m number of columns
  * @param outputFormat output file format
  */
-void WriteResults3D(char* OutputFile, int* fluid_d, FLOAT_TYPE* CoordX, FLOAT_TYPE* CoordY, FLOAT_TYPE* CoordZ,
+void WriteResults3D(char* OutputFile, int* nodeType, FLOAT_TYPE* CoordX, FLOAT_TYPE* CoordY, FLOAT_TYPE* CoordZ,
 					FLOAT_TYPE* U, FLOAT_TYPE* V, FLOAT_TYPE* W, FLOAT_TYPE* Rho, int* Fluid,
 					int n, int m, int h, OutputFormat outputFormat);
 void WriteLidDrivenCavityMidLines3D(FLOAT_TYPE* CoordX, FLOAT_TYPE* CoordY, FLOAT_TYPE* CoordZ,

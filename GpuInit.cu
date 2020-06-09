@@ -158,12 +158,10 @@ void initConstants2D(Arguments *args,
 		aux1 = -1.0 / 6.0;
 		aux2 = 1.0 / 12.0;
 		FLOAT_TYPE chi[9] = {-8.0 / 3.0, aux1, aux1, aux1, aux1, aux2, aux2,aux2, aux2};
-//		FLOAT_TYPE chi[9] = {0.0};
 		memcpy(chi_d, chi, 9 * sizeof(FLOAT_TYPE));
 		aux1 = 1.0 / 2.0;
 		aux2 = 1.0 / 8.0;
 		FLOAT_TYPE psi[9] = {0.0, aux1, aux1, aux1, aux1, aux2, aux2,aux2, aux2};
-//		FLOAT_TYPE psi[9] = {0.0};
 		memcpy(psi_d, psi, 9 * sizeof(FLOAT_TYPE));
 
 		FLOAT_TYPE w_pert[9] = {-4.0 / 27.0, 2.0 / 27.0, 2.0 / 27.0, 2.0 / 27.0, 2.0 / 27.0,

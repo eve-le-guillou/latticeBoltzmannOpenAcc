@@ -5,13 +5,13 @@
 #include "BcMacros3D.h"
 #include "GpuConstants.h"
 
-/*__global__ void gpuStreaming2D(int* fluid_d, int* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d)
+/*__global__ void gpuStreaming2D(int* nodeType, int* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d)
 {
 	int ind = blockIdx.x * blockDim.x + threadIdx.x;
 	int ms = depth_d*length_d;
 	FLOAT_TYPE *f, *mf;
 	int n = length_d;
-	if (ind < ms && fluid_d[ind] == 1)
+	if (ind < ms && nodeType[ind] == 1)
 	{
 		f_d[ind] = fColl_d[ind];	//Update fNewStep = fColl
 		f = f_d + ms;				// f is f_d memory positions but f starts in f_d 1st level==1st lattice direction
@@ -27,7 +27,7 @@
 	}
 }*/
 
-void gpuStreaming2DCG(int* fluid_d, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE* r_fColl_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE* b_fColl_d, int *cg_dir_d)
+void gpuStreaming2DCG(int* nodeType, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE* r_fColl_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE* b_fColl_d, int *cg_dir_d)
 {
 	int ms = depth_d*length_d;
 	FLOAT_TYPE *r_f, *r_mf, *b_f, *b_mf;
@@ -156,7 +156,7 @@ void gpuStreaming2DCG(int* fluid_d, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE
 	}
 }
 
-/*__global__ void gpuStreaming3D(int* fluid_d, bool* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d)
+/*__global__ void gpuStreaming3D(int* nodeType, bool* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d)
 {
 	int blockId = blockIdx.x
 			+ blockIdx.y * gridDim.x;
@@ -166,7 +166,7 @@ void gpuStreaming2DCG(int* fluid_d, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE
 
 	int ms = depth_d*length_d*height_d;
 	FLOAT_TYPE *f, *mf;
-	if (ind < ms && fluid_d[ind] == 1)
+	if (ind < ms && nodeType[ind] == 1)
 	{
 		f_d[ind] = fColl_d[ind];	//Update fNewStep = fColl
 		f = f_d + ms;				// f is f_d memory position but f starts in f_d 1st level==1st lattice direction
