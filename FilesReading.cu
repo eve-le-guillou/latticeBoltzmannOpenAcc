@@ -406,7 +406,7 @@ int readResultFile(const char *filename, FLOAT_TYPE ***results) {
 	return n;
 }
 
-__host__ int compareFiles(const char* f1, const char* f2) {
+int compareFiles(const char* f1, const char* f2) {
 	printf("Comparing results\n");
 	int l1 = getNumberOfLines(f1);
 	int l2 = getNumberOfLines(f2);
@@ -428,24 +428,23 @@ __host__ int compareFiles(const char* f1, const char* f2) {
 	readResultFile(f2, &res2);
 	printf("...done\nComparing results...\n");
 
-	dim3 gridDim(l1 / THREADS + 1);
-	FLOAT_TYPE *da = createGpuArrayFlt(l1);
-	FLOAT_TYPE *db = createGpuArrayFlt(l1);
-	FLOAT_TYPE *dc = createGpuArrayFlt(l1);
-	FLOAT_TYPE *dd = createGpuArrayFlt(l1);
+	FLOAT_TYPE *da = createHostArrayFlt(l1);
+	FLOAT_TYPE *db = createHostArrayFlt(l1);
+	FLOAT_TYPE *dc = createHostArrayFlt(l1);
+	FLOAT_TYPE *dd = createHostArrayFlt(l1);
 	FLOAT_TYPE diff_sum[9];
 	FLOAT_TYPE diff_max[9];
 	bool divergence = false;
 	for (i = 0; i < 9; ++i) {
 
-		cudaMemcpy(da, res1[i], SIZEFLT(l1), cudaMemcpyHostToDevice);
-		cudaMemcpy(db, res2[i], SIZEFLT(l1), cudaMemcpyHostToDevice);
+		memcpy(da, res1[i], SIZEFLT(l1));
+		memcpy(db, res2[i], SIZEFLT(l1));
 
-		/*gpu_abs_sub<<<gridDim, THREADS>>>(da, db, dc, l1, &divergence);
+		gpu_abs_sub(da, db, dc, l1, &divergence);
 		diff_sum[i] = gpu_sum_h(dc, dd, l1);
-		gpu_abs_sub<<<gridDim, THREADS>>>(da, db, dc, l1, &divergence);
+		gpu_abs_sub(da, db, dc, l1, &divergence);
 		diff_max[i] = gpu_max_h(dc, dd, l1);
-*/
+
 	}
 
 	printf("     array |        diff sum |        diff max |      diff/nodes\n"

@@ -16,7 +16,7 @@
 #include "LogWriter.h"
 #include "Iterate.h"
 #include "ArrayUtils.h"
-#include "Check.h"
+//#include "Check.h"
 #include "Multiphase.h"
 #include "GpuSum.h"
 
@@ -223,7 +223,6 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	int *bcMaskCollapsed_d = createHostArrayInt(bcCount, ARRAY_ZERO);
 	FLOAT_TYPE *qCollapsed_d = createHostArrayFlt(8 * bcCount, ARRAY_ZERO);
 
-	dim3 bpgB((int) (bcCount / THREADS) + 1); // blocks/grid
 	int *bcMask_d = createHostArrayInt(m * n, ARRAY_COPY, 0, bcMask);
 	int *bcIdx_d = createHostArrayInt(m * n, ARRAY_COPY, 0, bcIdx);
 
@@ -237,8 +236,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	if(args->multiPhase && args->test_case == 2) //only for couette
 	{
 		initInletVelocity(u, v, args->u, args->v, n, m);
-		CHECK(cudaMemcpy(u_d, u, SIZEFLT(m*n), cudaMemcpyHostToDevice));
-		CHECK(cudaMemcpy(v_d, v, SIZEFLT(m*n), cudaMemcpyHostToDevice));
+		//CHECK(cudaMemcpy(u_d, u, SIZEFLT(m*n), cudaMemcpyHostToDevice));
+		//CHECK(cudaMemcpy(v_d, v, SIZEFLT(m*n), cudaMemcpyHostToDevice));
 	}
 	memcpy(u, u_d, SIZEFLT(m*n));
 	memcpy(v, v_d, SIZEFLT(m*n));
@@ -452,7 +451,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 				//	cudaEventDestroy(stop);
 
 					freeAllHost(hostArrays, sizeof(hostArrays) / sizeof(hostArrays[0]));
-					freeAllGpu(gpuArrays, sizeof(gpuArrays) / sizeof(gpuArrays[0]));
+					freeAllHost(gpuArrays, sizeof(gpuArrays) / sizeof(gpuArrays[0]));
 
 					return 1; // ERROR!
 				}

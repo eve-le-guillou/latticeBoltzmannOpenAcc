@@ -19,8 +19,8 @@
 #include "LogWriter.h"
 #include "Iterate.h"
 #include "ArrayUtils.h"
-#include "Check.h"
-#include "cuda.h"
+//#include "Check.h"
+//#include "cuda.h"
 #include "GpuSum.h"
 #include "Multiphase.h"
 

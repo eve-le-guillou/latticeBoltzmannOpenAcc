@@ -8,15 +8,15 @@
 #ifndef GPU_FUNCTIONS_H
 #define GPU_FUNCTIONS_H
 
-#include <cuda.h>
+//#include <cuda.h>
 #include <stdio.h>
 #include "FloatType.h"
 #include "Arguments.h"
 #include <math.h>
 
-__device__ FLOAT_TYPE feqc3D(FLOAT_TYPE u, FLOAT_TYPE uc, FLOAT_TYPE v,
+/*__device__ FLOAT_TYPE feqc3D(FLOAT_TYPE u, FLOAT_TYPE uc, FLOAT_TYPE v,
 		FLOAT_TYPE vc, FLOAT_TYPE w, FLOAT_TYPE wc, FLOAT_TYPE rho,
-		FLOAT_TYPE weight);
+		FLOAT_TYPE weight);*/
 
 /**
  * @brief Initialise GPU constants
@@ -46,7 +46,7 @@ FLOAT_TYPE delta, int m, int n);
  * @param n number of rows
  * @param h number of layer
  */
-__host__ void initConstants3D(Arguments *args,
+//__host__ void initConstants3D(Arguments *args,
 FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minInletCoordY,
 FLOAT_TYPE maxInletCoordZ, FLOAT_TYPE minInletCoordZ,
 FLOAT_TYPE delta, int m, int n, int h);
@@ -60,8 +60,8 @@ FLOAT_TYPE delta, int m, int n, int h);
  * @param y_d node coordinates y
  * @param size vector size (MxN)
  */
-__global__ void gpuInitInletProfile2D(FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d,
-		FLOAT_TYPE *y_d, int size);
+/*__global__ void gpuInitInletProfile2D(FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d,
+		FLOAT_TYPE *y_d, int size);*/
 
 /**
  * @brief Initialise initial velocity vector for inlet profile
@@ -73,9 +73,9 @@ __global__ void gpuInitInletProfile2D(FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d,
  * @param y_d node coordinates y
  * @param size vector size (MxN)
  */
-__global__ void gpuInitInletProfile3D(FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d,
+/*__global__ void gpuInitInletProfile3D(FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d,
 		FLOAT_TYPE *w0_d,
-		FLOAT_TYPE *y_d, FLOAT_TYPE *z_d, int size);
+		FLOAT_TYPE *y_d, FLOAT_TYPE *z_d, int size);*/
 
 /**
  * @brief Initialise boundary conditions
@@ -121,7 +121,7 @@ int initBoundaryConditions2D(int *bcNodeIdX, int *bcNodeIdY,
 		int *latticeId, int *stream, int *bcType, int *bcMask, int *bcIdx,
 		int *mask, FLOAT_TYPE delta, int m, int n, int size);
 
-__host__ int initBoundaryConditions3D(int *bcNodeIdX, int *bcNodeIdY,
+int initBoundaryConditions3D(int *bcNodeIdX, int *bcNodeIdY,
 		int *bcNodeIdZ, FLOAT_TYPE *q, int *bcBoundId, int *fluid,
 		FLOAT_TYPE *bcX, FLOAT_TYPE *bcY, FLOAT_TYPE *bcZ, FLOAT_TYPE *nodeX,
 		FLOAT_TYPE *nodeY, FLOAT_TYPE *nodeZ, int *latticeId, bool *stream,
@@ -146,10 +146,10 @@ void collapseBc2D(int *bcIdx, int *bcIdxCollapsed_d, int *bcMask,
 		FLOAT_TYPE *q, FLOAT_TYPE *qCollapsed_d, int *mask, int m, int n,
 		int size);
 
-__host__ void collapseBc3D(int *bcIdx, int *bcIdxCollapsed_d,
+/*__host__ void collapseBc3D(int *bcIdx, int *bcIdxCollapsed_d,
 		unsigned long long *bcMask, unsigned long long *bcMaskCollapsed_d,
 		FLOAT_TYPE *q, FLOAT_TYPE *qCollapsed_d, int *mask, int m, int n, int h,
-		int size, int CurvedBCs);
+		int size, int CurvedBCs);*/
 
 /**
  * @brief Inlet boundary conditions
@@ -172,12 +172,12 @@ __host__ void collapseBc3D(int *bcIdx, int *bcIdxCollapsed_d,
  * @param[in]  size number of boundary conditions
  * @ingroup solver
  */
-__global__ void gpuBcInlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE* f_d,
+/*__global__ void gpuBcInlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE* f_d,
 		FLOAT_TYPE* u0_d, FLOAT_TYPE* v0_d, int size);
-
-__global__ void gpuBcInlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
+*/
+/*__global__ void gpuBcInlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
 		FLOAT_TYPE* f_d, FLOAT_TYPE* uWall_d, FLOAT_TYPE* vWall_d,
-		FLOAT_TYPE* wWall_d, int size);
+		FLOAT_TYPE* wWall_d, int size);*/
 
 /**
  * @brief Wall boundary conditions
@@ -198,13 +198,13 @@ __global__ void gpuBcInlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
  * @param[in]  size number of boundary conditions
  * @ingroup solver
  */
-__global__ void gpuBcWall2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
+/*__global__ void gpuBcWall2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
 		FLOAT_TYPE *fColl_d, FLOAT_TYPE *Q_d, int size);
 __global__ void gpuBcSimpleWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 		FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size);
-
-__global__ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
-FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size);
+*/
+/*__global__ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
+FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size);*/
 /**
  * @brief Outlet boundary conditions
  * @details Computes the effect of the outlet conditions, using ...
@@ -228,17 +228,17 @@ FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size);
  * @param[in]  size number of boundary conditions
  * @ingroup solver
  */
-__global__ void gpuBcOutlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
-		FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d, int size);
+/*__global__ void gpuBcOutlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
+		FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d, int size);*/
 
-__global__ void gpuBcOutlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
+/*__global__ void gpuBcOutlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
 		FLOAT_TYPE *f_d, FLOAT_TYPE *u_d, FLOAT_TYPE *v_d, FLOAT_TYPE *w_d,
-		FLOAT_TYPE *rho_d, int size);
+		FLOAT_TYPE *rho_d, int size);*/
 
-__global__ void gpuBcPeriodic3D(int *bcIdx_d, unsigned long long *bcMask_d,
-		FLOAT_TYPE* f_d, int size);
-__global__ void gpuBcSymm3D(int *bcIdx_d, unsigned long long *bcMask_d,
-		FLOAT_TYPE* f_d, int size);
+/*__global__ void gpuBcPeriodic3D(int *bcIdx_d, unsigned long long *bcMask_d,
+		FLOAT_TYPE* f_d, int size);*/
+/*__global__ void gpuBcSymm3D(int *bcIdx_d, unsigned long long *bcMask_d,
+		FLOAT_TYPE* f_d, int size);*/
 /**
  * @brief BGKW collision model (Bhatnagar–Gross–Krook-Welander)
  * @details Computation for every lattice :
@@ -252,9 +252,9 @@ __global__ void gpuBcSymm3D(int *bcIdx_d, unsigned long long *bcMask_d,
  * @param[out] fColl_d distribution function
  * @ingroup solver
  */
-void gpuCollBgkw2D(int* nodeType, FLOAT_TYPE* rho_d, FLOAT_TYPE* u_d,
+/*void gpuCollBgkw2D(int* nodeType, FLOAT_TYPE* rho_d, FLOAT_TYPE* u_d,
 		FLOAT_TYPE* v_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d);
-
+*/
 /**
  * @brief BGKW collision model (Bhatnagar–Gross–Krook-Welander)
  * @details Computation for every lattice :
@@ -268,9 +268,9 @@ void gpuCollBgkw2D(int* nodeType, FLOAT_TYPE* rho_d, FLOAT_TYPE* u_d,
  * @param[out] fColl_d distribution function
  * @ingroup solver
  */
-__global__ void gpuCollBgkw3D(int* nodeType, FLOAT_TYPE* rho_d, FLOAT_TYPE* u_d,
+/*__global__ void gpuCollBgkw3D(int* nodeType, FLOAT_TYPE* rho_d, FLOAT_TYPE* u_d,
 		FLOAT_TYPE* v_d, FLOAT_TYPE* w_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d);
-
+*/
 /**
  * @brief TRT collision model (two-relaxation-time)
  * @details Computation for every lattice :
@@ -285,9 +285,9 @@ __global__ void gpuCollBgkw3D(int* nodeType, FLOAT_TYPE* rho_d, FLOAT_TYPE* u_d,
  * @param[out] fColl_d distribution function
  * @ingroup solver
  */
-__global__ void gpuCollTrt(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
+/*__global__ void gpuCollTrt(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d);
-
+*/
 /**
  * @brief MRT collision model (multiple-relaxation-time)
  * @details The MRT collision model computes new values for the distribution function in momentum
@@ -312,12 +312,12 @@ __global__ void gpuCollTrt(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
  * @param[out] fColl_d distribution function
  * @ingroup solver
  */
-__global__ void gpuCollMrt2D(int* nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
+/*__global__ void gpuCollMrt2D(int* nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d);
 __global__ void gpuCollMrt3D_short(int* nodeType, FLOAT_TYPE *rho_d,
 		FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d);
-
+*/
 /**
  * @brief MRT collision model (multiple-relaxation-time)
  * @details The MRT collision model computes new values for the distribution function in momentum
@@ -343,9 +343,9 @@ __global__ void gpuCollMrt3D_short(int* nodeType, FLOAT_TYPE *rho_d,
  * @param[out] fColl_d distribution function
  * @ingroup solver
  */
-__global__ void gpuCollMrt3D(int* nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
+/*__global__ void gpuCollMrt3D(int* nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
 FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d);
-
+*/
 /**
  * @brief Streaming
  * @details  Basically the distribution function propagates to neighbouring cells the following way
@@ -367,9 +367,9 @@ FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d);
  * @param fColl_d distribution function from the collison step
  * @ingroup solver
  */
-void gpuStreaming2D(int* nodeType, int* stream_d, FLOAT_TYPE* f_d,
+/*void gpuStreaming2D(int* nodeType, int* stream_d, FLOAT_TYPE* f_d,
 		FLOAT_TYPE* fColl_d);
-
+*/
 /**
  * @brief Streaming
  * @details  Basically the distribution function propagates to neighbouring cells the following way
@@ -391,8 +391,8 @@ void gpuStreaming2D(int* nodeType, int* stream_d, FLOAT_TYPE* f_d,
  * @param fColl_d distribution function from the collison step
  * @ingroup solver
  */
-__global__ void gpuStreaming3D(int* nodeType, bool* stream_d, FLOAT_TYPE* f_d,
-		FLOAT_TYPE* fColl_d);
+/*__global__ void gpuStreaming3D(int* nodeType, bool* stream_d, FLOAT_TYPE* f_d,
+		FLOAT_TYPE* fColl_d);*/
 //__global__ void gpuStreaming3D_BCS(int* nodeType, int* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d);
 
 /**
@@ -415,18 +415,18 @@ __global__ void gpuStreaming3D(int* nodeType, bool* stream_d, FLOAT_TYPE* f_d,
  * @param[in]  f_d distribution function
  * @ingroup solver
  */
-void gpuUpdateMacro2D(int *nodeType, FLOAT_TYPE* rho_d,
+/*void gpuUpdateMacro2D(int *nodeType, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, int *bcMask_d, FLOAT_TYPE* drag_d,
 		FLOAT_TYPE* lift_d,
 		FLOAT_TYPE* nodeX, FLOAT_TYPE* nodeY, FLOAT_TYPE* f_d);
-
-__global__ void gpuUpdateMacro3D(int *nodeType, FLOAT_TYPE* rho_d,
+*/
+/*__global__ void gpuUpdateMacro3D(int *nodeType, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, FLOAT_TYPE* w_d, int* bcBoundId_d,
 		FLOAT_TYPE* nodeX, FLOAT_TYPE* nodeY, FLOAT_TYPE* coordZ_d,
 		FLOAT_TYPE* f_d, FLOAT_TYPE g, unsigned long long *bcMask_d,int UpdateInltOutl); //FLOAT_TYPE* drag_d, FLOAT_TYPE* lift_d, FLOAT_TYPE* latF_d,
-
+*/
 //Multiphase Cg
-__host__ void initColorGradient(int *color_gradient_directions_d, int n, int m);
+void initColorGradient(int *color_gradient_directions_d, int n, int m);
 
 void gpuCollBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order);
@@ -446,7 +446,7 @@ void initCGBubble(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *r_rho_d, FLOAT_T
 		FLOAT_TYPE *r_f_d, FLOAT_TYPE *b_f_d, FLOAT_TYPE *f_d, int test_case);
 FLOAT_TYPE calculateSurfaceTension(FLOAT_TYPE p_in_mean, FLOAT_TYPE p_out_mean);
 
-__global__ void gpuCollBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
+/*__global__ void gpuCollBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order);
 __host__ void initColorGradient3D(int *color_gradient_directions, int n, int m, int h);
 __global__ void gpuUpdateMacro3DCG(int *nodeType, FLOAT_TYPE* rho_d,
@@ -455,17 +455,17 @@ __global__ void gpuUpdateMacro3DCG(int *nodeType, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* b_rho_d, FLOAT_TYPE *p_in_d, FLOAT_TYPE *p_out_d,
 		int *num_in_d, int *num_out_d,int test_case);
 __global__ void initCGBubble3D(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *z_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_f_d,
-		FLOAT_TYPE *b_f_d, FLOAT_TYPE *f_d, int test_case);
+		FLOAT_TYPE *b_f_d, FLOAT_TYPE *f_d, int test_case);*/
 
-void calculateHOColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, int cg_dir_d, int index, FLOAT_TYPE *cg_x, FLOAT_TYPE *cg_y);
+//void calculateHOColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, int cg_dir_d, int index, FLOAT_TYPE *cg_x, FLOAT_TYPE *cg_y);
 
 void initHOColorGradient(int *color_gradient_directions, int n, int m);
 
 void initHOColorGradient3D(int *color_gradient_directions, int n, int m, int h);
 
-__global__ void gpuCollEnhancedBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
+/*__global__ void gpuCollEnhancedBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order);
-
+*/
 void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order);
 #endif

@@ -20,9 +20,9 @@ endif
 
 CU_FILES=main.cu Iterate.cu Iterate3D.cu CellFunctions.cu ComputeResiduals.cu FilesReading.cu FilesWriting.cu \
          ShellFunctions.cu GpuInit.cu GpuBoundaries.cu GpuCollision.cu GpuStream.cu LogWriter.cu \
-         ArrayUtils.cu Arguments.cu GpuSum.cu Check.cu GpuUpdateMacro.cu Multiphase.cu
+         ArrayUtils.cu Arguments.cu GpuSum.cu GpuUpdateMacro.cu Multiphase.cu
 ITER_FILES=Iterate.cu GpuInit.cu ComputeResiduals.cu GpuBoundaries.cu GpuCollision.cu GpuStream.cu \
-           ArrayUtils.cu Arguments.cu GpuSum.cu Check.cu GpuUpdateMacro.cu
+           ArrayUtils.cu Arguments.cu GpuSum.cu GpuUpdateMacro.cu
 ITER_FILE=IterateCombined.cu
 RLSE_FILES=main.cu $(ITER_FILE) CellFunctions.cu FilesReading.cu FilesWriting.cu \
            ShellFunctions.cu LogWriter.cu

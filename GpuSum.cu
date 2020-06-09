@@ -2,7 +2,7 @@
 #include "BcMacros.h"
 #include "BcMacros3D.h"
 #include "ArrayUtils.h"
-#include "Check.h"
+//#include "Check.h"
 #include <stdio.h>
 #include "math.h"
 #include <cmath>
@@ -31,7 +31,7 @@ void gpu_abs_relSub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C,
 	}
 }
 
-__global__ void gpu_sqsub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C,
+/*__global__ void gpu_sqsub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C,
 		int size) {
 	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
 	int ind = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x)
@@ -178,35 +178,17 @@ __global__ void gpu_max256(FLOAT_TYPE *A, FLOAT_TYPE *B, int size) {
 	if (tid == 0) {
 		B[bid] = temp[0];
 	}
-}
+}*/
 
-__host__ FLOAT_TYPE gpu_sum_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size) {
-	dim3 grid_dim;
-
-	int remaining = size;
-	int shared_size = 256 * sizeof(FLOAT_TYPE);
-	int req_blocks = 0;
-
-	while (remaining > 1) {
-		req_blocks = (remaining - 1) / 256 / 2 + 1;
-		grid_dim.x = static_cast<int>(ceil(sqrt(req_blocks)));
-		grid_dim.y = (req_blocks - 1) / grid_dim.x + 1;
-		gpu_sum256<<<grid_dim, 256, shared_size>>>(C, D, remaining);
-
-		//swap
-		FLOAT_TYPE *temp = C;
-		C = D;
-		D = temp;
-
-		remaining = req_blocks;
-	}
-
+FLOAT_TYPE gpu_sum_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size) {
 	FLOAT_TYPE result = 0.0;
-	CHECK(cudaMemcpy(&result, C, sizeof(FLOAT_TYPE), cudaMemcpyDeviceToHost));
+    for (int i = 0; i<size; i++){
+        result+=C[i];
+    }
 	return result;
 }
 
-__host__ int gpu_sum_int_h(int *C, int *D, int size) {
+/*__host__ int gpu_sum_int_h(int *C, int *D, int size) {
 	dim3 grid_dim;
 
 	int remaining = size;
@@ -230,7 +212,7 @@ __host__ int gpu_sum_int_h(int *C, int *D, int size) {
 	int result = 0;
 	CHECK(cudaMemcpy(&result, C, sizeof(int), cudaMemcpyDeviceToHost));
 	return result;
-}
+}*/
 
 FLOAT_TYPE gpu_max_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size) {
     FLOAT_TYPE max = C[0];
@@ -240,7 +222,7 @@ FLOAT_TYPE gpu_max_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size) {
 	return max;
 }
 
-__global__ void gpu_cond_copy_mask2D(FLOAT_TYPE *A, FLOAT_TYPE *B, int *mask,
+/*__global__ void gpu_cond_copy_mask2D(FLOAT_TYPE *A, FLOAT_TYPE *B, int *mask,
 		int value, int size) {
 	int ind = ind = blockIdx.x * blockDim.x * blockDim.y * blockDim.z
 			+ threadIdx.z * blockDim.y * blockDim.x + threadIdx.y * blockDim.x
@@ -248,9 +230,9 @@ __global__ void gpu_cond_copy_mask2D(FLOAT_TYPE *A, FLOAT_TYPE *B, int *mask,
 	if (ind < size) {
 		A[ind] = ((mask[ind] & BND_ID_ALL) == BOUND_ID(value)) ? B[ind] : 0.0;
 	}
-}
+}*/
 
-__global__ void gpu_cond_copy_mask3D(FLOAT_TYPE *A, FLOAT_TYPE *B,
+/*__global__ void gpu_cond_copy_mask3D(FLOAT_TYPE *A, FLOAT_TYPE *B,
 		int* bcBoundId_d, int value, int size) {
 	int ind = ind = blockIdx.x * blockDim.x * blockDim.y * blockDim.z
 			+ threadIdx.z * blockDim.y * blockDim.x + threadIdx.y * blockDim.x
@@ -258,7 +240,7 @@ __global__ void gpu_cond_copy_mask3D(FLOAT_TYPE *A, FLOAT_TYPE *B,
 	if (ind < size) {
 		A[ind] = bcBoundId_d[ind] == value ? B[ind] : 0.0;
 	}
-}
+}*/
 
 
 

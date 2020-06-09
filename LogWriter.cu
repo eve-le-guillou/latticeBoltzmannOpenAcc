@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include "LogWriter.h"
-#include "cuda.h"
+//#include "cuda.h"
 void writeInitLog(const char* filename, Arguments *args, FLOAT_TYPE delta,
 		int m, int n, int h, int numInletNodes, FLOAT_TYPE maxInletCoordY,
 		FLOAT_TYPE minInletCoordY,

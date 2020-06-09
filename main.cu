@@ -148,7 +148,7 @@ int main(int argc, char* argv[]) {
 		Iterate2D(&inFn, &args);
 	}
 
-	cudaDeviceReset(); //needed for cuda-gdb and cuda-memcheck
+	//cudaDeviceReset(); //needed for cuda-gdb and cuda-memcheck
 
 	return 0;
 }

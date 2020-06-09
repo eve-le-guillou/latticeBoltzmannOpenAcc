@@ -7,7 +7,7 @@
 #include "BcMacros.h"
 #include "BcMacros3D.h"
 #include <cmath>
-#include "cuda.h"
+//#include "cuda.h"
 #include "math.h"
 
 InletProfile inletProfile_d;
@@ -32,6 +32,7 @@ FLOAT_TYPE minInletCoordY_d;
 FLOAT_TYPE maxInletCoordY_d;
 FLOAT_TYPE velMomMap2D_d[81];
 FLOAT_TYPE momCollMtx2D_d[81];
+/*
 //#### 3D d3q19 ####//
 __constant__ int cx3D_d[19];
 __constant__ int cy3D_d[19];
@@ -44,7 +45,7 @@ __constant__ FLOAT_TYPE maxInletCoordZ_d;
 __constant__ FLOAT_TYPE velMomMap3D_d[361];
 __constant__ FLOAT_TYPE momCollMtx3D_d[361];
 __constant__ FLOAT_TYPE wIn_d;
-__constant__ FLOAT_TYPE g_d;
+__constant__ FLOAT_TYPE g_d;*/
 
 //COLOR GRADIENT //
 FLOAT_TYPE beta_d;
@@ -69,7 +70,7 @@ FLOAT_TYPE cg_w_d[9];
 FLOAT_TYPE hocg_w_d[25];
 int hocg_cx_d[25];
 int hocg_cy_d[25];
-
+/*
 //COLOR GRADIENT 3D//
 __constant__ FLOAT_TYPE r_viscosity_d;
 __constant__ FLOAT_TYPE b_viscosity_d;
@@ -84,7 +85,7 @@ __constant__ FLOAT_TYPE hocg_w3D_d[105];
 __constant__ int hocg_cx3D_d[105];
 __constant__ int hocg_cy3D_d[105];
 __constant__ int hocg_cz3D_d[105];
-__constant__ int hoc3D_d[105];
+__constant__ int hoc3D_d[105];*/
 
 void initConstants2D(Arguments *args,
 		FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minInletCoordY,
@@ -288,7 +289,7 @@ __host__ void initColorGradient3D(int *color_gradient_directions, int n, int m, 
 	}
 }
 
-__host__ void initHOColorGradient3D(int *color_gradient_directions, int n, int m, int h){
+void initHOColorGradient3D(int *color_gradient_directions, int n, int m, int h){
 
 	//NORTH is 1, SOUTH 2, EAST 3, WEST 4, FRONT 5, BACK 6, 0 is okay
 	int ms = n * m;
@@ -799,7 +800,7 @@ void initCGBubble(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *r_rho_d, FLOAT_T
 	}
 }*/
 
-__host__ void initConstants3D(Arguments *args,
+/*__host__ void initConstants3D(Arguments *args,
 		FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minInletCoordY,
 		FLOAT_TYPE maxInletCoordZ, FLOAT_TYPE minInletCoordZ,
 		FLOAT_TYPE delta, int m, int n, int h) {
@@ -988,7 +989,7 @@ __host__ void initConstants3D(Arguments *args,
 		}
 		cudaMemcpyToSymbol(hoc3D_d, hoc3D, 105 * sizeof(int));
 	}
-}
+}*/
 
 /*__global__ void gpuInitInletProfile2D(FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d,
 		FLOAT_TYPE *y_d, int size) {
@@ -1153,7 +1154,7 @@ void collapseBc2D(int *bcIdx, int *bcIdxCollapsed_d, int *bcMask,
 	free(QCollapsed);
 }
 
-__host__ int initBoundaryConditions3D(int *bcNodeIdX, int *bcNodeIdY,
+int initBoundaryConditions3D(int *bcNodeIdX, int *bcNodeIdY,
 		int *bcNodeIdZ, FLOAT_TYPE *q, int *bcBoundId, int *nodeType,
 		FLOAT_TYPE *bcX, FLOAT_TYPE *bcY, FLOAT_TYPE *bcZ,
 		FLOAT_TYPE *nodeX, FLOAT_TYPE *nodeY, FLOAT_TYPE *nodeZ, int *latticeId,
@@ -1235,7 +1236,7 @@ __host__ int initBoundaryConditions3D(int *bcNodeIdX, int *bcNodeIdY,
 	return num;
 
 }
-__host__ void collapseBc3D(int *bcIdx, int *bcIdxCollapsed_d,
+/*__host__ void collapseBc3D(int *bcIdx, int *bcIdxCollapsed_d,
 		unsigned long long *bcMask, unsigned long long *bcMaskCollapsed_d,
 		FLOAT_TYPE *q, FLOAT_TYPE *qCollapsed_d, int *mask, int m, int n, int h,
 		int size, int CurvedBCs) {
@@ -1273,4 +1274,4 @@ __host__ void collapseBc3D(int *bcIdx, int *bcIdxCollapsed_d,
 		free(QCollapsed);
 	}
 
-}
+}*/
