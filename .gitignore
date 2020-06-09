@@ -5,3 +5,5 @@ gpu_lbmsolver.o*
 *.o
 .idea
 lbmsolver
+
+*.crescentpbs*

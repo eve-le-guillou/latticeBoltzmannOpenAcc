@@ -129,8 +129,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 
 	fprintf(logFile, "\n:::: Initializing ::::\n");
 	printf("\n:::: Initializing ::::\n");
-	FLOAT_TYPE *u = createHostArrayFlt(m * n, ARRAY_ZERO);
-	FLOAT_TYPE *v = createHostArrayFlt(m * n, ARRAY_ZERO);
+	//FLOAT_TYPE *u = createHostArrayFlt(m * n, ARRAY_ZERO);
+	//FLOAT_TYPE *v = createHostArrayFlt(m * n, ARRAY_ZERO);
 	FLOAT_TYPE *w = createHostArrayFlt(m * n, ARRAY_ZERO);
 
 	//Multiphase
@@ -207,8 +207,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	int *bcMask = createHostArrayInt(m * n, ARRAY_ZERO);
 	int *bcIdx = createHostArrayInt(m * n, ARRAY_ZERO);
 
-	FLOAT_TYPE *u_d = createHostArrayFlt(m * n, ARRAY_CPYD, 0, u0_d);
-	FLOAT_TYPE *v_d = createHostArrayFlt(m * n, ARRAY_CPYD, 0, v0_d);
+	FLOAT_TYPE *u = createHostArrayFlt(m * n, ARRAY_CPYD, 0, u0_d);
+	FLOAT_TYPE *v = createHostArrayFlt(m * n, ARRAY_CPYD, 0, v0_d);
 	int *stream = createHostArrayInt(8 * m * n, ARRAY_FILL, 1);
 	FLOAT_TYPE *q = createHostArrayFlt(8 * m * n, ARRAY_FILL, 0.5);
 
@@ -236,8 +236,6 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 		//CHECK(cudaMemcpy(v_d, v, SIZEFLT(m*n), cudaMemcpyHostToDevice));
 	}
 
-	memcpy(v, v_d, SIZEFLT(m*n));
-
 	fclose(logFile);
 	writeNodeNumbers(logFilename, numNodes, numConns, bcCount);
 	logFile = fopen(logFilename, "a");
@@ -247,8 +245,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			bcNodeIdY, latticeId, bcType, bcX, bcY, bcBoundId, u, v, rho, mask,
 			bcMask, bcIdx, stream, q, norm, dragSum, liftSum, r_rho, b_rho,
 			color_gradient,r_f,b_f,r_fColl, b_fColl, st_error, cg_directions};
-	void *gpuArrays[] = { u_d, v_d,
-			u0_d, v0_d, drag_d, lift_d, f_d, fColl_d, temp9a_d, temp9b_d,
+	void *gpuArrays[] = {u0_d, v0_d, drag_d, lift_d, f_d, fColl_d, temp9a_d, temp9b_d,
 			tempA_d, tempB_d, bcMask_d, bcMaskCollapsed_d, bcIdx_d,
 			bcIdxCollapsed_d, stream_d,  qCollapsed_d, r_f_d, r_fColl_d, b_f_d,
 			b_fColl_d, p_in_d, p_out_d, num_in_d, num_out_d};
@@ -311,20 +308,20 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			if(args->multiPhase){
 				//Collision
 				if(!args->enhanced_distrib)
-					gpuCollBgkwGC2D(rho, r_rho, b_rho, u, v_d, f_d, r_fColl_d, b_fColl_d, cg_directions, args->high_order);
+					gpuCollBgkwGC2D(rho, r_rho, b_rho, u, v, f_d, r_fColl_d, b_fColl_d, cg_directions, args->high_order);
 				else
-					gpuCollEnhancedBgkwGC2D(rho, r_rho, b_rho, u, v_d, f_d, r_fColl_d, b_fColl_d, cg_directions, args->high_order);
+					gpuCollEnhancedBgkwGC2D(rho, r_rho, b_rho, u, v, f_d, r_fColl_d, b_fColl_d, cg_directions, args->high_order);
 			}else{
-				//gpuCollBgkw2D<<<bpg1, tpb>>>(nodeType, rho, u, v_d, f_d,
+				//gpuCollBgkw2D<<<bpg1, tpb>>>(nodeType, rho, u, v, f_d,
 				//		fColl_d);
 			}
 			break;
 		case TRT:
-			//gpuCollTrt<<<bpg1, tpb>>>(nodeType, rho, u, v_d, f_d, fColl_d);
+			//gpuCollTrt<<<bpg1, tpb>>>(nodeType, rho, u, v, f_d, fColl_d);
 			break;
 
 		case MRT:
-			//gpuCollMrt2D<<<bpg1, tpb>>>(nodeType, rho, u, v_d, f_d, fColl_d);
+			//gpuCollMrt2D<<<bpg1, tpb>>>(nodeType, rho, u, v, f_d, fColl_d);
 			break;
 		}
 
@@ -364,7 +361,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 
 		if(args->multiPhase){
 			gpuBcPeriodic2D(bcIdxCollapsed_d, bcMaskCollapsed_d, r_f_d, b_f_d,bcCount, cg_directions, args->test_case, r_rho, b_rho, rho,
-					u, v_d);
+					u, v);
 
 		} else{
 		/*	gpuBcInlet2D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
@@ -384,7 +381,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 		//CHECK(cudaThreadSynchronize());
 		//CHECK(cudaEventRecord(start, 0));
 		if(args->multiPhase){
-			gpuUpdateMacro2DCG(rho, u, v_d, r_f_d, b_f_d, f_d, r_rho, b_rho, p_in_d, p_out_d, num_in_d, num_out_d, cg_directions,
+			gpuUpdateMacro2DCG(rho, u, v, r_f_d, b_f_d, f_d, r_rho, b_rho, p_in_d, p_out_d, num_in_d, num_out_d, cg_directions,
 					args->test_case);
 
 			//			updateSurfaceTension(r_rho,b_rho,args->control_param, st_predicted, st_error, iter,args->r_alpha, args->b_alpha, args->bubble_radius, n ,m);
@@ -478,7 +475,6 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			if (iter > args->autosaveAfter) {
 				printf("autosave\n\n");
 				//////////// COPY VARIABLES TO HOST ////////////////
-				memcpy(v, v_d, SIZEFLT(m*n));
 				switch (args->outputFormat) {
 				case CSV:
 					sprintf(finalFilename, "%sFinalData.csv", inFn->result);
@@ -515,7 +511,6 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			args->iterations);
 
 	//WRITE VARIABLES TO HOST
-	memcpy(v, v_d, SIZEFLT(m*n));
 	switch (args->outputFormat) {
 	case CSV:
 		sprintf(finalFilename, "%sFinalData.csv", inFn->result);
