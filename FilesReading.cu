@@ -441,11 +441,11 @@ __host__ int compareFiles(const char* f1, const char* f2) {
 		cudaMemcpy(da, res1[i], SIZEFLT(l1), cudaMemcpyHostToDevice);
 		cudaMemcpy(db, res2[i], SIZEFLT(l1), cudaMemcpyHostToDevice);
 
-		gpu_abs_sub<<<gridDim, THREADS>>>(da, db, dc, l1, &divergence);
+		/*gpu_abs_sub<<<gridDim, THREADS>>>(da, db, dc, l1, &divergence);
 		diff_sum[i] = gpu_sum_h(dc, dd, l1);
 		gpu_abs_sub<<<gridDim, THREADS>>>(da, db, dc, l1, &divergence);
 		diff_max[i] = gpu_max_h(dc, dd, l1);
-
+*/
 	}
 
 	printf("     array |        diff sum |        diff max |      diff/nodes\n"

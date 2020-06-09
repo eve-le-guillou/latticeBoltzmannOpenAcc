@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 		args.b_density = args.r_density / args.gamma;
 		args.r_alpha = (1.0 - ((1.0 - args.b_alpha) / args.gamma));
 		args.external_force = 0; //0 is gravity, 1 for pressure difference
-		args.r  _order = 0; // order of color gradient
+		args.high_order = 0; // order of color gradient
 		args.enhanced_distrib = 1; // 1 to use enhanced
 	}
 
