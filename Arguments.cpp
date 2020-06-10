@@ -12,7 +12,7 @@
 
 #include "Arguments.h"
 #include "FilesReading.h"
-#include "argtable2.h"
+#include "argtable3.h"
 
 /**
  * @brief Get inlet profile from command line parameter

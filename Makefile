@@ -5,11 +5,11 @@ DEFINES=-D$(FLOAT_TYPE)
 INCLUDES=-Iinclude
 OS := $(shell uname)
 LDFLAGS=#-arch=sm_35
-CC=nvcc
-LIBDIR=-Llibs
-LIBS=-largtable2 #-lcuda
+CC=pgc++
+LIBDIR=#-Llibs
+LIBS=#-largtable2 #-lcuda
 
-CU_FILES=main.cpp Iterate.cpp Iterate3D.cpp CellFunctions.cpp ComputeResiduals.cpp FilesReading.cpp FilesWriting.cpp \
+CU_FILES=argtable3.cpp main.cpp Iterate.cpp Iterate3D.cpp CellFunctions.cpp ComputeResiduals.cpp FilesReading.cpp FilesWriting.cpp \
          ShellFunctions.cpp GpuInit.cpp GpuBoundaries.cpp GpuCollision.cpp GpuStream.cpp LogWriter.cpp \
          ArrayUtils.cpp Arguments.cpp GpuSum.cpp GpuUpdateMacro.cpp Multiphase.cpp
 ITER_FILES=Iterate.cpp GpuInit.cpp ComputeResiduals.cpp GpuBoundaries.cpp GpuCollision.cpp GpuStream.cpp \
@@ -17,7 +17,7 @@ ITER_FILES=Iterate.cpp GpuInit.cpp ComputeResiduals.cpp GpuBoundaries.cpp GpuCol
 ITER_FILE=IterateCombined.cpp
 RLSE_FILES=main.cpp $(ITER_FILE) CellFunctions.cpp FilesReading.cpp FilesWriting.cpp \
            ShellFunctions.cpp LogWriter.cpp
-HEADRF=FilesReading.h FilesWriting.h Iterate.h CellFunctions.h ComputeResiduals.h ShellFunctions.h \
+HEADRF=FilesReading.h argtable3.h FilesWriting.h Iterate.h CellFunctions.h ComputeResiduals.h ShellFunctions.h \
        GpuFunctions.h LogWriter.h Arguments.h ArrayUtils.h GpuSum.h Multiphase.h
 HEADERS=$(patsubst %,include/%,$(HEADRF))
 ifeq ($(OS),Windows_NT)
