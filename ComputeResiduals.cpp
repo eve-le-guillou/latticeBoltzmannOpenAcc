@@ -12,7 +12,7 @@
 
 FLOAT_TYPE computeResidual2D(FLOAT_TYPE *f_d, FLOAT_TYPE *fTemp_d,
 FLOAT_TYPE *temp9a_d, FLOAT_TYPE *temp9b_d, int m, int n) {
-	dim3 bpg9((9 * m * n - 1) / THREADS + 1);
+//	dim3 bpg9((9 * m * n - 1) / THREADS + 1);
 
 	//gpu_sqsub<<<bpg9, THREADS>>>(f_d, fTemp_d, temp9a_d, 9 * m * n);
 	//return sqrt(gpu_sum_h(temp9a_d, temp9b_d, 9 * m * n));

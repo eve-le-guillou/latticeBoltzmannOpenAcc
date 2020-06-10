@@ -1,6 +1,7 @@
+#include <cstring>
 #include <stdio.h>
 #include <complex.h>
-#include <cuComplex.h>
+//#include <cuComplex.h>
 #include "GpuFunctions.h"
 #include "CellFunctions.h"
 #include "ArrayUtils.h"
@@ -261,7 +262,7 @@ void initColorGradient(int *color_gradient_directions, int n, int m){
 	color_gradient_directions[js * n + iw] = 8; //SW
 }
 
-__host__ void initColorGradient3D(int *color_gradient_directions, int n, int m, int h){
+/*__host__ void initColorGradient3D(int *color_gradient_directions, int n, int m, int h){
 	//NORTH is 1, SOUTH 2, EAST 3, WEST 4, FRONT 5, BACK 6, 0 is okay
 	int ms = n * m;
 
@@ -288,7 +289,7 @@ __host__ void initColorGradient3D(int *color_gradient_directions, int n, int m, 
 			}
 		}
 	}
-}
+}*/
 
 void initHOColorGradient3D(int *color_gradient_directions, int n, int m, int h){
 
@@ -1144,12 +1145,9 @@ void collapseBc2D(int *bcIdx, int *bcIdxCollapsed_d, int *bcMask,
 		}
 	}
 
-	cudaMemcpy(bcIdxCollapsed_d, bcIdxCollapsed, size * sizeof(int),
-			cudaMemcpyHostToDevice);
-	cudaMemcpy(bcMaskCollapsed_d, bcMaskCollapsed, size * sizeof(int),
-			cudaMemcpyHostToDevice);
-	cudaMemcpy(qCollapsed_d, QCollapsed, 8 * size * sizeof(FLOAT_TYPE),
-			cudaMemcpyHostToDevice);
+	memcpy(bcIdxCollapsed_d, bcIdxCollapsed, size * sizeof(int));
+	memcpy(bcMaskCollapsed_d, bcMaskCollapsed, size * sizeof(int));
+	memcpy(qCollapsed_d, QCollapsed, 8 * size * sizeof(FLOAT_TYPE));
 	free(bcIdxCollapsed);
 	free(bcMaskCollapsed);
 	free(QCollapsed);

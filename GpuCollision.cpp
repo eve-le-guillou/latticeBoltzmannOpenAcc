@@ -1,6 +1,6 @@
 /**
  * Collision model
- * @file GpuCollision.cu
+ * @file GpuCollision.cpp
  * @author Adam Koleszar (adam.koleszar@gmail.com)
  */
 

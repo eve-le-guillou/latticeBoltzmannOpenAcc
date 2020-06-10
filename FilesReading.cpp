@@ -3,6 +3,7 @@
  * @file FilesReading.h
  * @author Adam Koleszar (adam.koleszar@gmail.com)
  */
+#include <cstring>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>

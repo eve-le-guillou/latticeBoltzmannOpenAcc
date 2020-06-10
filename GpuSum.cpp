@@ -1,3 +1,4 @@
+#include <cstring>
 #include "GpuSum.h"
 #include "BcMacros.h"
 #include "BcMacros3D.h"

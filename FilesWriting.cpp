@@ -1,3 +1,4 @@
+#include <cstring>
 #include <stdio.h>   // for calloc();
 #include "FilesWriting.h"
 #include <math.h>

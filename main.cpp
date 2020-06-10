@@ -1,6 +1,6 @@
 /**
  * Main file
- * @file main.cu
+ * @file main.cpp
  * @author Adam Koleszar (adam.koleszar@gmail.com)
  */
 #include <string.h>              // String operations

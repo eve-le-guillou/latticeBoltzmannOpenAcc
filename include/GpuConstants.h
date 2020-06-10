@@ -94,7 +94,7 @@ extern  int hocg_cx_d[25];
 extern  int hocg_cy_d[25];
 
 //#### 3D Color Gradient ####//
-extern __constant__ FLOAT_TYPE c_norms3D_d[19];
+/*extern __constant__ FLOAT_TYPE c_norms3D_d[19];
 extern __constant__ FLOAT_TYPE w_pert3D_d[19];
 extern __constant__ FLOAT_TYPE phi3D_d[19];
 extern __constant__ FLOAT_TYPE teta3D_d[19];
@@ -116,7 +116,7 @@ extern __constant__ int opp3D_d[19];                  ///< opposite lattice offs
 extern __constant__ FLOAT_TYPE w3D_d[19];             ///< lattice weights
 extern __constant__ FLOAT_TYPE velMomMap3D_d[361];    ///< MRT constants: mapping between velocity and momentum space \f$ \mathbf{M} \f$
 extern __constant__ FLOAT_TYPE momCollMtx3D_d[361];   ///< MRT constants: collision matrix in momentum space \f$ \mathbf{M}^{-1}\mathbf{S} \f$
-
+*/
 #endif
 
 #endif

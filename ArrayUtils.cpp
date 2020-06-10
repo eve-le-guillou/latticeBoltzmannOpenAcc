@@ -1,6 +1,6 @@
 /**
  * Memory allocation wrappers for host and gpu arrays
- * @file ArrayUtils.cu
+ * @file ArrayUtils.cpp
  * @author Adam Koleszar (adam.koleszar@gmail.com)
  */
 #include <stdlib.h>
@@ -10,7 +10,7 @@
 #include <assert.h>    // ensure successfull allocation
 #include "ArrayUtils.h"
 #include "LogWriter.h"
-
+#include <cstring>
 
 FLOAT_TYPE fill_fd; ///< value to fill into floating point array
 int        fill_id; ///< value to fill into integer array
@@ -27,10 +27,10 @@ FLOAT_TYPE getRandom(unsigned long *seed) {
  * @param seed seed for the random number (initialise with time(NULL))
  * @return uniform random number
  */
-__device__ FLOAT_TYPE getRandomDev(unsigned long seed) {
+/*__device__ FLOAT_TYPE getRandomDev(unsigned long seed) {
     seed = (seed * 279470273u) % 4294967291u;
     return (FLOAT_TYPE)seed / 4294967291.;
-}
+}*/
 /*bool *createGpuArrayBool(int length, ArrayOption op, bool fill, bool *copy)
 {
     bool *array_d;
@@ -58,7 +58,7 @@ __device__ FLOAT_TYPE getRandomDev(unsigned long seed) {
             cudaMemcpy(array_d, copy, length, cudaMemcpyDeviceToDevice);
         break;
         default:
-        	writeAlertLog("ArrayUtils.cu", 60);
+        	writeAlertLog("ArrayUtils.cpp", 60);
         break;
     }
 #ifdef DEBUG
@@ -192,7 +192,7 @@ bool *createHostArrayBool(int length, ArrayOption op, bool fill, bool *copy)
             memcpy(array_h, copy, length);
         break;
         default:
-        	writeAlertLog("ArrayUtils.cu", 195);
+        	writeAlertLog("ArrayUtils.cpp", 195);
         break;
     }
     return array_h;
