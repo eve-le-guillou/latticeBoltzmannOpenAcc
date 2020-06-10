@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "Multiphase.h"
 #include <math.h>
 #include <stdio.h>

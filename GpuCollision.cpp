@@ -3,7 +3,7 @@
  * @file GpuCollision.cpp
  * @author Adam Koleszar (adam.koleszar@gmail.com)
  */
-
+#include <cstdlib>
 #include "GpuFunctions.h"
 #include "GpuConstants.h"
 

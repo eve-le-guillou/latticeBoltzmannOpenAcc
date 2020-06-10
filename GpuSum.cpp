@@ -1,6 +1,7 @@
 #include <cstring>
 #include "GpuSum.h"
 #include "BcMacros.h"
+#include <cstdlib>
 #include "BcMacros3D.h"
 #include "ArrayUtils.h"
 //#include "Check.h"
