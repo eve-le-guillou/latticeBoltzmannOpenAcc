@@ -2,29 +2,28 @@
 #include <cstring>
 #include <stdio.h>
 #include <complex.h>
-//#include <cuComplex.h>
 #include "GpuFunctions.h"
 #include "CellFunctions.h"
 #include "ArrayUtils.h"
 #include "BcMacros.h"
 #include "BcMacros3D.h"
 #include <cmath>
-//#include "cuda.h"
 #include "math.h"
 
 InletProfile inletProfile_d;
 BoundaryType boundaryType_d;
 OutletProfile outletProfile_d;
 int dlBoundaryId_d;
-int cx2D_d[9];
-int cy2D_d[9];
+int cx2D_d[9] = { 0, 1, 0, -1, 0, 1, -1, -1, 1 };
+int cy2D_d[9] = { 0, 0, 1, 0, -1, 1, 1, -1, -1 };
 int length_d;
 int depth_d;
 int height_d;
-int c2D_d[9];
-int opp2D_d[9];
+int c2D_d[9] = { 0, -1, -1 * n, 1, n, -1 * n - 1, -1 * n + 1, n + 1, n - 1 };
+int opp2D_d[9]={ 0, 3 * s, 4 * s, 1 * s, 2 * s, 7 * s, 8 * s, 5 * s, 6 * s };
 FLOAT_TYPE delta_d;
-FLOAT_TYPE w2D_d[9];
+FLOAT_TYPE w2D_d[9]={ 4. / 9., 1. / 9., 1. / 9., 1. / 9., 1. / 9., 1. / 36.,
+                     1. / 36., 1. / 36., 1. / 36. };
 FLOAT_TYPE omega_d;
 FLOAT_TYPE omegaA_d;
 FLOAT_TYPE rhoIn_d;
@@ -69,10 +68,12 @@ FLOAT_TYPE psi_d[9];
 FLOAT_TYPE w_pert_d[9];
 FLOAT_TYPE g_limit_d;
 FLOAT_TYPE c_norms_d[9];
-FLOAT_TYPE cg_w_d[9];
-FLOAT_TYPE hocg_w_d[25];
-int hocg_cx_d[25];
-int hocg_cy_d[25];
+FLOAT_TYPE cg_w_d[9] = {0., 4. / 12., 4. / 12., 4. / 12., 4. / 12., 1. / 12., 1. / 12., 1. / 12., 1. / 12.};
+FLOAT_TYPE hocg_w_d[25] = {0., 960. / 5040., 960. / 5040., 960. / 5040., 960. / 5040., 448. / 5040., 448. / 5040.,
+                           448. / 5040., 448. / 5040., 84. / 5040., 32. / 5040., 1. / 5040., 32. / 5040., 84. / 5040., 32. / 5040.,
+                           1. / 5040., 32. / 5040., 84. / 5040., 32. / 5040., 1. / 5040., 32. / 5040., 84. / 5040., 32. / 5040., 1. / 5040., 32. / 5040.};
+int hocg_cx_d[25] = {0,1,0,-1,0,1,-1,-1,1,0,1,2,2,2,2,2,1,0,-1,-2,-2,-2,-2,-2,-1};
+int hocg_cy_d[25] = {0,0,1,0,-1,1,1,-1,-1,2,2,2,1,0,-1,-2,-2,-2,-2,-2,-1,0,1,2,2};
 
 //COLOR GRADIENT 3D//
 FLOAT_TYPE r_viscosity_d;
@@ -90,26 +91,25 @@ int hocg_cy3D_d[105];
 int hocg_cz3D_d[105];
 int hoc3D_d[105];
 
-void initConstants2D(Arguments *args,
-		FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minInletCoordY,
+void initConstants2D(Arguments *args, FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minInletCoordY,
 		FLOAT_TYPE delta, int m, int n) {
 	//CONSTANT LATTICE QUANTITIES d2q9
 	int s = m * n;
-	FLOAT_TYPE w2D[9] = { 4. / 9., 1. / 9., 1. / 9., 1. / 9., 1. / 9., 1. / 36.,
+	/*FLOAT_TYPE w2D[9] = { 4. / 9., 1. / 9., 1. / 9., 1. / 9., 1. / 9., 1. / 36.,
 			1. / 36., 1. / 36., 1. / 36. };
 	int opp2D[9] = { 0, 3 * s, 4 * s, 1 * s, 2 * s, 7 * s, 8 * s, 5 * s, 6 * s };
 	int cx2D[9] = { 0, 1, 0, -1, 0, 1, -1, -1, 1 };
 	int cy2D[9] = { 0, 0, 1, 0, -1, 1, 1, -1, -1 };
-	int c2D[9] = { 0, -1, -1 * n, 1, n, -1 * n - 1, -1 * n + 1, n + 1, n - 1 };
+	int c2D[9] = { 0, -1, -1 * n, 1, n, -1 * n - 1, -1 * n + 1, n + 1, n - 1 };*/
 
 	// Calculate collision freq
-	FLOAT_TYPE omega = 1.0 / (3. * args->viscosity + 0.5);
-	FLOAT_TYPE omegaA = 8 * (2 - omega) / (8 - omega);
+	omega_d = 1.0 / (3. * args->viscosity + 0.5);
+	omegaA_d = 8 * (2 - omega) / (8 - omega);
 
-	memcpy(cx2D_d, cx2D, 9 * sizeof(int));
+	/*memcpy(cx2D_d, cx2D, 9 * sizeof(int));
 	memcpy(cy2D_d, cy2D, 9 * sizeof(int));
 	memcpy(c2D_d, c2D, 9 * sizeof(int));
-	memcpy(opp2D_d, opp2D, 9 * sizeof(int));
+	memcpy(opp2D_d, opp2D, 9 * sizeof(int));*/
 
 	memcpy(&outletProfile_d, &args->outletProfile,
 			sizeof(OutletProfile));
@@ -117,93 +117,120 @@ void initConstants2D(Arguments *args,
 			sizeof(BoundaryType));
 	memcpy(&dlBoundaryId_d, &args->boundaryId, sizeof(int));
 
-	memcpy(&depth_d, &m, sizeof(int));
-	memcpy(&length_d, &n, sizeof(int));
-	memcpy(&w2D_d, w2D, 9 * sizeof(FLOAT_TYPE));
-	memcpy(&omega_d, &omega, sizeof(FLOAT_TYPE));
-	memcpy(&omegaA_d, &omegaA, sizeof(FLOAT_TYPE));
-	memcpy(&delta_d, &delta, sizeof(FLOAT_TYPE));
+	depth_d = m;
+	length_d = n;
+	delta_d = delta;
+	//memcpy(&depth_d, &m, sizeof(int));
+	//memcpy(&length_d, &n, sizeof(int));
+	//memcpy(&w2D_d, w2D, 9 * sizeof(FLOAT_TYPE));
+	//memcpy(&omega_d, &omega, sizeof(FLOAT_TYPE));
+	//memcpy(&omegaA_d, &omegaA, sizeof(FLOAT_TYPE));
+	//memcpy(&delta_d, &delta, sizeof(FLOAT_TYPE));
 
 	memcpy(&inletProfile_d, &args->inletProfile,
 			sizeof(InletProfile));
-	memcpy(&rhoIn_d, &args->rho, sizeof(FLOAT_TYPE));
+	rhoIn_d = args->rho;
+	uIn_d = args->u;
+    vIn_d = args->v;
+    minInletCoordY_d = minInletCoordY;
+    maxInletCoordY_d = maxInletCoordY;
+	/*memcpy(&rhoIn_d, &args->rho, sizeof(FLOAT_TYPE));
 	memcpy(&uIn_d, &args->u, sizeof(FLOAT_TYPE));
 	memcpy(&vIn_d, &args->v, sizeof(FLOAT_TYPE));
 	memcpy(&minInletCoordY_d, &minInletCoordY, sizeof(FLOAT_TYPE));
-	memcpy(&maxInletCoordY_d, &maxInletCoordY, sizeof(FLOAT_TYPE));
+	memcpy(&maxInletCoordY_d, &maxInletCoordY, sizeof(FLOAT_TYPE));*/
 
 	// Initialize variables for MRT Collision model, if used
 	if (args->collisionModel == MRT) {
-		FLOAT_TYPE *velMomMap2D = createHostArrayFlt(81);
-		FLOAT_TYPE *momCollMtx2D = createHostArrayFlt(81);
-		MRTInitializer2D(velMomMap2D, momCollMtx2D, omega);
+		//FLOAT_TYPE *velMomMap2D = createHostArrayFlt(81);
+		//FLOAT_TYPE *momCollMtx2D = createHostArrayFlt(81);
+		MRTInitializer2D(velMomMap2D_d, momCollMtx2D_d, omega);
 
-		memcpy(velMomMap2D_d, velMomMap2D, 81 * sizeof(FLOAT_TYPE));
+		/*memcpy(velMomMap2D_d, velMomMap2D, 81 * sizeof(FLOAT_TYPE));
 		memcpy(momCollMtx2D_d, momCollMtx2D,
-				81 * sizeof(FLOAT_TYPE));
+				81 * sizeof(FLOAT_TYPE));*/
 	}
 
-	memcpy(&g_d, &args->g, sizeof(FLOAT_TYPE));
-
+	//memcpy(&g_d, &args->g, sizeof(FLOAT_TYPE));
+    g_d = args->g;
 	if (args->multiPhase){
 
-		memcpy(&control_param_d, &args->control_param, sizeof(FLOAT_TYPE));
+		/*memcpy(&control_param_d, &args->control_param, sizeof(FLOAT_TYPE));
 		memcpy(&beta_d, &args->beta, sizeof(FLOAT_TYPE));
-		memcpy(&A_d, &args->A, sizeof(FLOAT_TYPE));
+		memcpy(&A_d, &args->A, sizeof(FLOAT_TYPE));*/
+		control_param_d = args->control_param;
+		beta_d = args->beta;
+		A_d = args->A;
 
 		FLOAT_TYPE aux1 = 1.0 / 5.0;
 		FLOAT_TYPE aux2 = 1.0 /20.0;
-		FLOAT_TYPE phi[9] = {0.0, aux1, aux1, aux1, aux1, aux2, aux2,aux2, aux2};
-		memcpy(phi_d, phi, 9 * sizeof(FLOAT_TYPE));
+        phi_d[0] = 0.0; phi_d[1] = aux1; phi_d[2] = aux1; phi_d[3] = aux1; phi_d[4] = aux1;
+        phi_d[5] = aux2; phi_d[6]= aux2; phi_d[7] = aux2; phi_d[8] = aux2;
+		/*FLOAT_TYPE phi[9] = {0.0, aux1, aux1, aux1, aux1, aux2, aux2,aux2, aux2};
+		memcpy(phi_d, phi, 9 * sizeof(FLOAT_TYPE));*/
 		aux1 = -1.0 / 5.0;
 		aux2 = -1.0 / 20.0;
-		FLOAT_TYPE teta[9] = {1.0, aux1, aux1, aux1, aux1, aux2, aux2,aux2, aux2};
-		memcpy(teta_d, teta, 9 * sizeof(FLOAT_TYPE));
+        teta_d[0] = 1.0; teta_d[1] = aux1; teta_d[2] = aux1; teta_d[3] = aux1; teta_d[4] = aux1;
+        teta_d[5] = aux2; teta_d[6] = aux2; teta_d[7] = aux2; teta_d[8] = aux2;
+		/*FLOAT_TYPE teta[9] = {1.0, aux1, aux1, aux1, aux1, aux2, aux2,aux2, aux2};
+		memcpy(teta_d, teta, 9 * sizeof(FLOAT_TYPE));*/
 		aux1 = -1.0 / 6.0;
 		aux2 = 1.0 / 12.0;
-		FLOAT_TYPE chi[9] = {-8.0 / 3.0, aux1, aux1, aux1, aux1, aux2, aux2,aux2, aux2};
-		memcpy(chi_d, chi, 9 * sizeof(FLOAT_TYPE));
+        chi_d[0] = -8.0/3.0; chi_d[1] = aux1; chi_d[2] = aux1; chi_d[3] = aux1; chi_d[4] = aux1;
+        chi_d[5] = aux2; chi_d[6] = aux2; chi_d[7] = aux2; chi_d[8] = aux2;
+		/*FLOAT_TYPE chi[9] = {-8.0 / 3.0, aux1, aux1, aux1, aux1, aux2, aux2,aux2, aux2};
+		memcpy(chi_d, chi, 9 * sizeof(FLOAT_TYPE));*/
 		aux1 = 1.0 / 2.0;
 		aux2 = 1.0 / 8.0;
-		FLOAT_TYPE psi[9] = {0.0, aux1, aux1, aux1, aux1, aux2, aux2,aux2, aux2};
-		memcpy(psi_d, psi, 9 * sizeof(FLOAT_TYPE));
-
-		FLOAT_TYPE w_pert[9] = {-4.0 / 27.0, 2.0 / 27.0, 2.0 / 27.0, 2.0 / 27.0, 2.0 / 27.0,
+        psi_d[0] = 0.0; psi_d[1] = aux1; psi_d[2] = aux1; psi_d[3] = aux1; psi_d[4] = aux1;
+        psi_d[5] = aux2; psi_d[6] = aux2; psi_d[7] = aux2; psi_d[8] = aux2;
+		/*FLOAT_TYPE psi[9] = {0.0, aux1, aux1, aux1, aux1, aux2, aux2,aux2, aux2};
+		memcpy(psi_d, psi, 9 * sizeof(FLOAT_TYPE));*/
+        w_pert_d[0] = -4.0/27.0; w_pert_d[1] = 2.0/27.0; w_pert_d[2] = 2.0/27.0; w_pert_d[3] = 2.0/27.0;
+        w_pert_d[4] = 2.0/27.0; w_pert_d[5] = 5.0/108.0; w_pert_d[6] = 5.0/108.0;
+        w_pert_d[7] = 5.0/108.0; w_pert_d[8] = 5.0/108.0;
+		/*FLOAT_TYPE w_pert[9] = {-4.0 / 27.0, 2.0 / 27.0, 2.0 / 27.0, 2.0 / 27.0, 2.0 / 27.0,
 				5.0 / 108.0, 5.0 / 108.0, 5.0 / 108.0, 5.0 / 108.0};
-		memcpy(w_pert_d, w_pert, 9 * sizeof(FLOAT_TYPE));
-		memcpy(&g_limit_d, &args->g_limit, sizeof(FLOAT_TYPE));
-
-		FLOAT_TYPE c_norms[9];
+		memcpy(w_pert_d, w_pert, 9 * sizeof(FLOAT_TYPE));*/
+		//memcpy(&g_limit_d, &args->g_limit, sizeof(FLOAT_TYPE));
+        g_limit_d = args->g_limit;
+		//FLOAT_TYPE c_norms[9];
 		for(int i = 0; i < 9;i++){
-			c_norms[i] = sqrt(cx2D[i] * cx2D[i] + cy2D[i] * cy2D[i]);
+			c_norms_d[i] = sqrt(cx2D_d[i] * cx2D_d[i] + cy2D_d[i] * cy2D_d[i]);
 		}
-		memcpy(c_norms_d, c_norms, 9 * sizeof(FLOAT_TYPE));
+		r_density_d = args->r_density;
+        b_density_d = args->b_density;
+        r_alpha_d = args->r_alpha;
+        b_alpha_d = args->b_alpha;
+        args->bubble_radius /= n;
+        bubble_radius_d = args->bubble_radius;
+		/*memcpy(c_norms_d, c_norms, 9 * sizeof(FLOAT_TYPE));
 		memcpy(&r_density_d, &args->r_density, sizeof(FLOAT_TYPE));
 		memcpy(&b_density_d, &args->b_density, sizeof(FLOAT_TYPE));
 		memcpy(&r_alpha_d, &args->r_alpha, sizeof(FLOAT_TYPE));
 		memcpy(&b_alpha_d, &args->b_alpha, sizeof(FLOAT_TYPE));
 		args->bubble_radius /= n;
-		memcpy(&bubble_radius_d, &args->bubble_radius, sizeof(FLOAT_TYPE));
-//		FLOAT_TYPE st_predicted = (2.0/9.0)*(1.0+1.0/args->gamma)/(0.5*(r_omega+b_omega))*0.5*args->r_density*(args->r_A+args->b_A);
-//		memcpy(st_predicted_d, &st_predicted, sizeof(FLOAT_TYPE));
+		memcpy(&bubble_radius_d, &args->bubble_radius, sizeof(FLOAT_TYPE));*/
 
-		FLOAT_TYPE cg_w[9] = {0., 4. / 12., 4. / 12., 4. / 12., 4. / 12., 1. / 12., 1. / 12., 1. / 12., 1. / 12.};
+		/*FLOAT_TYPE cg_w[9] = {0., 4. / 12., 4. / 12., 4. / 12., 4. / 12., 1. / 12., 1. / 12., 1. / 12., 1. / 12.};
 		memcpy(cg_w_d, cg_w, 9 * sizeof(FLOAT_TYPE));
 		memcpy(&r_viscosity_d, &args->r_viscosity, sizeof(FLOAT_TYPE));
 		memcpy(&b_viscosity_d, &args->b_viscosity, sizeof(FLOAT_TYPE));
-		memcpy(&external_force_d, &args->external_force, sizeof(bool));
+		memcpy(&external_force_d, &args->external_force, sizeof(bool));*/
 
-		FLOAT_TYPE hocg_w[25] = {0., 960. / 5040., 960. / 5040., 960. / 5040., 960. / 5040., 448. / 5040., 448. / 5040.,
+		r_viscosity_d = args->r_viscosity;
+        b_viscosity_d = args->b_viscosity;
+        external_force_d = args->external_force;
+
+		/*FLOAT_TYPE hocg_w[25] = {0., 960. / 5040., 960. / 5040., 960. / 5040., 960. / 5040., 448. / 5040., 448. / 5040.,
 				448. / 5040., 448. / 5040., 84. / 5040., 32. / 5040., 1. / 5040., 32. / 5040., 84. / 5040., 32. / 5040.,
 				1. / 5040., 32. / 5040., 84. / 5040., 32. / 5040., 1. / 5040., 32. / 5040., 84. / 5040., 32. / 5040., 1. / 5040., 32. / 5040.};
 		memcpy(hocg_w_d, hocg_w, 25 * sizeof(FLOAT_TYPE));
 		int hocg_cx[25] = {0,1,0,-1,0,1,-1,-1,1,0,1,2,2,2,2,2,1,0,-1,-2,-2,-2,-2,-2,-1};
 		memcpy(hocg_cx_d, hocg_cx, 25 * sizeof(int));
 		int hocg_cy[25] = {0,0,1,0,-1,1,1,-1,-1,2,2,2,1,0,-1,-2,-2,-2,-2,-2,-1,0,1,2,2};
-		memcpy(hocg_cy_d, hocg_cy, 25 * sizeof(int));
+		memcpy(hocg_cy_d, hocg_cy, 25 * sizeof(int));*/
 
-		memcpy(&r_viscosity_d, &args->r_viscosity, sizeof(FLOAT_TYPE));
-		memcpy(&b_viscosity_d, &args->b_viscosity, sizeof(FLOAT_TYPE));
 	}
 }
 
