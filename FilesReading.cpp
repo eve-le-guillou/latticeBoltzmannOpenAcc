@@ -434,7 +434,7 @@ int compareFiles(const char* f1, const char* f2) {
 	FLOAT_TYPE diff_max[9];
 	FLOAT_TYPE* cur1;
 	FLOAT_TYPE* cur2;
-        #pragma acc data create(dc[0:l1],dd[0:l1])
+        #pragma acc data create(dc[0:l1])
 	for (i = 0; i < 9; ++i) {
 		cur1 = res1[i];
 		cur2 = res2[i];

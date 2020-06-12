@@ -14,13 +14,13 @@ InletProfile inletProfile_d;
 BoundaryType boundaryType_d;
 OutletProfile outletProfile_d;
 int dlBoundaryId_d;
-int cx2D_d[9] = { 0, 1, 0, -1, 0, 1, -1, -1, 1 };
-int cy2D_d[9] = { 0, 0, 1, 0, -1, 1, 1, -1, -1 };
+int cx2D_d[9];
+int cy2D_d[9];
 int length_d;
 int depth_d;
 int height_d;
-int c2D_d[9] = { 0, -1, -1 * n, 1, n, -1 * n - 1, -1 * n + 1, n + 1, n - 1 };
-int opp2D_d[9]={ 0, 3 * s, 4 * s, 1 * s, 2 * s, 7 * s, 8 * s, 5 * s, 6 * s };
+int c2D_d[9];
+int opp2D_d[9];
 FLOAT_TYPE delta_d;
 FLOAT_TYPE w2D_d[9]={ 4. / 9., 1. / 9., 1. / 9., 1. / 9., 1. / 9., 1. / 36.,
                      1. / 36., 1. / 36., 1. / 36. };
@@ -101,10 +101,13 @@ void initConstants2D(Arguments *args, FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minI
 	int cx2D[9] = { 0, 1, 0, -1, 0, 1, -1, -1, 1 };
 	int cy2D[9] = { 0, 0, 1, 0, -1, 1, 1, -1, -1 };
 	int c2D[9] = { 0, -1, -1 * n, 1, n, -1 * n - 1, -1 * n + 1, n + 1, n - 1 };*/
-
+        opp2D_d[0] = 0; opp2D_d[1] = 3*s; opp2D_d[2] = 4*s; opp2D_d[3] = 1*s; opp2D_d[4] = 2*s; opp2D_d[5] = 7*s; opp2D_d[6] = 8*s; opp2D_d[7] = 5*s; opp2D_d[8] = 6*s;
+        cx2D_d[0] = 0; cx2D_d[1] = 1; cx2D_d[2] = 0; cx2D_d[3] =-1; cx2D_d[4] = 0; cx2D_d[5] = 1; cx2D_d[6] = -1; cx2D_d[7] = -1; cx2D_d[8] = 1;
+        cy2D_d[0] = 0; cy2D_d[1] = 0; cy2D_d[2] = 1; cy2D_d[3] = 0; cy2D_d[4] = -1; cy2D_d[5] = 1; cy2D_d[6] = 1; cy2D_d[7] = -1; cy2D_d[8] = -1;
+        c2D_d[0] = 0; c2D_d[1] = -1; c2D_d[2] = -1*n; c2D_d[3] = 1; c2D_d[4] = n; c2D_d[5] = -1*n-1; c2D_d[6] = -1*n+1; c2D_d[7] = n+1; c2D_d[8] = n-1;
 	// Calculate collision freq
 	omega_d = 1.0 / (3. * args->viscosity + 0.5);
-	omegaA_d = 8 * (2 - omega) / (8 - omega);
+	omegaA_d = 8 * (2 - omega_d) / (8 - omega_d);
 
 	/*memcpy(cx2D_d, cx2D, 9 * sizeof(int));
 	memcpy(cy2D_d, cy2D, 9 * sizeof(int));
@@ -144,7 +147,7 @@ void initConstants2D(Arguments *args, FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minI
 	if (args->collisionModel == MRT) {
 		//FLOAT_TYPE *velMomMap2D = createHostArrayFlt(81);
 		//FLOAT_TYPE *momCollMtx2D = createHostArrayFlt(81);
-		MRTInitializer2D(velMomMap2D_d, momCollMtx2D_d, omega);
+		MRTInitializer2D(velMomMap2D_d, momCollMtx2D_d, omega_d);
 
 		/*memcpy(velMomMap2D_d, velMomMap2D, 81 * sizeof(FLOAT_TYPE));
 		memcpy(momCollMtx2D_d, momCollMtx2D,
