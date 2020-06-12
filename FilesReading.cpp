@@ -429,23 +429,29 @@ int compareFiles(const char* f1, const char* f2) {
 	readResultFile(f2, &res2);
 	printf("...done\nComparing results...\n");
 
-	FLOAT_TYPE *da = createHostArrayFlt(l1);
-	FLOAT_TYPE *db = createHostArrayFlt(l1);
 	FLOAT_TYPE *dc = createHostArrayFlt(l1);
-	FLOAT_TYPE *dd = createHostArrayFlt(l1);
 	FLOAT_TYPE diff_sum[9];
 	FLOAT_TYPE diff_max[9];
-	bool divergence = false;
+	FLOAT_TYPE* cur1;
+	FLOAT_TYPE* cur2;
+        #pragma acc data create(dc[0:l1],dd[0:l1])
 	for (i = 0; i < 9; ++i) {
-
-		memcpy(da, res1[i], SIZEFLT(l1));
-		memcpy(db, res2[i], SIZEFLT(l1));
-
-		gpu_abs_sub(da, db, dc, l1, &divergence);
-		diff_sum[i] = gpu_sum_h(dc, dd, l1);
-		gpu_abs_sub(da, db, dc, l1, &divergence);
-		diff_max[i] = gpu_max_h(dc, dd, l1);
-
+		cur1 = res1[i];
+		cur2 = res2[i];
+		#pragma acc data copyin(cur1[0:l1],cur2[0:l1])	
+	        #pragma acc loop gang
+                for (int ind = 0; ind < l1; ind++) {
+                        dc[ind] = abs(cur2[ind] - cur1[ind]);
+                }
+		FLOAT_TYPE result = 0.0;
+		FLOAT_TYPE maxi;
+		#pragma acc loop gang reduction(+:result) reduction(max:maxi)
+	        for (int ind = 0; ind< l1; ind++){
+        	    result+=dc[ind];
+		    if (dc[ind] >maxi) maxi = dc[ind];
+        	}
+		diff_sum[i] = result;
+		diff_max[i] = maxi;
 	}
 
 	printf("     array |        diff sum |        diff max |      diff/nodes\n"
@@ -463,7 +469,7 @@ int compareFiles(const char* f1, const char* f2) {
 	free(res1);
 	free(res2);
 
-	return b;
+	return 0;
 }
 
 int getLastValue(int *arr, int n) {

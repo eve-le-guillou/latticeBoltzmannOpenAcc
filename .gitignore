@@ -6,3 +6,4 @@ gpu_lbmsolver.o*
 lbmsolver
 libs2/
 *.crescentpbs*
+a.prof
