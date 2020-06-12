@@ -1879,6 +1879,7 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 	int ms = depth_d * length_d;
 	int offsetY = length_d * (depth_d - 1);
 	int offsetX = length_d - 1;
+#pragma acc parallel loop present(bcIdx_d, bcMask_d, r_f_d, b_f_d, r_rho_d, b_rho_d, u_d, v_d, rho_d)
 	for (int ind = 0; ind < ms; ind++) {
 
 		int ori = orientation_d[ind];

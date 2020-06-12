@@ -649,12 +649,15 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE 
 		FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order){
 
 	int ms = depth_d*length_d;
+
 	int cx, cy;
 	FLOAT_TYPE r_r, b_r, r, u, v, cg_x, cg_y, gr_x, gr_y;
 	FLOAT_TYPE k_r, k_b, k_k, color_gradient_norm, cosin, mean_nu, omega_eff;
 	FLOAT_TYPE prod_c_g, pert;
 	FLOAT_TYPE f_CollPert;
 	FLOAT_TYPE G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq;
+#pragma acc data create(r_r, b_r, r, u, v, cg_x, gr_x, gr_y, k_r, k_b, k_k, color_gradient_norm, cosin, mean_nu, omega_eff, prod_c_g, pert, f_CollPert, G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq)
+#pragma acc parallel loop present(rho_d, r_rho_d, b_rho_d, u_d, v_d, f_d, r_fColl_d, b_fColl_d, cg_dir_d)
 	for (int ind = 0; ind < ms; ind++)
 	{
 		u =   u_d[ind];
