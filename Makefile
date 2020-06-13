@@ -4,13 +4,13 @@ CFLAGS=-fast -Minfo=accel -acc -ta:tesla
 DEFINES=-D$(FLOAT_TYPE)
 INCLUDES=-Iinclude
 OS := $(shell uname)
-LDFLAGS=-acc
+LDFLAGS=-acc -lm
 CC=pgc++
-LIBDIR=#-Llibs
+LIBDIR=-Mcuda=llvm #-Llibs
 LIBS=#-largtable2 #-lcuda
 
-CU_FILES=argtable3.cpp main.cpp GpuSum.cpp Iterate.cpp Iterate3D.cpp CellFunctions.cpp ComputeResiduals.cpp FilesReading.cpp FilesWriting.cpp \
-         ShellFunctions.cpp GpuInit.cpp GpuBoundaries.cpp GpuCollision.cpp GpuStream.cpp LogWriter.cpp \
+CU_FILES=argtable3.cpp main.cpp GpuSum.cpp GpuInit.cpp Iterate.cpp Iterate3D.cpp CellFunctions.cpp ComputeResiduals.cpp FilesReading.cpp FilesWriting.cpp \
+         ShellFunctions.cpp GpuBoundaries.cpp GpuCollision.cpp GpuStream.cpp LogWriter.cpp \
          ArrayUtils.cpp Arguments.cpp GpuUpdateMacro.cpp Multiphase.cpp
 ITER_FILES=Iterate.cpp GpuInit.cpp ComputeResiduals.cpp GpuBoundaries.cpp GpuCollision.cpp GpuStream.cpp \
            ArrayUtils.cpp Arguments.cpp GpuSum.cpp GpuUpdateMacro.cpp

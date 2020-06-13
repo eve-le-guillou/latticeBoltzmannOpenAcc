@@ -1,3 +1,4 @@
+#include <cuda_runtime.h>
 #include <stdio.h>                      // printf();
 #include <math.h>                       // need to compile with -lm
 #include <stdlib.h>                     // for calloc();
@@ -119,7 +120,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	FLOAT_TYPE *norm = createHostArrayFlt(args->iterations, ARRAY_ZERO);
 	FLOAT_TYPE *dragSum = createHostArrayFlt(args->iterations, ARRAY_ZERO);
 	FLOAT_TYPE *liftSum = createHostArrayFlt(args->iterations, ARRAY_ZERO);
-
+	bool h_divergence;
 	fprintf(logFile, "\n:::: Initializing ::::\n");
 	printf("\n:::: Initializing ::::\n");
 	//FLOAT_TYPE *u = createHostArrayFlt(m * n, ARRAY_ZERO);
@@ -160,7 +161,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 		u0_d = createHostArrayFlt(m * n, ARRAY_ZERO);
 		v0_d = createHostArrayFlt(m * n, ARRAY_ZERO);
 	}
-#pragma acc enter data copyin(u0_d[n*m], v0_d[n*m])
+//#pragma acc enter data copyin(u0_d[n*m], v0_d[n*m])
     {
 
 	}
@@ -212,9 +213,9 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	if(args->multiPhase && args->test_case == 2) //only for couette
 	{
 		initInletVelocity(u, v, args->u, args->v, n, m);
-		memcpy(u_d, u, SIZEFLT(m*n)));
-		memcpy(v_d, v, SIZEFLT(m*n)));
-#pragma acc enter data copyin(u_d[m*n], v_d[m*n])
+		memcpy(u, u, SIZEFLT(m*n));
+		memcpy(v, v, SIZEFLT(m*n));
+//#pragma acc enter data copyin(u[m*n], v[m*n])
     {
 	}
 	}
@@ -276,25 +277,25 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	printf("%d is the number of iterations \n", args->iterations);
 
 	int iter = 0;
-#pragma acc data copyin(nodeType[0:numNodes]) create(r_fColl_d[m*n*9], b_fColl_d[m*n*9], p_in_d[n*m], p_out_d[n*m], num_in_d[m*n], num_out_d[m*n], h_divergence) \
+//#pragma acc data copyin(nodeType[0:numNodes]) create(r_fColl_d[m*n*9], b_fColl_d[m*n*9], p_in_d[n*m], p_out_d[n*m], num_in_d[m*n], num_out_d[m*n], h_divergence) \
                 create(drag_d[n*m], lift_d[m*n], fColl_d[9*m*n], temp9a_d[9*m*n], temp9b_d[9*m*n], tempA_d[m*n], tempB_d[m*n]) \
                 copyin(cg_directions[0:n*m], bcMask_d[0:n*m], f_prev_d[0:9*m*n])
     {
         while (iter < args->iterations) {
-
             /*CHECK(cudaThreadSynchronize());
             CHECK(cudaEventRecord(start, 0)); // Start measuring time*/
             switch (args->collisionModel) {
-
                 case BGKW:
                     if (args->multiPhase) {
                         //Collision
-                        if (!args->enhanced_distrib)
+                        if (!args->enhanced_distrib){
                             gpuCollBgkwGC2D(rho, r_rho, b_rho, u, v, f_d, r_fColl_d, b_fColl_d, cg_directions,
                                             args->high_order);
-                        else
+                        }
+			else{
                             gpuCollEnhancedBgkwGC2D(rho, r_rho, b_rho, u, v, f_d, r_fColl_d, b_fColl_d, cg_directions,
                                                     args->high_order);
+		}
                     } else {
                         //gpuCollBgkw2D<<<bpg1, tpb>>>(nodeType, rho, u, v, f_d,
                         //		fColl_d);
@@ -355,11 +356,11 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
                                                                  args->bubble_radius * n, st_predicted);
                         break;
                     case 5:
-#pragma acc update self(r_rho[0:m*n], b_rho[0:m*n])
+//#pragma acc update self(r_rho[0:m*n], b_rho[0:m*n])
                         oscilating_y[iter] = getMaxYOscilating(r_rho, b_rho, n, m, nodeY);
                         break;
                     case 6:
-#pragma acc update self(r_rho[0:m*n], b_rho[0:m*n])
+//#pragma acc update self(r_rho[0:m*n], b_rho[0:m*n])
                         oscilating_y[iter] = getMinYRT(r_rho, b_rho, n, m, nodeY);
                         break;
                     default:
@@ -379,7 +380,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
                     gpu_abs_relSub(f_d, f_prev_d, temp9a_d, n * m * 9, &h_divergence);
                     fMaxDiff = gpu_max_h(temp9a_d, temp9b_d, n * m * 9);
                     //	printf("MAX diff "FLOAT_FORMAT"\n", fMaxDiff);
-#pragma acc update self(h_divergence)
+//#pragma acc update self(h_divergence)
                     if (h_divergence || fMaxDiff != fMaxDiff || !isfinite(fMaxDiff)) {
                         fprintf(stderr, "\nDIVERGENCE!\n");
                         break;
@@ -390,7 +391,10 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
                     }
                     delete[] f_prev_d;
                     f_prev_d = createHostArrayFlt(n * m * 9, ARRAY_CPYD, 0, f_d);
-
+		    /*#pragma acc host_data use_device(f_d, f_prev_d) 
+  		    {	 
+	       	    cudaMemcpy(&f_prev_d,&f_d, n*m*9,cudaMemcpyDeviceToDevice); 
+	  	    }*/  
                 } else {
                     r = computeResidual2D(f_d, fColl_d, temp9a_d, temp9b_d, m, n);
                     if (r != r) {
@@ -430,9 +434,9 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
                 if (iter > args->autosaveAfter) {
                     printf("autosave\n\n");
                     //////////// COPY VARIABLES TO HOST ////////////////
-#pragma acc update self(u_d[0:m*n], v_d[0:m*n], rho[0:m*n])
+//#pragma acc update self(u[0:m*n], v[0:m*n], rho[0:m*n])
                     if (args->multiPhase) {
-#pragma acc update self(r_rho[0:m*n], b_rho[0:m*n])
+//#pragma acc update self(r_rho[0:m*n], b_rho[0:m*n])
                     }
 
                     switch (args->outputFormat) {
@@ -459,9 +463,9 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
                        args->iterations);
 
         //WRITE VARIABLES TO HOST
-#pragma acc data copyout(u_d[0:m*n], v_d[0:m*n], rho[0:m*n])
+//#pragma acc data copyout(u[0:m*n], v[0:m*n], rho[0:m*n])
         if (args->multiPhase) {
-#pragma acc data copyout(r_rho[0:m*n], b_rho[0:m*n])
+//#pragma acc data copyout(r_rho[0:m*n], b_rho[0:m*n])
         }
         switch (args->outputFormat) {
             case CSV:

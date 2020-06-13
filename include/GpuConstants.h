@@ -117,6 +117,8 @@ extern __constant__ FLOAT_TYPE w3D_d[19];             ///< lattice weights
 extern __constant__ FLOAT_TYPE velMomMap3D_d[361];    ///< MRT constants: mapping between velocity and momentum space \f$ \mathbf{M} \f$
 extern __constant__ FLOAT_TYPE momCollMtx3D_d[361];   ///< MRT constants: collision matrix in momentum space \f$ \mathbf{M}^{-1}\mathbf{S} \f$
 */
+
+//#pragma acc declare create(g_d, velMomMap2D_d, momCollMtx2D_d, minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c2D_d, cx2D_d, cy2D_d, opp2D_d, w2D_d, cg_w_d, hocg_w_d, hocg_cx_d, hocg_cy_d, r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d, psi_d, chi_d, teta_d, phi_d, A_d, control_param_d, beta_d)
 #endif
 
 #endif

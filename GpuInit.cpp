@@ -1,3 +1,4 @@
+#include <accelmath.h>
 #include <cstdlib>
 #include <cstring>
 #include <stdio.h>
@@ -8,7 +9,6 @@
 #include "BcMacros.h"
 #include "BcMacros3D.h"
 #include <cmath>
-#include "math.h"
 
 InletProfile inletProfile_d;
 BoundaryType boundaryType_d;
@@ -22,8 +22,7 @@ int height_d;
 int c2D_d[9];
 int opp2D_d[9];
 FLOAT_TYPE delta_d;
-FLOAT_TYPE w2D_d[9]={ 4. / 9., 1. / 9., 1. / 9., 1. / 9., 1. / 9., 1. / 36.,
-                     1. / 36., 1. / 36., 1. / 36. };
+FLOAT_TYPE w2D_d[9];
 FLOAT_TYPE omega_d;
 FLOAT_TYPE omegaA_d;
 FLOAT_TYPE rhoIn_d;
@@ -33,6 +32,7 @@ FLOAT_TYPE minInletCoordY_d;
 FLOAT_TYPE maxInletCoordY_d;
 FLOAT_TYPE velMomMap2D_d[81];
 FLOAT_TYPE momCollMtx2D_d[81];
+
 /*
 //#### 3D d3q19 ####//
 __constant__ int cx3D_d[19];
@@ -68,12 +68,10 @@ FLOAT_TYPE psi_d[9];
 FLOAT_TYPE w_pert_d[9];
 FLOAT_TYPE g_limit_d;
 FLOAT_TYPE c_norms_d[9];
-FLOAT_TYPE cg_w_d[9] = {0., 4. / 12., 4. / 12., 4. / 12., 4. / 12., 1. / 12., 1. / 12., 1. / 12., 1. / 12.};
-FLOAT_TYPE hocg_w_d[25] = {0., 960. / 5040., 960. / 5040., 960. / 5040., 960. / 5040., 448. / 5040., 448. / 5040.,
-                           448. / 5040., 448. / 5040., 84. / 5040., 32. / 5040., 1. / 5040., 32. / 5040., 84. / 5040., 32. / 5040.,
-                           1. / 5040., 32. / 5040., 84. / 5040., 32. / 5040., 1. / 5040., 32. / 5040., 84. / 5040., 32. / 5040., 1. / 5040., 32. / 5040.};
-int hocg_cx_d[25] = {0,1,0,-1,0,1,-1,-1,1,0,1,2,2,2,2,2,1,0,-1,-2,-2,-2,-2,-2,-1};
-int hocg_cy_d[25] = {0,0,1,0,-1,1,1,-1,-1,2,2,2,1,0,-1,-2,-2,-2,-2,-2,-1,0,1,2,2};
+FLOAT_TYPE cg_w_d[9];
+FLOAT_TYPE hocg_w_d[25];
+int hocg_cx_d[25];
+int hocg_cy_d[25];
 
 //COLOR GRADIENT 3D//
 FLOAT_TYPE r_viscosity_d;
@@ -90,6 +88,8 @@ int hocg_cx3D_d[105];
 int hocg_cy3D_d[105];
 int hocg_cz3D_d[105];
 int hoc3D_d[105];
+
+//#pragma acc declare create(g_d, velMomMap2D_d, momCollMtx2D_d, minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c2D_d, cx2D_d, cy2D_d, opp2D_d, w2D_d, cg_w_d, hocg_w_d, hocg_cx_d, hocg_cy_d, r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d, psi_d, chi_d, teta_d, phi_d, A_d, control_param_d, beta_d)
 
 void initConstants2D(Arguments *args, FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minInletCoordY,
 		FLOAT_TYPE delta, int m, int n) {
@@ -126,6 +126,9 @@ void initConstants2D(Arguments *args, FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minI
     vIn_d = args->v;
     minInletCoordY_d = minInletCoordY;
     maxInletCoordY_d = maxInletCoordY;
+    FLOAT_TYPE w2D[9] = { 4. / 9., 1. / 9., 1. / 9., 1. / 9., 1. / 9., 1. / 36.,
+                     1. / 36., 1. / 36., 1. / 36. };
+    memcpy(w2D_d, w2D, sizeof(FLOAT_TYPE)*9);
 	/*memcpy(&rhoIn_d, &args->rho, sizeof(FLOAT_TYPE));
 	memcpy(&uIn_d, &args->u, sizeof(FLOAT_TYPE));
 	memcpy(&vIn_d, &args->v, sizeof(FLOAT_TYPE));
@@ -140,7 +143,8 @@ void initConstants2D(Arguments *args, FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minI
 
 	//memcpy(&g_d, &args->g, sizeof(FLOAT_TYPE));
     g_d = args->g;
-    #pragma acc enter data copyin(g_d, velMomMap2D_d[0:81], momCollMtx2D_d[0:81], minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c2D_d[0:9], cx2D_d[0:9], cy2D_d[0:9], opp2D_d[0:9], w2D_d[0:9], cg_w_d[0:9], hocg_w_d[0:25], hocg_cx_d[0:25], hocg_cy_d[0:25])
+    //#pragma acc declare copyin(g_d, velMomMap2D_d[0:81], momCollMtx2D_d[0:81], minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c2D_d[0:9], cx2D_d[0:9], cy2D_d[0:9], opp2D_d[0:9], w2D_d[0:9])
+{}
 	if (args->multiPhase){
 
 		/*memcpy(&control_param_d, &args->control_param, sizeof(FLOAT_TYPE));
@@ -173,6 +177,7 @@ void initConstants2D(Arguments *args, FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minI
         g_limit_d = args->g_limit;
 		//FLOAT_TYPE c_norms[9];
 		for(int i = 0; i < 9;i++){
+			//#pragma acc routine(sqrt) seq
 			c_norms_d[i] = sqrt(cx2D_d[i] * cx2D_d[i] + cy2D_d[i] * cy2D_d[i]);
 		}
 		r_density_d = args->r_density;
@@ -195,7 +200,19 @@ void initConstants2D(Arguments *args, FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minI
 		r_viscosity_d = args->r_viscosity;
         b_viscosity_d = args->b_viscosity;
         external_force_d = args->external_force;
-        #pragma acc enter data copyin(r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d[0:9], psi_d[0:9], chi_d[0:9], teta_d[0:9], phi_d[0:9], A_d, control_param_d, beta_d)
+		FLOAT_TYPE cg_w[9] = {0., 4. / 12., 4. / 12., 4. / 12., 4. / 12., 1. / 12., 1. / 12., 1. / 12., 1. / 12.};
+		memcpy(cg_w_d, cg_w, 9 * sizeof(FLOAT_TYPE));
+
+		FLOAT_TYPE hocg_w[25] = {0., 960. / 5040., 960. / 5040., 960. / 5040., 960. / 5040., 448. / 5040., 448. / 5040.,
+				448. / 5040., 448. / 5040., 84. / 5040., 32. / 5040., 1. / 5040., 32. / 5040., 84. / 5040., 32. / 5040.,
+				1. / 5040., 32. / 5040., 84. / 5040., 32. / 5040., 1. / 5040., 32. / 5040., 84. / 5040., 32. / 5040., 1. / 5040., 32. / 5040.};
+		memcpy(hocg_w_d, hocg_w, 25 * sizeof(FLOAT_TYPE));
+		int hocg_cx[25] = {0,1,0,-1,0,1,-1,-1,1,0,1,2,2,2,2,2,1,0,-1,-2,-2,-2,-2,-2,-1};
+		memcpy(hocg_cx_d, hocg_cx, 25 * sizeof(int));
+		int hocg_cy[25] = {0,0,1,0,-1,1,1,-1,-1,2,2,2,1,0,-1,-2,-2,-2,-2,-2,-1,0,1,2,2};
+		memcpy(hocg_cy_d, hocg_cy, 25 * sizeof(int));
+       //#pragma acc declare copyin(r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d[0:9], psi_d[0:9], chi_d[0:9], teta_d[0:9], phi_d[0:9], A_d, control_param_d, beta_d, cg_w_d[0:9], hocg_w_d[0:25], hocg_cx_d[0:25], hocg_cy_d[0:25])
+
 	}
 }
 
@@ -318,10 +335,10 @@ void initHOColorGradient3D(int *color_gradient_directions, int n, int m, int h){
 
 void initCGBubble(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_f_d,
 		FLOAT_TYPE *b_f_d, FLOAT_TYPE *f_d, int test_case){
-#pragma acc enter data copyin(x_d[0:length_d*depth_d],y_d[0:length_d*depth_d], rho_d[0:length_d*depth_d]) \
+//#pragma acc enter data copyin(x_d[0:length_d*depth_d],y_d[0:length_d*depth_d], rho_d[0:length_d*depth_d]) \
                         create(r_rho_d[0:length_d*depth_d], b_rho_d[0:length_d*depth_d], r_f_d[0:length_d*depth_d*9], b_f_d[0:length_d*depth_d*9], f_d[0:length_d*depth_d*9])
 	int ms = length_d * depth_d;
-#pragma acc parallel loop present(length_d, depth_d, x_d, y_d, r_rho_d, b_rho_d, rho_d, r_f_d, b_f_d, f_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d)
+//#pragma acc parallel loop //present(length_d, depth_d, x_d, y_d, r_rho_d, b_rho_d, rho_d, r_f_d, b_f_d, f_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d)
 	for(int index = 0; index< ms; index++){
 		FLOAT_TYPE aux1, aux2;
 		int index_x, index_y;
@@ -484,6 +501,7 @@ void initCGBubble(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *r_rho_d, FLOAT_T
 			}
 			break;
 		case 6:
+			//#pragma acc routine(cos) seq
 			if( y_d[index] > (2.0 + 0.1 * cos( 2*M_PI*x_d[index]))){
 				aux1 = (1 - r_alpha_d) / 5.0;
 				aux2 = (1 - r_alpha_d) / 20.0;
@@ -1139,7 +1157,7 @@ void collapseBc2D(int *bcIdx, int *bcIdxCollapsed_d, int *bcMask,
 			flyId++;
 		}
 	}
-    #pragma acc enter data copyin(bcIdxCollapsed_d[0:size], bcMaskCollapsed_d[0:size], qCollapsed_d[0:size*8])
+    //#pragma acc enter data copyin(bcIdxCollapsed_d[0:size], bcMaskCollapsed_d[0:size], qCollapsed_d[0:size*8])
 }
 
 int initBoundaryConditions3D(int *bcNodeIdX, int *bcNodeIdY,

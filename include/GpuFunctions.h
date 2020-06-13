@@ -462,7 +462,9 @@ __global__ void initCGBubble3D(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *z_d
 void initHOColorGradient(int *color_gradient_directions, int n, int m);
 
 void initHOColorGradient3D(int *color_gradient_directions, int n, int m, int h);
-
+//#pragma acc routine(calculateColorGradient) seq
+void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE *rho_d, int cg_dir_d,
+                int index, FLOAT_TYPE *cg_x, FLOAT_TYPE *cg_y, FLOAT_TYPE *gr_x, FLOAT_TYPE *gr_y);
 /*__global__ void gpuCollEnhancedBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order);
 */
