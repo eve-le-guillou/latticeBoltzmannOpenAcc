@@ -181,13 +181,17 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 
 	FLOAT_TYPE p_in_mean;
 	FLOAT_TYPE p_out_mean;
-	FLOAT_TYPE ms = n * m;
+	int ms = n * m;
 	if(args->multiPhase){
 		if(args->high_order)
 			initHOColorGradient(cg_directions, n, m);
 		else
 			initColorGradient(cg_directions, n, m);
+		#pragma acc enter data copyin(nodeX[0:ms],nodeY[0:ms], rho[0:ms])\
+                        create(r_rho[0:ms], b_rho[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:ms*9])
+{
 		initCGBubble(nodeX,nodeY,r_rho, b_rho, rho, r_f_d, b_f_d, f_d, args->test_case);
+}
 	}
 
 	FLOAT_TYPE *f_prev_d = createHostArrayFlt(9 * m * n, ARRAY_COPY,0,r_f_d);
@@ -247,7 +251,6 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 		sprintf(finalFilename, "%sFinalData.vti", inFn->result);
 		break;
 	}
-	size_t freeSpace, total;
 
 	/*cuMemGetInfo(&freeSpace, &total);
 	printf("^^^^ Free : %llu Mbytes \n",
@@ -277,7 +280,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	printf("%d is the number of iterations \n", args->iterations);
 
 	int iter = 0;
-//#pragma acc data copyin(nodeType[0:numNodes]) create(r_fColl_d[m*n*9], b_fColl_d[m*n*9], p_in_d[n*m], p_out_d[n*m], num_in_d[m*n], num_out_d[m*n], h_divergence) \
+#pragma acc data copyin(nodeType[0:numNodes]) create(r_fColl_d[m*n*9], b_fColl_d[m*n*9], p_in_d[n*m], p_out_d[n*m], num_in_d[m*n], num_out_d[m*n], h_divergence) \
                 create(drag_d[n*m], lift_d[m*n], fColl_d[9*m*n], temp9a_d[9*m*n], temp9b_d[9*m*n], tempA_d[m*n], tempB_d[m*n]) \
                 copyin(cg_directions[0:n*m], bcMask_d[0:n*m], f_prev_d[0:9*m*n])
     {
