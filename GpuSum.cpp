@@ -12,16 +12,13 @@
 void gpu_abs_sub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C,
 		int size, bool *divergence) {
 	*divergence = false;
-
-	#pragma acc data copyin(A[0:size],B[0:size],divergence[0:1]) copyout(C[0:size])
-	#pragma acc loop gang
-		for (int ind = 0; ind < size; ind++) {
-			/*if(A[ind]!=A[ind]||B[ind]!=B[ind]) {
-				*divergence=true;
-			}*/
-			C[ind] = abs(A[ind] - B[ind]);
-	
+	for (int ind = 0; ind < size; ind++) {
+		if(A[ind]!=A[ind]||B[ind]!=B[ind]) {
+			*divergence=true;
 		}
+		C[ind] = abs(A[ind] - B[ind]);
+
+	}
 }
 
 void gpu_abs_relSub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C,
@@ -186,13 +183,10 @@ __global__ void gpu_max256(FLOAT_TYPE *A, FLOAT_TYPE *B, int size) {
 }*/
 
 FLOAT_TYPE gpu_sum_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size) {
-    FLOAT_TYPE result = 0.0;
-    #pragma acc data copyin(C[0:size]) 
-    #pragma acc loop gang reduction(+:result)
-    
-        for (int i = 0; i<size; i++){
-            result+=C[i];
-        }
+	FLOAT_TYPE result = 0.0;
+    for (int i = 0; i<size; i++){
+        result+=C[i];
+    }
 	return result;
 }
 
@@ -223,13 +217,11 @@ FLOAT_TYPE gpu_sum_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size) {
 }*/
 
 FLOAT_TYPE gpu_max_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size) {
-    FLOAT_TYPE maxi = C[0];
-    #pragma acc data copyin(C[0:size])
-    #pragma acc loop gang reduction(max:maxi)
+    FLOAT_TYPE max = C[0];
     for (int ind = 1; ind < size; ind++){
-        if (C[ind] >maxi) maxi = C[ind];
+        if (C[ind] >max) max = C[ind];
     }
-	return maxi;
+	return max;
 }
 
 /*__global__ void gpu_cond_copy_mask2D(FLOAT_TYPE *A, FLOAT_TYPE *B, int *mask,

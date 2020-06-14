@@ -108,7 +108,7 @@ __device__ FLOAT_TYPE feqc3D(FLOAT_TYPE u, FLOAT_TYPE uc, FLOAT_TYPE v, FLOAT_TY
 
 	return res;
 }*/
-//#pragma acc routine(calculateColorGradient) seq 
+
 void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE *rho_d, int cg_dir_d,
 		int index, FLOAT_TYPE *cg_x, FLOAT_TYPE *cg_y, FLOAT_TYPE *gr_x, FLOAT_TYPE *gr_y){
 	FLOAT_TYPE cgx = 0.0;
@@ -596,7 +596,6 @@ void gpuCollBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d
 		if(high_order) printf("High_order\n");
 			//calculateHOColorGradient(r_rho_d,b_rho_d, rho_d, cg_dir_d[ind], ind, &cg_x, &cg_y, &gr_x, &gr_y);
 		else{
-			//#pragma acc routine(calculateColorGradient) seq
 			calculateColorGradient(r_rho_d,b_rho_d, rho_d, cg_dir_d[ind], ind, &cg_x, &cg_y, &gr_x, &gr_y);
 		}
 
@@ -648,16 +647,14 @@ void gpuCollBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d
 
 void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order){
-	int ms = depth_d*length_d;
 
+	int ms = depth_d*length_d;
 	int cx, cy;
 	FLOAT_TYPE r_r, b_r, r, u, v, cg_x, cg_y, gr_x, gr_y;
 	FLOAT_TYPE k_r, k_b, k_k, color_gradient_norm, cosin, mean_nu, omega_eff;
 	FLOAT_TYPE prod_c_g, pert;
 	FLOAT_TYPE f_CollPert;
 	FLOAT_TYPE G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq;
-#pragma acc data copy(f_d[depth_d*length_d*9], r_fColl_d[depth_d*length_d*9], b_fColl_d[depth_d*length_d*9]) create(r_r, b_r, r, u, v, cg_x, gr_x, gr_y, k_r, k_b, k_k, color_gradient_norm, cosin, mean_nu, omega_eff, prod_c_g, pert, f_CollPert, G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq)
-#pragma acc parallel loop present(length_d, depth_d, r_viscosity_d,b_viscosity_d, r_alpha_d,cx2D_d[0:9], cy2D_d[0:9])//present(length_d, depth_d, rho_d[depth_d*length_d], r_rho_d[depth_d*length_d], b_rho_d[depth_d*length_d], u_d[depth_d*length_d], v_d[depth_d*length_d], f_d[depth_d*length_d*9], r_fColl_d[depth_d*length_d*9], b_fColl_d[depth_d*length_d*9], cg_dir_d[depth_d*length_d])
 	for (int ind = 0; ind < ms; ind++)
 	{
 		u =   u_d[ind];
