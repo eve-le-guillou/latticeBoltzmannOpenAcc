@@ -103,8 +103,8 @@ void initConstants2D(Arguments *args,
 	int c2D[9] = { 0, -1, -1 * n, 1, n, -1 * n - 1, -1 * n + 1, n + 1, n - 1 };
 
 	// Calculate collision freq
-	FLOAT_TYPE omega = 1.0 / (3. * args->viscosity + 0.5);
-	FLOAT_TYPE omegaA = 8 * (2 - omega) / (8 - omega);
+	omega_d = 1.0 / (3. * args->viscosity + 0.5);
+	omegaA_d = 8 * (2 - omega_d) / (8 - omega_d);
 
 	memcpy(cx2D_d, cx2D, 9 * sizeof(int));
 	memcpy(cy2D_d, cy2D, 9 * sizeof(int));
@@ -120,8 +120,6 @@ void initConstants2D(Arguments *args,
 	memcpy(&depth_d, &m, sizeof(int));
 	memcpy(&length_d, &n, sizeof(int));
 	memcpy(&w2D_d, w2D, 9 * sizeof(FLOAT_TYPE));
-	memcpy(&omega_d, &omega, sizeof(FLOAT_TYPE));
-	memcpy(&omegaA_d, &omegaA, sizeof(FLOAT_TYPE));
 	memcpy(&delta_d, &delta, sizeof(FLOAT_TYPE));
 
 	memcpy(&inletProfile_d, &args->inletProfile,
@@ -134,13 +132,7 @@ void initConstants2D(Arguments *args,
 
 	// Initialize variables for MRT Collision model, if used
 	if (args->collisionModel == MRT) {
-		FLOAT_TYPE *velMomMap2D = createHostArrayFlt(81);
-		FLOAT_TYPE *momCollMtx2D = createHostArrayFlt(81);
-		MRTInitializer2D(velMomMap2D, momCollMtx2D, omega);
-
-		memcpy(velMomMap2D_d, velMomMap2D, 81 * sizeof(FLOAT_TYPE));
-		memcpy(momCollMtx2D_d, momCollMtx2D,
-				81 * sizeof(FLOAT_TYPE));
+		MRTInitializer2D(velMomMap2D_d, momCollMtx2D_d, omega_d);
 	}
 
 	memcpy(&g_d, &args->g, sizeof(FLOAT_TYPE));
@@ -189,8 +181,6 @@ void initConstants2D(Arguments *args,
 
 		FLOAT_TYPE cg_w[9] = {0., 4. / 12., 4. / 12., 4. / 12., 4. / 12., 1. / 12., 1. / 12., 1. / 12., 1. / 12.};
 		memcpy(cg_w_d, cg_w, 9 * sizeof(FLOAT_TYPE));
-		memcpy(&r_viscosity_d, &args->r_viscosity, sizeof(FLOAT_TYPE));
-		memcpy(&b_viscosity_d, &args->b_viscosity, sizeof(FLOAT_TYPE));
 		memcpy(&external_force_d, &args->external_force, sizeof(bool));
 
 		FLOAT_TYPE hocg_w[25] = {0., 960. / 5040., 960. / 5040., 960. / 5040., 960. / 5040., 448. / 5040., 448. / 5040.,
@@ -1128,30 +1118,18 @@ void collapseBc2D(int *bcIdx, int *bcIdxCollapsed_d, int *bcMask,
 		int *bcMaskCollapsed_d,
 		FLOAT_TYPE *q, FLOAT_TYPE *qCollapsed_d, int *mask, int m, int n,
 		int size) {
-	int *bcIdxCollapsed = (int*) malloc(size * sizeof(int));
-	int *bcMaskCollapsed = (int*) malloc(size * sizeof(int));
-	FLOAT_TYPE *QCollapsed = (FLOAT_TYPE*) malloc(
-			size * 8 * sizeof(FLOAT_TYPE));
-
 	int flyId = 0;
 	int i, j;
 	for (i = 0; i < n * m; ++i) {
 		if (mask[i]) {
-			bcIdxCollapsed[flyId] = bcIdx[i];
-			bcMaskCollapsed[flyId] = bcMask[i];
+			bcIdxCollapsed_d[flyId] = bcIdx[i];
+			bcMaskCollapsed_d[flyId] = bcMask[i];
 			for (j = 0; j < 8; ++j) {
-				QCollapsed[flyId * 8 + j] = q[i * 8 + j];
+				qCollapsed_d[flyId * 8 + j] = q[i * 8 + j];
 			}
 			flyId++;
 		}
 	}
-
-	memcpy(bcIdxCollapsed_d, bcIdxCollapsed, size * sizeof(int));
-	memcpy(bcMaskCollapsed_d, bcMaskCollapsed, size * sizeof(int));
-	memcpy(qCollapsed_d, QCollapsed, 8 * size * sizeof(FLOAT_TYPE));
-	free(bcIdxCollapsed);
-	free(bcMaskCollapsed);
-	free(QCollapsed);
 }
 
 int initBoundaryConditions3D(int *bcNodeIdX, int *bcNodeIdY,
