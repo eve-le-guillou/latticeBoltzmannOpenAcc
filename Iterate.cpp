@@ -344,11 +344,11 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 				st_error[iter] = calculateSurfaceTension(p_in_mean, p_out_mean,args->r_alpha, args->b_alpha, args->bubble_radius * n, st_predicted);
 				break;
 			case 5:
-//#pragma acc update self(r_rho[0:m*n], b_rho[0:m*n])
+#pragma acc update self(r_rho[0:m*n], b_rho[0:m*n])
 				oscilating_y[iter] = getMaxYOscilating(r_rho, b_rho, n, m, nodeY);
 				break;
 			case 6:
-//#pragma acc update self(r_rho[0:m*n], b_rho[0:m*n])
+#pragma acc update self(r_rho[0:m*n], b_rho[0:m*n])
 				oscilating_y[iter] = getMinYRT(r_rho, b_rho, n, m, nodeY);
 				break;
 			default:
@@ -368,7 +368,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 				gpu_abs_relSub(f_d, f_prev_d, temp9a_d, n * m * 9, &h_divergence);
 				fMaxDiff = gpu_max_h(temp9a_d, temp9b_d, n * m * 9);
 				//	printf("MAX diff "FLOAT_FORMAT"\n", fMaxDiff);
-				//#pragma acc update self(h_divergence)
+				#pragma acc update self(h_divergence)
 				if (h_divergence || fMaxDiff != fMaxDiff || !isfinite(fMaxDiff)) {
 					fprintf(stderr, "\nDIVERGENCE!\n");
 					break;
@@ -421,9 +421,9 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			if (iter > args->autosaveAfter) {
 				printf("autosave\n\n");
 				//////////// COPY VARIABLES TO HOST ////////////////
-				//#pragma acc update self(u[0:m*n], v[0:m*n], rho[0:m*n])
+				#pragma acc update self(u[0:m*n], v[0:m*n], rho[0:m*n])
 				                    if (args->multiPhase) {
-//#pragma acc update self(r_rho[0:m*n], b_rho[0:m*n])
+#pragma acc update self(r_rho[0:m*n], b_rho[0:m*n])
       }
 				switch (args->outputFormat) {
 				case CSV:
@@ -460,9 +460,9 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 		sprintf(finalFilename, "%sFinalData.vti", inFn->result);
 		break;
 	}
-//#pragma acc data copyout(u[0:m*n], v[0:m*n], rho[0:m*n])
+#pragma acc data copyout(u[0:m*n], v[0:m*n], rho[0:m*n])
 	if(args->multiPhase){
-//#pragma acc data copyout(r_rho[0:m*n], b_rho[0:m*n])
+#pragma acc data copyout(r_rho[0:m*n], b_rho[0:m*n])
 		FLOAT_TYPE *analytical = createHostArrayFlt(m, ARRAY_ZERO);
 		switch (args->test_case) {
 		case 1:

@@ -120,6 +120,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 	switch (cg_dir_d) {
 	case 0:
 #pragma unroll 8
+#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + cx2D_d[i] + cy2D_d[i] * length_d;
 			aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -134,6 +135,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		break;
 	case 1: //NORTH
 #pragma unroll 8
+#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + cx2D_d[i] - abs(cy2D_d[i]) * length_d;
 			aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -146,6 +148,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		break;
 	case 2: //SOUTH
 #pragma unroll 8
+#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + cx2D_d[i] + abs(cy2D_d[i]) * length_d;
 
@@ -158,6 +161,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		break;
 	case 3: //EAST
 #pragma unroll 8
+#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index - abs(cx2D_d[i]) + cy2D_d[i] * length_d;
 
@@ -171,6 +175,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		break;
 	case 4: //WEST
 #pragma unroll 8
+#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + abs(cx2D_d[i]) + cy2D_d[i] * length_d;
 
@@ -656,8 +661,8 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE 
 	FLOAT_TYPE prod_c_g, pert;
 	FLOAT_TYPE f_CollPert;
 	FLOAT_TYPE G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq;
-	#pragma acc data copy(f_d[depth_d*length_d*9], r_fColl_d[depth_d*length_d*9], b_fColl_d[depth_d*length_d*9]) create(r_r, b_r, r, u, v, cg_x, gr_x, gr_y, k_r, k_b, k_k, color_gradient_norm, cosin, mean_nu, omega_eff, prod_c_g, pert, f_CollPert, G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq)
-	#pragma acc parallel loop //present(length_d, depth_d, r_viscosity_d,b_viscosity_d, r_alpha_d,cx2D_d[0:9], cy2D_d[0:9])//present(length_d, depth_d, rho_d[depth_d*length_d], r_rho_d[depth_d*length_d], b_rho_d[depth_d*length_d], u_d[depth_d*length_d], v_d[depth_d*length_d], f_d[depth_d*length_d*9], r_fColl_d[depth_d*length_d*9], b_fColl_d[depth_d*length_d*9], cg_dir_d[depth_d*length_d])
+	#pragma acc data create(r_r, b_r, r, u, v, cg_x, gr_x, gr_y, k_r, k_b, k_k, color_gradient_norm, cosin, mean_nu, omega_eff, prod_c_g, pert, f_CollPert, G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq)
+	#pragma acc parallel loop present(rho_d[depth_d*length_d], r_rho_d[depth_d*length_d], b_rho_d[depth_d*length_d], u_d[depth_d*length_d], v_d[depth_d*length_d], f_d[depth_d*length_d*9], r_fColl_d[depth_d*length_d*9], b_fColl_d[depth_d*length_d*9], cg_dir_d[depth_d*length_d])
 	for (int ind = 0; ind < ms; ind++)
 	{
 		u =   u_d[ind];
@@ -693,6 +698,7 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE 
 		cu1 = u*u + v*v;
 
 #pragma unroll 9
+#pragma acc loop seq
 		for (int k=0;k<9;k++){
 			cx = cx2D_d[k];
 			cy = cy2D_d[k];
