@@ -49,6 +49,7 @@ void gpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
 
 	FLOAT_TYPE r_r, b_r, u, v, r, chi;
 	FLOAT_TYPE aux1, mean_nu, omega_eff;
+//#pragma acc parallel loop //present(rho_d, u_d, v_d, r_f_d, b_f_d, f_d, r_rho_d, b_rho_d, p_in_d, p_out_d, num_in_d, num_out_d, cg_direction)
 	for (int ind = 0; ind < ms; ind++) {
 		//necessary because of sum
 		if(test_case == 1){

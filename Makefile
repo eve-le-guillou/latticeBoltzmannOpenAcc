@@ -1,6 +1,6 @@
 FLOAT_TYPE=USE_DOUBLE
 
-CFLAGS=-fast -Minfo=accel -acc -ta:tesla 
+CFLAGS=-fast -Minfo=accel -acc #-ta=tesla:cc60 
 DEFINES=-D$(FLOAT_TYPE)
 INCLUDES=-Iinclude
 OS := $(shell uname)

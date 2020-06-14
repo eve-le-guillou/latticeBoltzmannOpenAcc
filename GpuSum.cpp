@@ -12,10 +12,12 @@
 void gpu_abs_sub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C,
 		int size, bool *divergence) {
 	*divergence = false;
+	#pragma acc data copyin(A[0:size],B[0:size]) copyout(C[0:size])
+	#pragma acc loop gang
 	for (int ind = 0; ind < size; ind++) {
-		if(A[ind]!=A[ind]||B[ind]!=B[ind]) {
+		/*if(A[ind]!=A[ind]||B[ind]!=B[ind]) {
 			*divergence=true;
-		}
+		}*/
 		C[ind] = abs(A[ind] - B[ind]);
 
 	}

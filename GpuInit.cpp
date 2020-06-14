@@ -1,15 +1,14 @@
+#include <accelmath.h>
 #include <cstdlib>
 #include <cstring>
 #include <stdio.h>
 #include <complex.h>
-//#include <cuComplex.h>
 #include "GpuFunctions.h"
 #include "CellFunctions.h"
 #include "ArrayUtils.h"
 #include "BcMacros.h"
 #include "BcMacros3D.h"
 #include <cmath>
-//#include "cuda.h"
 #include "math.h"
 
 InletProfile inletProfile_d;
@@ -90,6 +89,8 @@ int hocg_cy3D_d[105];
 int hocg_cz3D_d[105];
 int hoc3D_d[105];
 
+#pragma acc declare create(g_d, velMomMap2D_d, momCollMtx2D_d, minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c2D_d, cx2D_d, cy2D_d, opp2D_d, w2D_d, cg_w_d, hocg_w_d, hocg_cx_d, hocg_cy_d, r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d, psi_d, chi_d, teta_d, phi_d, A_d, control_param_d, beta_d)
+
 void initConstants2D(Arguments *args,
 		FLOAT_TYPE maxInletCoordY, FLOAT_TYPE minInletCoordY,
 		FLOAT_TYPE delta, int m, int n) {
@@ -136,7 +137,8 @@ void initConstants2D(Arguments *args,
 	}
 
 	memcpy(&g_d, &args->g, sizeof(FLOAT_TYPE));
-
+	    #pragma acc declare copyin(g_d, velMomMap2D_d[0:81], momCollMtx2D_d[0:81], minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c2D_d[0:9], cx2D_d[0:9], cy2D_d[0:9], opp2D_d[0:9], w2D_d[0:9])
+{}
 	if (args->multiPhase){
 
 		memcpy(&control_param_d, &args->control_param, sizeof(FLOAT_TYPE));
@@ -194,6 +196,7 @@ void initConstants2D(Arguments *args,
 
 		memcpy(&r_viscosity_d, &args->r_viscosity, sizeof(FLOAT_TYPE));
 		memcpy(&b_viscosity_d, &args->b_viscosity, sizeof(FLOAT_TYPE));
+       #pragma acc declare copyin(r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d[0:9], psi_d[0:9], chi_d[0:9], teta_d[0:9], phi_d[0:9], A_d, control_param_d, beta_d, cg_w_d[0:9], hocg_w_d[0:25], hocg_cx_d[0:25], hocg_cy_d[0:25])
 	}
 }
 
@@ -317,7 +320,7 @@ void initHOColorGradient3D(int *color_gradient_directions, int n, int m, int h){
 void initCGBubble(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_f_d,
 		FLOAT_TYPE *b_f_d, FLOAT_TYPE *f_d, int test_case){
 	int ms = length_d * depth_d;
-
+#pragma acc parallel loop //present(length_d, depth_d, x_d, y_d, r_rho_d, b_rho_d, rho_d, r_f_d, b_f_d, f_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d)
 	for(int index = 0; index< ms; index++){
 		FLOAT_TYPE aux1, aux2;
 		int index_x, index_y;
