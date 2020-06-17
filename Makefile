@@ -1,12 +1,12 @@
 FLOAT_TYPE=USE_DOUBLE
 
-CFLAGS=-fast -Minfo=accel -acc #-ta=tesla:cc60 
+CFLAGS=-fast -Minfo=accel -O3 -acc -ta=tesla:cc35 #-ta=tesla:cc60
 DEFINES=-D$(FLOAT_TYPE)
 INCLUDES=-Iinclude
 OS := $(shell uname)
-LDFLAGS=-acc -lm
+LDFLAGS=-acc -ta=tesla:cc35
 CC=pgc++
-LIBDIR=-Mcuda=llvm #-Llibs
+LIBDIR=#-Mcuda=llvm #-Llibs
 LIBS=#-largtable2 #-lcuda
 
 CU_FILES=argtable3.cpp main.cpp GpuSum.cpp GpuInit.cpp Iterate.cpp Iterate3D.cpp CellFunctions.cpp ComputeResiduals.cpp FilesReading.cpp FilesWriting.cpp \
@@ -17,7 +17,7 @@ ITER_FILES=Iterate.cpp GpuInit.cpp ComputeResiduals.cpp GpuBoundaries.cpp GpuCol
 ITER_FILE=IterateCombined.cpp
 RLSE_FILES=main.cpp $(ITER_FILE) CellFunctions.cpp FilesReading.cpp FilesWriting.cpp \
            ShellFunctions.cpp LogWriter.cpp
-HEADRF=FilesReading.h argtable3.h FilesWriting.h Iterate.h CellFunctions.h ComputeResiduals.h ShellFunctions.h \
+HEADRF=FilesReading.h argtable3.h FilesWriting.h GpuConstants.h Iterate.h CellFunctions.h ComputeResiduals.h ShellFunctions.h \
        GpuFunctions.h LogWriter.h Arguments.h ArrayUtils.h GpuSum.h Multiphase.h
 HEADERS=$(patsubst %,include/%,$(HEADRF))
 ifeq ($(OS),Windows_NT)

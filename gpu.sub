@@ -32,7 +32,7 @@
 ## In order to increase the walltime modify the #PBS -l walltime line below
 ## and remove one of the leading # characters 
 ##
-##PBS -l walltime=24:00:00
+#PBS -l walltime=03:00:00
 ##
 ## STEP 4:
 ##

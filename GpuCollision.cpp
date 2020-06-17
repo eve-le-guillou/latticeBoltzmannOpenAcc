@@ -108,7 +108,7 @@ __device__ FLOAT_TYPE feqc3D(FLOAT_TYPE u, FLOAT_TYPE uc, FLOAT_TYPE v, FLOAT_TY
 
 	return res;
 }*/
-#pragma acc routine(calculateColorGradient) seq 
+//#pragma acc routine(calculateColorGradient) seq 
 void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE *rho_d, int cg_dir_d,
 		int index, FLOAT_TYPE *cg_x, FLOAT_TYPE *cg_y, FLOAT_TYPE *gr_x, FLOAT_TYPE *gr_y){
 	FLOAT_TYPE cgx = 0.0;
@@ -120,7 +120,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 	switch (cg_dir_d) {
 	case 0:
 #pragma unroll 8
-#pragma acc loop seq
+//#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + cx2D_d[i] + cy2D_d[i] * length_d;
 			aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -135,7 +135,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		break;
 	case 1: //NORTH
 #pragma unroll 8
-#pragma acc loop seq
+//#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + cx2D_d[i] - abs(cy2D_d[i]) * length_d;
 			aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -148,7 +148,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		break;
 	case 2: //SOUTH
 #pragma unroll 8
-#pragma acc loop seq
+//#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + cx2D_d[i] + abs(cy2D_d[i]) * length_d;
 
@@ -161,7 +161,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		break;
 	case 3: //EAST
 #pragma unroll 8
-#pragma acc loop seq
+//#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index - abs(cx2D_d[i]) + cy2D_d[i] * length_d;
 
@@ -175,7 +175,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		break;
 	case 4: //WEST
 #pragma unroll 8
-#pragma acc loop seq
+//#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + abs(cx2D_d[i]) + cy2D_d[i] * length_d;
 
@@ -196,8 +196,8 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 	(*gr_x) = grx;
 	(*gr_y) = gry;
 }
-
-/*__device__ void calculateHOColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *rho_d, int cg_dir_d, int index, FLOAT_TYPE *cg_x, FLOAT_TYPE *cg_y,
+//#pragma acc loop seq
+void calculateHOColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *rho_d, int cg_dir_d, int index, FLOAT_TYPE *cg_x, FLOAT_TYPE *cg_y,
 		FLOAT_TYPE *gr_x, FLOAT_TYPE *gr_y){
 	FLOAT_TYPE cgx = 0.0;
 	FLOAT_TYPE cgy = 0.0;
@@ -207,6 +207,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 	int ind, i;
 	switch (cg_dir_d) {
 	case 0:
+	#pragma acc loop seq
 		for(i = 1; i < 25; i++){
 			ind = index + hocg_cx_d[i] + hocg_cy_d[i] * length_d;
 			aux1 = hocg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -220,6 +221,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		}
 		break;
 	case 1: //NORTH
+#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + cx2D_d[i] - abs(cy2D_d[i]) * length_d;
 			aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -231,6 +233,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		}
 		break;
 	case 2: //SOUTH
+#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + cx2D_d[i] + abs(cy2D_d[i]) * length_d;
 			aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -242,6 +245,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		}
 		break;
 	case 3: //EAST
+#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index - abs(cx2D_d[i]) + cy2D_d[i] * length_d;
 			aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -253,6 +257,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		}
 		break;
 	case 4: //WEST
+#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + abs(cx2D_d[i]) + cy2D_d[i] * length_d;
 			aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -264,6 +269,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		}
 		break;
 	case 11:
+#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + cx2D_d[i] + cy2D_d[i] * length_d;
 			aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -283,7 +289,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 	(*cg_y) = cgy;
 	(*gr_x) = grx;
 	(*gr_y) = gry;
-}*/
+}
 
 /*__device__ void calculateColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, int cg_dir_d, int index,
 		FLOAT_TYPE *cg_x, FLOAT_TYPE *cg_y, FLOAT_TYPE *cg_z, FLOAT_TYPE *gr_x, FLOAT_TYPE *gr_y, FLOAT_TYPE *gr_z){
@@ -598,10 +604,9 @@ void gpuCollBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d
 		r = rho_d[ind];
 
 
-		if(high_order) printf("High_order\n");
-			//calculateHOColorGradient(r_rho_d,b_rho_d, rho_d, cg_dir_d[ind], ind, &cg_x, &cg_y, &gr_x, &gr_y);
+		if(high_order) 
+			calculateHOColorGradient(r_rho_d,b_rho_d, rho_d, cg_dir_d[ind], ind, &cg_x, &cg_y, &gr_x, &gr_y);
 		else{
-			#pragma acc routine(calculateColorGradient) seq
 			calculateColorGradient(r_rho_d,b_rho_d, rho_d, cg_dir_d[ind], ind, &cg_x, &cg_y, &gr_x, &gr_y);
 		}
 
@@ -651,8 +656,8 @@ void gpuCollBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d
 	}
 }
 
-void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
-		FLOAT_TYPE *v_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order){
+void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_rho_d, FLOAT_TYPE *restrict b_rho_d, FLOAT_TYPE *restrict u_d,
+		FLOAT_TYPE *restrict v_d, FLOAT_TYPE *restrict f_d, FLOAT_TYPE *restrict r_fColl_d, FLOAT_TYPE * restrict b_fColl_d, int *cg_dir_d, bool high_order){
 
 	int ms = depth_d*length_d;
 	int cx, cy;
@@ -661,8 +666,15 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE 
 	FLOAT_TYPE prod_c_g, pert;
 	FLOAT_TYPE f_CollPert;
 	FLOAT_TYPE G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq;
-	#pragma acc data create(r_r, b_r, r, u, v, cg_x, gr_x, gr_y, k_r, k_b, k_k, color_gradient_norm, cosin, mean_nu, omega_eff, prod_c_g, pert, f_CollPert, G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq)
-	#pragma acc parallel loop present(rho_d[depth_d*length_d], r_rho_d[depth_d*length_d], b_rho_d[depth_d*length_d], u_d[depth_d*length_d], v_d[depth_d*length_d], f_d[depth_d*length_d*9], r_fColl_d[depth_d*length_d*9], b_fColl_d[depth_d*length_d*9], cg_dir_d[depth_d*length_d])
+	//#pragma acc update device(g_d, velMomMap2D_d[0:81], momCollMtx2D_d[0:81], minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c2D_d[0:9], cx2D_d[0:9], cy2D_d[0:9], opp2D_d[0:9], w2D_d[0:9])
+	//#pragma acc update device(c_norms_d[0:9], r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d[0:9], psi_d[0:9], chi_d[0:9], teta_d[0:9], phi_d[0:9], A_d, control_param_d, beta_d, cg_w_d[0:9], hocg_w_d[0:25], hocg_cx_d[0:25], hocg_cy_d[0:25])
+
+	//#pragma acc data create(cg_y, r_r, b_r, r, u, v, cg_x, gr_x, gr_y, k_r, k_b, k_k, color_gradient_norm, cosin, mean_nu, omega_eff, prod_c_g, pert, f_CollPert, G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq)
+
+	//#pragma acc parallel loop //present(rho_d[depth_d*length_d], r_rho_d[depth_d*length_d], b_rho_d[depth_d*length_d], u_d[depth_d*length_d], v_d[depth_d*length_d], f_d[depth_d*length_d*9], r_fColl_d[depth_d*length_d*9], b_fColl_d[depth_d*length_d*9], cg_dir_d[depth_d*length_d])
+	//#pragma acc data copy(r_fColl_d[depth_d*length_d*9], b_fColl_d[depth_d*length_d*9], f_d[depth_d*length_d*9])
+	//#pragma acc kernels copy(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*9], r_fColl_d[ms*9], b_fColl_d[ms*9], cg_dir_d[ms])
+	//#pragma acc loop //independent 
 	for (int ind = 0; ind < ms; ind++)
 	{
 		u =   u_d[ind];
@@ -672,9 +684,9 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE 
 		r = rho_d[ind];
 
 
-		if(high_order) printf("High_order\n");
-			//calculateHOColorGradient(r_rho_d,b_rho_d, rho_d, cg_dir_d[ind], ind, &cg_x, &cg_y, &gr_x, &gr_y);
-		else{
+		if(high_order)
+			calculateHOColorGradient(r_rho_d,b_rho_d, rho_d, cg_dir_d[ind], ind, &cg_x, &cg_y, &gr_x, &gr_y);
+		else{   
 			calculateColorGradient(r_rho_d,b_rho_d, rho_d, cg_dir_d[ind], ind, &cg_x, &cg_y, &gr_x, &gr_y);
 		}
 
@@ -696,9 +708,7 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE 
 		k_k= beta_d * r_r * b_r / r;
 
 		cu1 = u*u + v*v;
-
 #pragma unroll 9
-#pragma acc loop seq
 		for (int k=0;k<9;k++){
 			cx = cx2D_d[k];
 			cy = cy2D_d[k];

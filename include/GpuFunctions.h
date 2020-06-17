@@ -433,6 +433,7 @@ void gpuCollBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d
 
 void gpuStreaming2DCG(int* nodeType, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYPE* r_fColl_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE* b_fColl_d, int *cg_dir_d);
 
+//#pragma acc routine(gpuBcPeriodic2D) gang
 void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 		FLOAT_TYPE* r_f_d,FLOAT_TYPE* b_f_d, int size, int *orientation_d, int test_case, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *rho_d,
 		FLOAT_TYPE *u_d, FLOAT_TYPE *v_d);

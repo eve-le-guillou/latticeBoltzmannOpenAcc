@@ -434,18 +434,18 @@ int compareFiles(const char* f1, const char* f2) {
 	FLOAT_TYPE diff_max[9];
 	FLOAT_TYPE* cur1;
 	FLOAT_TYPE* cur2;
-        #pragma acc data create(dc[0:l1])
+        //#pragma acc data create(dc[0:l1])
 	for (i = 0; i < 9; ++i) {
 		cur1 = res1[i];
 		cur2 = res2[i];
-		#pragma acc data copyin(cur1[0:l1],cur2[0:l1])	
-	        #pragma acc loop gang
+		//#pragma acc data copyin(cur1[0:l1],cur2[0:l1])	
+	        //#pragma acc loop gang
                 for (int ind = 0; ind < l1; ind++) {
                         dc[ind] = abs(cur2[ind] - cur1[ind]);
                 }
 		FLOAT_TYPE result = 0.0;
 		FLOAT_TYPE maxi;
-		#pragma acc loop gang reduction(+:result) reduction(max:maxi)
+		//#pragma acc loop gang reduction(+:result) reduction(max:maxi)
 	        for (int ind = 0; ind< l1; ind++){
         	    result+=dc[ind];
 		    if (dc[ind] >maxi) maxi = dc[ind];
