@@ -120,7 +120,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 	switch (cg_dir_d) {
 	case 0:
 #pragma unroll 8
-//#pragma acc loop seq
+#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + cx2D_d[i] + cy2D_d[i] * length_d;
 			aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -135,7 +135,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		break;
 	case 1: //NORTH
 #pragma unroll 8
-//#pragma acc loop seq
+#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + cx2D_d[i] - abs(cy2D_d[i]) * length_d;
 			aux1 = cg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -148,7 +148,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		break;
 	case 2: //SOUTH
 #pragma unroll 8
-//#pragma acc loop seq
+#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + cx2D_d[i] + abs(cy2D_d[i]) * length_d;
 
@@ -161,7 +161,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		break;
 	case 3: //EAST
 #pragma unroll 8
-//#pragma acc loop seq
+#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index - abs(cx2D_d[i]) + cy2D_d[i] * length_d;
 
@@ -175,7 +175,7 @@ void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE 
 		break;
 	case 4: //WEST
 #pragma unroll 8
-//#pragma acc loop seq
+#pragma acc loop seq
 		for(i = 1; i < 9; i++){
 			ind = index + abs(cx2D_d[i]) + cy2D_d[i] * length_d;
 
@@ -662,20 +662,22 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_
 	int ms = depth_d*length_d;
 	int cx, cy;
 	FLOAT_TYPE r_r, b_r, r, u, v, cg_x, cg_y, gr_x, gr_y;
-	FLOAT_TYPE k_r, k_b, k_k, color_gradient_norm, cosin, mean_nu, omega_eff;
+	FLOAT_TYPE k_r, k_b, k_k, color_gradient_norm, cosin[9], mean_nu, omega_eff;
 	FLOAT_TYPE prod_c_g, pert;
+	FLOAT_TYPE r_fColl_d_temp[9];
 	FLOAT_TYPE f_CollPert;
+	int ind;
 	FLOAT_TYPE G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq;
 	//#pragma acc update device(g_d, velMomMap2D_d[0:81], momCollMtx2D_d[0:81], minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c2D_d[0:9], cx2D_d[0:9], cy2D_d[0:9], opp2D_d[0:9], w2D_d[0:9])
 	//#pragma acc update device(c_norms_d[0:9], r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d[0:9], psi_d[0:9], chi_d[0:9], teta_d[0:9], phi_d[0:9], A_d, control_param_d, beta_d, cg_w_d[0:9], hocg_w_d[0:25], hocg_cx_d[0:25], hocg_cy_d[0:25])
 
 	//#pragma acc data create(cg_y, r_r, b_r, r, u, v, cg_x, gr_x, gr_y, k_r, k_b, k_k, color_gradient_norm, cosin, mean_nu, omega_eff, prod_c_g, pert, f_CollPert, G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq)
 
-	//#pragma acc parallel loop //present(rho_d[depth_d*length_d], r_rho_d[depth_d*length_d], b_rho_d[depth_d*length_d], u_d[depth_d*length_d], v_d[depth_d*length_d], f_d[depth_d*length_d*9], r_fColl_d[depth_d*length_d*9], b_fColl_d[depth_d*length_d*9], cg_dir_d[depth_d*length_d])
+	#pragma acc parallel copy(rho_d[depth_d*length_d], r_rho_d[depth_d*length_d], b_rho_d[depth_d*length_d], u_d[depth_d*length_d], v_d[depth_d*length_d], f_d[depth_d*length_d*9], r_fColl_d[depth_d*length_d*9], b_fColl_d[depth_d*length_d*9], cg_dir_d[depth_d*length_d])
 	//#pragma acc data copy(r_fColl_d[depth_d*length_d*9], b_fColl_d[depth_d*length_d*9], f_d[depth_d*length_d*9])
-	//#pragma acc kernels copy(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*9], r_fColl_d[ms*9], b_fColl_d[ms*9], cg_dir_d[ms])
-	//#pragma acc loop //independent 
-	for (int ind = 0; ind < ms; ind++)
+//	#pragma acc kernels copy(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*9], r_fColl_d[ms*9], b_fColl_d[ms*9], cg_dir_d[ms])
+	#pragma acc loop private(r_fColl_d_temp[0:9], cosin[0:9])//independent 
+	for (ind = 0; ind < ms; ind++)
 	{
 		u =   u_d[ind];
 		v =   v_d[ind];
@@ -708,26 +710,19 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_
 		k_k= beta_d * r_r * b_r / r;
 
 		cu1 = u*u + v*v;
-#pragma unroll 9
+
 		for (int k=0;k<9;k++){
 			cx = cx2D_d[k];
 			cy = cy2D_d[k];
 			if (color_gradient_norm > g_limit_d){
-				prod_c_g=cx * cg_x + cy * cg_y;
-				if (k!=0){
-					cosin= prod_c_g / (color_gradient_norm*c_norms_d[k]);
-				}
-				else
-					cosin=0.0;
-
-				// calculate perturbation terms
-				pert= A_d * color_gradient_norm * (w2D_d[k]* (prod_c_g *prod_c_g) / (color_gradient_norm * color_gradient_norm) - w_pert_d[k]);
+			prod_c_g=cx * cg_x + cy * cg_y;
+			cosin[k]= prod_c_g / (color_gradient_norm*c_norms_d[k]);
+			cosin[0]=0.0;
+			pert= A_d * color_gradient_norm * (w2D_d[k]* (prod_c_g *prod_c_g) / (color_gradient_norm * color_gradient_norm) - w_pert_d[k]);
+			}else {
+				cosin[k] = 0.0;
+				pert = 0.0;
 			}
-			else{
-				// the perturbation terms are null
-				pert=0.0;
-			}
-
 			TC = 0.0;
 			TC += G1 * cx * cx;
 			TC += G2 * cx * cy;
@@ -741,13 +736,17 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_
 			// calculate updated distribution function
 			f_CollPert = omega_eff*f_eq + (1-omega_eff) * f_d[ind + k * ms] + pert;
 
-			r_fColl_d[ind + k * ms] = k_r * f_CollPert + k_k * cosin * (phi_d[k] + teta_d[k] * mean_alpha);
-			b_fColl_d[ind + k * ms] = k_b * f_CollPert - k_k * cosin * (phi_d[k] + teta_d[k] * mean_alpha);
+			r_fColl_d[ind + k * ms] = k_r * f_CollPert + k_k * cosin[k] * (phi_d[k] + teta_d[k] * mean_alpha);
+			b_fColl_d[ind + k * ms] = k_b * f_CollPert - k_k * cosin[k] * (phi_d[k] + teta_d[k] * mean_alpha);
 		}
+
+
+
+
 	}
 }
 
-/*__global__ void gpuCollBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
+/*__global__ v id gpuCollBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order){
 
 	int ind =  (blockIdx.x + blockIdx.y * gridDim.x) * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
