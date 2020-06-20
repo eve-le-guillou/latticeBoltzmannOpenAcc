@@ -1888,7 +1888,7 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 		case 0:
 			break;
 		case 1: //NORTH
-			/*if(test_case == 2){
+			if(test_case == 2){
 				FLOAT_TYPE u_temp = u_d[ind], v_temp = v_d[ind];
 				FLOAT_TYPE r_temp = (1. / (1. + v_temp)) * (r_f_d[ind] + r_f_d[ind + 1 * ms] + r_f_d[ind + 3 * ms]
 				                                                                                     + 2 * (r_f_d[ind + 2 * ms] + r_f_d[ind + 6 * ms] + r_f_d[ind + 5 * ms]) );
@@ -1907,7 +1907,7 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 				b_rho_d[ind] = b_temp;
 				rho_d[ind] = r_temp + b_temp;
 			}
-			else if(test_case == 6){*/
+			else if(test_case == 6){
 				r_f_d[ind + 4 * ms] = r_f_d[ind + 2 * ms];
 				r_f_d[ind + 7 * ms] = r_f_d[ind + 5 * ms];
 				r_f_d[ind + 8 * ms] = r_f_d[ind + 6 * ms];
@@ -1915,7 +1915,7 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 				b_f_d[ind + 4 * ms] = b_f_d[ind + 2 * ms];
 				b_f_d[ind + 7 * ms] = b_f_d[ind + 5 * ms];
 				b_f_d[ind + 8 * ms] = b_f_d[ind + 6 * ms];
-			/*}
+			}
 			else {
 				r_f_d[ind + 4 * ms] = r_f_d[ind + 4 * ms - offsetY];
 				r_f_d[ind + 7 * ms] = r_f_d[ind + 7 * ms - offsetY];
@@ -1924,10 +1924,10 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 				b_f_d[ind + 4 * ms] = b_f_d[ind + 4 * ms - offsetY];
 				b_f_d[ind + 7 * ms] = b_f_d[ind + 7 * ms - offsetY];
 				b_f_d[ind + 8 * ms] = b_f_d[ind + 8 * ms - offsetY];
-			}*/
+			}
 			break;
 		case 2: //SOUTH
-			/*if(test_case == 2){
+			if(test_case == 2){
 				FLOAT_TYPE u_temp = u_d[ind], v_temp = v_d[ind];
 
 				FLOAT_TYPE r_temp = (1. / (1. - v_temp)) *
@@ -1947,7 +1947,7 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 				b_rho_d[ind] = b_temp;
 				rho_d[ind] = r_temp + b_temp;
 			}
-			else if(test_case == 6){*/
+			else if(test_case == 6){
 				r_f_d[ind + 2 * ms] = r_f_d[ind + 4 * ms];
 				r_f_d[ind + 5 * ms] = r_f_d[ind + 7 * ms];
 				r_f_d[ind + 6 * ms] = r_f_d[ind + 8 * ms];
@@ -1955,7 +1955,7 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 				b_f_d[ind + 2 * ms] = b_f_d[ind + 4 * ms];
 				b_f_d[ind + 5 * ms] = b_f_d[ind + 7 * ms];
 				b_f_d[ind + 6 * ms] = b_f_d[ind + 8 * ms];
-			/*}
+			}
 			else{
 				r_f_d[ind + 2 * ms] = r_f_d[ind + 2 * ms + offsetY];
 				r_f_d[ind + 5 * ms] = r_f_d[ind + 5 * ms + offsetY];
@@ -1964,7 +1964,7 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 				b_f_d[ind + 2 * ms] = b_f_d[ind + 2 * ms + offsetY];
 				b_f_d[ind + 5 * ms] = b_f_d[ind + 5 * ms + offsetY];
 				b_f_d[ind + 6 * ms] = b_f_d[ind + 6 * ms + offsetY];
-			}*/
+			}
 			break;
 		case 3: //EAST
 			r_f_d[ind + 3 * ms] = r_f_d[ind + 3 * ms - offsetX];

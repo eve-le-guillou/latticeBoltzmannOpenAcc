@@ -181,18 +181,16 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	FLOAT_TYPE p_in_mean;
 	FLOAT_TYPE p_out_mean;
 	int ms = n * m;
-#pragma acc update device(g_d, velMomMap2D_d[0:81], momCollMtx2D_d[0:81], minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c2D_d[0:9], cx2D_d[0:9], cy2D_d[0:9], opp2D_d[0:9], w2D_d[0:9])
-#pragma acc update device(c_norms_d[0:9], r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d[0:9], psi_d[0:9], chi_d[0:9], teta_d[0:9], phi_d[0:9], A_d, control_param_d, beta_d, cg_w_d[0:9], hocg_w_d[0:25], hocg_cx_d[0:25], hocg_cy_d[0:25])
+//#pragma acc update device(g_d, velMomMap2D_d[0:81], momCollMtx2D_d[0:81], minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c2D_d[0:9], cx2D_d[0:9], cy2D_d[0:9], opp2D_d[0:9], w2D_d[0:9])
+//#pragma acc update device(c_norms_d[0:9], r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d[0:9], psi_d[0:9], chi_d[0:9], teta_d[0:9], phi_d[0:9], A_d, control_param_d, beta_d, cg_w_d[0:9], hocg_w_d[0:25], hocg_cx_d[0:25], hocg_cy_d[0:25])
 
 	if(args->multiPhase){
 		if(args->high_order)
 			initHOColorGradient(cg_directions, n, m);
 		else
 			initColorGradient(cg_directions, n, m);
-	//#pragma acc data copy(nodeX[0:ms],nodeY[0:ms], rho[0:ms],r_rho[0:ms], b_rho[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:ms*9])
-	//	{
+#pragma acc enter data copyin(nodeX[0:ms],nodeY[0:ms], rho[0:ms],r_rho[0:ms], b_rho[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:ms*9])
 		initCGBubble(nodeX,nodeY,r_rho, b_rho, rho, r_f_d, b_f_d, f_d, args->test_case);
-	//	}
 	}
 	
 	FLOAT_TYPE *f_prev_d = createHostArrayFlt(9 * m * n, ARRAY_COPY,0,r_f_d);
@@ -218,8 +216,6 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	if(args->multiPhase && args->test_case == 2) //only for couette
 	{
 		initInletVelocity(u, v, args->u, args->v, n, m);
-		//CHECK(cudaMemcpy(u_d, u, SIZEFLT(m*n), cudaMemcpyHostToDevice));
-		//CHECK(cudaMemcpy(v_d, v, SIZEFLT(m*n), cudaMemcpyHostToDevice));
 	}
 
 	fclose(logFile);
@@ -270,9 +266,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	int iter = 0;
 #pragma acc data copyin(u[0:ms], v[0:ms], nodeType[0:numNodes], stream_d[0:8*ms], bcIdxCollapsed_d[0:bcCount], bcMaskCollapsed_d[0:bcCount], qCollapsed_d[0:bcCount*8]) create(r_fColl_d[m*n*9], b_fColl_d[m*n*9], p_in_d[n*m], p_out_d[n*m], num_in_d[m*n], num_out_d[m*n], h_divergence) \
                 create(drag_d[n*m], lift_d[m*n], fColl_d[9*m*n], temp9a_d[9*m*n], temp9b_d[9*m*n], tempA_d[m*n], tempB_d[m*n]) \
-                copyin(cg_directions[0:n*m], bcMask_d[0:n*m], f_prev_d[0:9*m*n]) \
-		copyin(nodeX[0:ms],nodeY[0:ms], rho[0:ms])\
-                copyin(r_rho[0:ms], b_rho[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:ms*9])
+                copyin(cg_directions[0:n*m], bcMask_d[0:n*m], f_prev_d[0:9*m*n])
 {
 	while (iter < args->iterations) {
 		switch (args->collisionModel) {

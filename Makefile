@@ -6,7 +6,7 @@ INCLUDES=-Iinclude
 OS := $(shell uname)
 LDFLAGS=-acc -ta=tesla:cc35
 CC=pgc++
-LIBDIR=#-Mcuda=llvm #-Llibs
+LIBDIR=-Mcuda=llvm #-Llibs
 LIBS=#-largtable2 #-lcuda
 
 CU_FILES=argtable3.cpp main.cpp GpuSum.cpp GpuInit.cpp Iterate.cpp Iterate3D.cpp CellFunctions.cpp ComputeResiduals.cpp FilesReading.cpp FilesWriting.cpp \

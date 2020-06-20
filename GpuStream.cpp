@@ -156,7 +156,6 @@ void gpuStreaming2DCG(int* nodeType, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYP
 			break;
 		}
 	}
-//#pragma acc exit data copyout(r_fColl_d[ms*9], b_fColl_d[ms*9], cg_dir_d[ms])
 }
 
 /*__global__ void gpuStreaming3D(int* nodeType, bool* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d)
