@@ -277,6 +277,11 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 //#pragma acc update device(c_norms_d[0:9], r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d[0:9], psi_d[0:9], chi_d[0:9], teta_d[0:9], phi_d[0:9], A_d, control_param_d, beta_d, cg_w_d[0:9], hocg_w_d[0:25], hocg_cx_d[0:25], hocg_cy_d[0:25])
 {
 	while (iter < args->iterations) {
+		#pragma acc enter data copyin(u[0:ms], v[0:ms], nodeType[0:numNodes], stream_d[0:8*ms], bcIdxCollapsed_d[0:bcCount], bcMaskCollapsed_d[0:bcCount], qCollapsed_d[0:bcCount*8]) create(r_fColl_d[m*n*9], b_fColl_d[m*n*9], p_in_d[n*m], p_out_d[n*m], num_in_d[m*n], num_out_d[m*n], h_divergence) \
+                create(drag_d[n*m], lift_d[m*n], fColl_d[9*m*n], temp9a_d[9*m*n], temp9b_d[9*m*n], tempA_d[m*n], tempB_d[m*n]) \
+                copyin(cg_directions[0:n*m], bcMask_d[0:n*m], f_prev_d[0:9*m*n]) \
+                copyin(nodeX[0:ms],nodeY[0:ms], rho[0:ms])\
+                copyin(r_rho[0:ms], b_rho[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:ms*9])
 		/*CHECK(cudaThreadSynchronize());
 		CHECK(cudaEventRecord(start, 0)); // Start measuring time*/
 		switch (args->collisionModel) {
@@ -323,7 +328,6 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			//#pragma acc routine(gpuBcPeriodic2D) gang
 			gpuBcPeriodic2D(bcIdxCollapsed_d, bcMaskCollapsed_d, r_f_d, b_f_d,bcCount, cg_directions, args->test_case, r_rho, b_rho, rho,
 					u, v);
-
 		} /*else{
 			gpuBcInlet2D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
 				u0_d, v0_d, bcCount);
@@ -339,6 +343,11 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 		if(args->multiPhase){
 			gpuUpdateMacro2DCG(rho, u, v, r_f_d, b_f_d, f_d, r_rho, b_rho, p_in_d, p_out_d, num_in_d, num_out_d, cg_directions,
 					args->test_case);
+#pragma acc exit data copyout(u[0:ms], v[0:ms], nodeType[0:numNodes], stream_d[0:8*ms], bcIdxCollapsed_d[0:bcCount], bcMaskCollapsed_d[0:bcCount], qCollapsed_d[0:bcCount*8]) copyout(r_fColl_d[m*n*9], b_fColl_d[m*n*9], p_in_d[n*m], p_out_d[n*m], num_in_d[m*n], num_out_d[m*n], h_divergence) \
+                copyout(drag_d[n*m], lift_d[m*n], fColl_d[9*m*n], temp9a_d[9*m*n], temp9b_d[9*m*n], tempA_d[m*n], tempB_d[m*n]) \
+                copyout(cg_directions[0:n*m], bcMask_d[0:n*m], f_prev_d[0:9*m*n]) \
+                copyout(nodeX[0:ms],nodeY[0:ms], rho[0:ms])\
+                copyout(r_rho[0:ms], b_rho[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:ms*9])
 
 			//			updateSurfaceTension(r_rho,b_rho,args->control_param, st_predicted, st_error, iter,args->r_alpha, args->b_alpha, args->bubble_radius, n ,m);
 			//gpu reduction is faster than serial surface tension

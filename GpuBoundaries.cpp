@@ -1878,8 +1878,8 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 	int offsetY = length_d * (depth_d - 1);
         int offsetX = length_d - 1;
 	int ori;
-	//#pragma acc parallel copy(orientation_d[0:ms], r_f_d[0:9*ms], b_f_d[0:9*ms], r_rho_d[0:ms], b_rho_d[0:ms], u_d[0:ms], v_d[0:ms], rho_d[0:ms], offsetY, offsetX, test_case) 
-	//#pragma acc loop private(ori) 
+	#pragma acc parallel present(orientation_d[0:ms], r_f_d[0:9*ms], b_f_d[0:9*ms], r_rho_d[0:ms], b_rho_d[0:ms], u_d[0:ms], v_d[0:ms], rho_d[0:ms]) copyin (test_case, offsetY, offsetX) 
+	#pragma acc loop private(ori) 
 	for (int ind = 0; ind < ms; ind++) {
 
 		ori = orientation_d[ind];

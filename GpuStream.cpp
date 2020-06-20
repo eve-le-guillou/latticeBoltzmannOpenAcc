@@ -32,8 +32,8 @@ void gpuStreaming2DCG(int* nodeType, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYP
 	int ms = depth_d*length_d;
 	FLOAT_TYPE *r_f, *r_mf, *b_f, *b_mf;
 	int n = length_d;
-//#pragma acc data deviceptr(r_f, r_mf, b_f, b_mf) copy(stream_d[0:ms*8], r_f_d[0:ms*9], r_fColl_d[ms*9], b_f_d[0:ms*9], b_fColl_d[0:9*ms], cg_dir_d[0:ms])
-//#pragma acc parallel loop 
+#pragma acc data deviceptr(r_f, r_mf, b_f, b_mf) present(stream_d[0:ms*8], r_f_d[0:ms*9],b_f_d[0:ms*9]) present(r_fColl_d[0:9*ms], b_fColl_d[0:9*ms], cg_dir_d[0:ms])
+#pragma acc parallel loop 
 	for (int ind= 0;ind < ms; ind++)
 	{
 		int ori = cg_dir_d[ind];
@@ -156,6 +156,7 @@ void gpuStreaming2DCG(int* nodeType, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYP
 			break;
 		}
 	}
+//#pragma acc exit data copyout(r_fColl_d[ms*9], b_fColl_d[ms*9], cg_dir_d[ms])
 }
 
 /*__global__ void gpuStreaming3D(int* nodeType, bool* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d)
