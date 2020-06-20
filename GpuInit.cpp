@@ -12,6 +12,7 @@
 #include "BcMacros3D.h"
 #include <cmath>
 #include "math.h"
+#define M_PI 3.14159265358979323846
 
 InletProfile inletProfile_d;
 BoundaryType boundaryType_d;
@@ -322,13 +323,14 @@ void initHOColorGradient3D(int *color_gradient_directions, int n, int m, int h){
 void initCGBubble(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_f_d,
 		FLOAT_TYPE *b_f_d, FLOAT_TYPE *f_d, int test_case){
 	int ms = length_d * depth_d;
-//#pragma acc data copy(x_d[0:ms],y_d[0:ms], rho_d[0:ms],r_rho_d[0:ms], b_rho_d[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:ms*9])
-//#pragma acc kernels
-//#pragma acc parallel loop //present(x_d[0:ms], y_d[0:ms], rho_d[0:ms],r_rho_d[0:ms],  b_rho_d[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:ms*9])
-	for(int index = 0; index< ms; index++){
+#pragma acc data copy(x_d[0:ms],y_d[0:ms], rho_d[0:ms],r_rho_d[0:ms], b_rho_d[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:ms*9])
+#pragma acc parallel loop 
+	for(int index = 0; index < ms; index++){
 		FLOAT_TYPE aux1, aux2;
 		int index_x, index_y;
 		switch (test_case) {
+		case 0:
+			break;
 		case 1: //steady bubble
 			if( sqrt( (x_d[index]-0.5) * (x_d[index]-0.5) + (y_d[index]-0.5)*(y_d[index]-0.5)) <= bubble_radius_d){
 				aux1 = (1 - r_alpha_d) / 5.0;

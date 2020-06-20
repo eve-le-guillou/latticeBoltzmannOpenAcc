@@ -1873,21 +1873,22 @@
 	}
 }*/
 void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
-		FLOAT_TYPE *  r_f_d,FLOAT_TYPE * b_f_d, int size, int *orientation_d, int test_case, FLOAT_TYPE * r_rho_d, FLOAT_TYPE * b_rho_d, FLOAT_TYPE * rho_d,
-		FLOAT_TYPE * u_d, FLOAT_TYPE * v_d) {
+		FLOAT_TYPE * restrict r_f_d,FLOAT_TYPE * restrict b_f_d, int size, int *orientation_d, int test_case, FLOAT_TYPE *restrict r_rho_d, FLOAT_TYPE *restrict b_rho_d, FLOAT_TYPE * restrict rho_d, FLOAT_TYPE * restrict u_d, FLOAT_TYPE * restrict v_d) {
 	int ms = depth_d * length_d;
 	int offsetY = length_d * (depth_d - 1);
         int offsetX = length_d - 1;
-	//#pragma acc parallel loop copy(orientation_d[0:ms], bcIdx_d[0:size], bcMask_d[0:size], r_f_d[0:9*ms], b_f_d[0:9*ms], r_rho_d[0:ms], b_rho_d[0:ms], u_d[0:ms], v_d[0:ms], rho_d[0:ms]) 
-	//#pragma acc kernels copy(orientation_d[0:ms], r_f_d[0:9*ms], b_f_d[0:9*ms], r_rho_d[0:ms], b_rho_d[0:ms], u_d[0:ms], v_d[0:ms], rho_d[0:ms], offsetY, offsetX)
-
-	//#pragma acc loop independent
+	int ori;
+	//#pragma acc parallel copy(orientation_d[0:ms], r_f_d[0:9*ms], b_f_d[0:9*ms], r_rho_d[0:ms], b_rho_d[0:ms], u_d[0:ms], v_d[0:ms], rho_d[0:ms], offsetY, offsetX, test_case) 
+	//#pragma acc loop private(ori) 
 	for (int ind = 0; ind < ms; ind++) {
 
-		int ori = orientation_d[ind];
+		ori = orientation_d[ind];
+		
 		switch(ori){
+		case 0:
+			break;
 		case 1: //NORTH
-			if(test_case == 2){
+			/*if(test_case == 2){
 				FLOAT_TYPE u_temp = u_d[ind], v_temp = v_d[ind];
 				FLOAT_TYPE r_temp = (1. / (1. + v_temp)) * (r_f_d[ind] + r_f_d[ind + 1 * ms] + r_f_d[ind + 3 * ms]
 				                                                                                     + 2 * (r_f_d[ind + 2 * ms] + r_f_d[ind + 6 * ms] + r_f_d[ind + 5 * ms]) );
@@ -1906,7 +1907,7 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 				b_rho_d[ind] = b_temp;
 				rho_d[ind] = r_temp + b_temp;
 			}
-			else if(test_case == 6){
+			else if(test_case == 6){*/
 				r_f_d[ind + 4 * ms] = r_f_d[ind + 2 * ms];
 				r_f_d[ind + 7 * ms] = r_f_d[ind + 5 * ms];
 				r_f_d[ind + 8 * ms] = r_f_d[ind + 6 * ms];
@@ -1914,7 +1915,7 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 				b_f_d[ind + 4 * ms] = b_f_d[ind + 2 * ms];
 				b_f_d[ind + 7 * ms] = b_f_d[ind + 5 * ms];
 				b_f_d[ind + 8 * ms] = b_f_d[ind + 6 * ms];
-			}
+			/*}
 			else {
 				r_f_d[ind + 4 * ms] = r_f_d[ind + 4 * ms - offsetY];
 				r_f_d[ind + 7 * ms] = r_f_d[ind + 7 * ms - offsetY];
@@ -1923,10 +1924,10 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 				b_f_d[ind + 4 * ms] = b_f_d[ind + 4 * ms - offsetY];
 				b_f_d[ind + 7 * ms] = b_f_d[ind + 7 * ms - offsetY];
 				b_f_d[ind + 8 * ms] = b_f_d[ind + 8 * ms - offsetY];
-			}
+			}*/
 			break;
 		case 2: //SOUTH
-			if(test_case == 2){
+			/*if(test_case == 2){
 				FLOAT_TYPE u_temp = u_d[ind], v_temp = v_d[ind];
 
 				FLOAT_TYPE r_temp = (1. / (1. - v_temp)) *
@@ -1946,7 +1947,7 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 				b_rho_d[ind] = b_temp;
 				rho_d[ind] = r_temp + b_temp;
 			}
-			else if(test_case == 6){
+			else if(test_case == 6){*/
 				r_f_d[ind + 2 * ms] = r_f_d[ind + 4 * ms];
 				r_f_d[ind + 5 * ms] = r_f_d[ind + 7 * ms];
 				r_f_d[ind + 6 * ms] = r_f_d[ind + 8 * ms];
@@ -1954,7 +1955,7 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 				b_f_d[ind + 2 * ms] = b_f_d[ind + 4 * ms];
 				b_f_d[ind + 5 * ms] = b_f_d[ind + 7 * ms];
 				b_f_d[ind + 6 * ms] = b_f_d[ind + 8 * ms];
-			}
+			/*}
 			else{
 				r_f_d[ind + 2 * ms] = r_f_d[ind + 2 * ms + offsetY];
 				r_f_d[ind + 5 * ms] = r_f_d[ind + 5 * ms + offsetY];
@@ -1963,7 +1964,7 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 				b_f_d[ind + 2 * ms] = b_f_d[ind + 2 * ms + offsetY];
 				b_f_d[ind + 5 * ms] = b_f_d[ind + 5 * ms + offsetY];
 				b_f_d[ind + 6 * ms] = b_f_d[ind + 6 * ms + offsetY];
-			}
+			}*/
 			break;
 		case 3: //EAST
 			r_f_d[ind + 3 * ms] = r_f_d[ind + 3 * ms - offsetX];

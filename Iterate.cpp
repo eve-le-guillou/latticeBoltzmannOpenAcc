@@ -181,6 +181,9 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	FLOAT_TYPE p_in_mean;
 	FLOAT_TYPE p_out_mean;
 	int ms = n * m;
+#pragma acc update device(g_d, velMomMap2D_d[0:81], momCollMtx2D_d[0:81], minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c2D_d[0:9], cx2D_d[0:9], cy2D_d[0:9], opp2D_d[0:9], w2D_d[0:9])
+#pragma acc update device(c_norms_d[0:9], r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d[0:9], psi_d[0:9], chi_d[0:9], teta_d[0:9], phi_d[0:9], A_d, control_param_d, beta_d, cg_w_d[0:9], hocg_w_d[0:25], hocg_cx_d[0:25], hocg_cy_d[0:25])
+
 	if(args->multiPhase){
 		if(args->high_order)
 			initHOColorGradient(cg_directions, n, m);
@@ -192,8 +195,6 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	//	}
 	}
 	
-	
-
 	FLOAT_TYPE *f_prev_d = createHostArrayFlt(9 * m * n, ARRAY_COPY,0,r_f_d);
 	int *mask = createHostArrayInt(m * n, ARRAY_ZERO);
 	int *bcMask_d = createHostArrayInt(m * n, ARRAY_ZERO);
@@ -272,8 +273,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
                 copyin(cg_directions[0:n*m], bcMask_d[0:n*m], f_prev_d[0:9*m*n]) \
 		copyin(nodeX[0:ms],nodeY[0:ms], rho[0:ms])\
                 copyin(r_rho[0:ms], b_rho[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:ms*9])
-#pragma acc update device(g_d, velMomMap2D_d[0:81], momCollMtx2D_d[0:81], minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c2D_d[0:9], cx2D_d[0:9], cy2D_d[0:9], opp2D_d[0:9], w2D_d[0:9])
-#pragma acc update device(c_norms_d[0:9], r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d[0:9], psi_d[0:9], chi_d[0:9], teta_d[0:9], phi_d[0:9], A_d, control_param_d, beta_d, cg_w_d[0:9], hocg_w_d[0:25], hocg_cx_d[0:25], hocg_cy_d[0:25])
+//#pragma acc update device(g_d, velMomMap2D_d[0:81], momCollMtx2D_d[0:81], minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c2D_d[0:9], cx2D_d[0:9], cy2D_d[0:9], opp2D_d[0:9], w2D_d[0:9])
+//#pragma acc update device(c_norms_d[0:9], r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d[0:9], psi_d[0:9], chi_d[0:9], teta_d[0:9], phi_d[0:9], A_d, control_param_d, beta_d, cg_w_d[0:9], hocg_w_d[0:25], hocg_cx_d[0:25], hocg_cy_d[0:25])
 {
 	while (iter < args->iterations) {
 		/*CHECK(cudaThreadSynchronize());
@@ -312,9 +313,9 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			//			gpuStreaming2D<<<bpg1, tpb>>>(nodeType, stream_d, b_f_d, b_fColl_d);
 			gpuStreaming2DCG(nodeType, stream_d, r_f_d, r_fColl_d, b_f_d, b_fColl_d, cg_directions);
 		}
-		else{
+		/*else{
 			//gpuStreaming2D<<<bpg1, tpb>>>(nodeType, stream_d, f_d, fColl_d);
-		}
+		}*/
 		////////////// BOUNDARIES ///////////////
 		//#pragma acc kernels copy(bcIdxCollapsed_d[0:bcCount], bcMaskCollapsed_d[0:bcCount], r_f_d[0:9*ms], b_f_d[0:9*ms], cg_directions[0:ms], r_rho[0:ms], b_rho[0:ms], rho[0:ms], u[0:ms], v[0:ms])
 //{
@@ -323,14 +324,14 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			gpuBcPeriodic2D(bcIdxCollapsed_d, bcMaskCollapsed_d, r_f_d, b_f_d,bcCount, cg_directions, args->test_case, r_rho, b_rho, rho,
 					u, v);
 
-		} else{
-		/*	gpuBcInlet2D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
+		} /*else{
+			gpuBcInlet2D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
 				u0_d, v0_d, bcCount);
 			gpuBcWall2D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
 					fColl_d, qCollapsed_d, bcCount);
 			gpuBcOutlet2D<<<bpgB, tpb>>>(bcIdxCollapsed_d, bcMaskCollapsed_d, f_d,
-					u0_d, v0_d, bcCount);*/
-		}
+					u0_d, v0_d, bcCount);
+		}*/
 //}
 		// UPDATE VELOCITY AND DENSITY
 		//CHECK(cudaThreadSynchronize());

@@ -90,7 +90,7 @@ __device__ FLOAT_TYPE feqc3D(FLOAT_TYPE u, FLOAT_TYPE uc, FLOAT_TYPE v, FLOAT_TY
 		res += (r_rho_d[index + 1] - b_rho_d[index + 1])  *  cg_w1;
 		res += (r_rho_d[index - 1] - b_rho_d[index - 1])  * -cg_w1;
 		res += (r_rho_d[index - n + 1] - b_rho_d[index - n + 1])  *  cg_w2;
-		res += (r_rho_d[index - n - 1] - b_rho_d[index - n - 1]) * -cg_w2;
+	/	res += (r_rho_d[index - n - 1] - b_rho_d[index - n - 1]) * -cg_w2;
 		res += (r_rho_d[index - n - 1] - b_rho_d[index - n - 1])   * -cg_w2;
 		res += (r_rho_d[index - n + 1] - b_rho_d[index - n + 1])  *  cg_w2;
 		break;
@@ -664,19 +664,13 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_
 	FLOAT_TYPE r_r, b_r, r, u, v, cg_x, cg_y, gr_x, gr_y;
 	FLOAT_TYPE k_r, k_b, k_k, color_gradient_norm, cosin[9], mean_nu, omega_eff;
 	FLOAT_TYPE prod_c_g, pert;
-	FLOAT_TYPE r_fColl_d_temp[9];
 	FLOAT_TYPE f_CollPert;
 	int ind;
 	FLOAT_TYPE G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq;
-	//#pragma acc update device(g_d, velMomMap2D_d[0:81], momCollMtx2D_d[0:81], minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c2D_d[0:9], cx2D_d[0:9], cy2D_d[0:9], opp2D_d[0:9], w2D_d[0:9])
-	//#pragma acc update device(c_norms_d[0:9], r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d[0:9], psi_d[0:9], chi_d[0:9], teta_d[0:9], phi_d[0:9], A_d, control_param_d, beta_d, cg_w_d[0:9], hocg_w_d[0:25], hocg_cx_d[0:25], hocg_cy_d[0:25])
-
 	//#pragma acc data create(cg_y, r_r, b_r, r, u, v, cg_x, gr_x, gr_y, k_r, k_b, k_k, color_gradient_norm, cosin, mean_nu, omega_eff, prod_c_g, pert, f_CollPert, G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq)
 
-	#pragma acc parallel copy(rho_d[depth_d*length_d], r_rho_d[depth_d*length_d], b_rho_d[depth_d*length_d], u_d[depth_d*length_d], v_d[depth_d*length_d], f_d[depth_d*length_d*9], r_fColl_d[depth_d*length_d*9], b_fColl_d[depth_d*length_d*9], cg_dir_d[depth_d*length_d])
-	//#pragma acc data copy(r_fColl_d[depth_d*length_d*9], b_fColl_d[depth_d*length_d*9], f_d[depth_d*length_d*9])
-//	#pragma acc kernels copy(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*9], r_fColl_d[ms*9], b_fColl_d[ms*9], cg_dir_d[ms])
-	#pragma acc loop private(r_fColl_d_temp[0:9], cosin[0:9])//independent 
+//	#pragma acc parallel copy(rho_d[depth_d*length_d], r_rho_d[depth_d*length_d], b_rho_d[depth_d*length_d], u_d[depth_d*length_d], v_d[depth_d*length_d], f_d[depth_d*length_d*9], r_fColl_d[depth_d*length_d*9], b_fColl_d[depth_d*length_d*9], cg_dir_d[depth_d*length_d])
+//	#pragma acc loop private(cosin[0:9]) 
 	for (ind = 0; ind < ms; ind++)
 	{
 		u =   u_d[ind];

@@ -33,9 +33,7 @@ void gpuStreaming2DCG(int* nodeType, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYP
 	FLOAT_TYPE *r_f, *r_mf, *b_f, *b_mf;
 	int n = length_d;
 //#pragma acc data deviceptr(r_f, r_mf, b_f, b_mf) copy(stream_d[0:ms*8], r_f_d[0:ms*9], r_fColl_d[ms*9], b_f_d[0:ms*9], b_fColl_d[0:9*ms], cg_dir_d[0:ms])
-//#pragma acc parallel loop copy(stream_d[0:ms*8], r_f_d[0:ms*9], r_fColl_d[ms*9], b_f_d[0:ms*9], b_fColl_d[0:9*ms], cg_dir_d[0:ms])
-//#pragma acc kernels
-//#pragma acc loop independent
+//#pragma acc parallel loop 
 	for (int ind= 0;ind < ms; ind++)
 	{
 		int ori = cg_dir_d[ind];
