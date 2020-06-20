@@ -1,6 +1,5 @@
 #include "Arguments.h"
 #include "GpuConstants.h"
-#include <cuda_runtime.h>
 #include <stdio.h>                      // printf();
 #include <math.h>                       // need to compile with -lm
 #include <stdlib.h>                     // for calloc();
@@ -22,7 +21,12 @@
 #include "Multiphase.h"
 #include "GpuSum.h"
 
-#define CUDA 1
+#ifdef MAKE_SERIAL
+#define OPENACC 0
+#else
+#define OPENACC 1
+#include <cuda_runtime.h>
+#endif
 
 int Iterate2D(InputFilenames *inFn, Arguments *args) {
 
@@ -297,7 +301,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			//			gpuStreaming2D<<<bpg1, tpb>>>(nodeType, stream_d, r_f_d, r_fColl_d);
 			//			gpuStreaming2D<<<bpg1, tpb>>>(nodeType, stream_d, b_f_d, b_fColl_d);
 			gpuStreaming2DCG(nodeType, stream_d, r_f_d, r_fColl_d, b_f_d, b_fColl_d, cg_directions);
-		}
+}
 		/*else{
 			//gpuStreaming2D<<<bpg1, tpb>>>(nodeType, stream_d, f_d, fColl_d);
 		}*/
@@ -359,13 +363,16 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 					printf("simulation converged!\n");
 					break;
 				}
-		//		delete[] f_prev_d;
-		//		f_prev_d = createHostArrayFlt(n * m * 9, ARRAY_CPYD, 0, f_d);
 
-		    #pragma acc host_data use_device(f_d, f_prev_d) 
-    		    {	 
-    		       	    cudaMemcpy(&f_prev_d,&f_d, n*m*9,cudaMemcpyDeviceToDevice); 
-    		    }
+#if OPENACC
+		    		#pragma acc host_data use_device(f_d, f_prev_d) 
+    		    		{	 
+    		       	    	cudaMemcpy(&f_prev_d,&f_d, n*m*9,cudaMemcpyDeviceToDevice); 
+    		    		}
+#else
+                       		delete[] f_prev_d;
+                                f_prev_d = createHostArrayFlt(n * m * 9, ARRAY_CPYD, 0, f_d);
+#endif      
 			}else{
 				r = computeResidual2D(f_d, fColl_d, temp9a_d, temp9b_d, m,n);
 				if (r != r) {

@@ -32,6 +32,11 @@ debug: CFLAGS=-Minfo=accel -acc -g -ta=tesla:cc60
 debug: LDFLAGS=-acc -ta=tesla:cc60
 debug: all
 
+serial: CFLAGS=-fast
+serial: LDFLAGS=
+serial: DEFINES+=-DMAKE_SERIAL
+serial: all
+
 $(OBJ_DIR):; \
 	mkdir -p $(OBJ_DIR)
 
