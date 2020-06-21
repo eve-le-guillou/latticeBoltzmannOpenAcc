@@ -9,6 +9,8 @@
 
 #include "FloatType.h"
 void gpu_abs_sub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C, int size,bool *divergence);
+
+FLOAT_TYPE gpu_abs_relSub_max(FLOAT_TYPE *A, FLOAT_TYPE *B, int size);
 /**
  * @brief Compute square of the difference of two vectors: \f$(A-B)^2\f$
  *

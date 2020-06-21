@@ -269,7 +269,6 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 
 	int iter = 0;
 #pragma acc data copyin(u[0:ms], v[0:ms], nodeType[0:numNodes], stream_d[0:8*ms], bcIdxCollapsed_d[0:bcCount], bcMaskCollapsed_d[0:bcCount], qCollapsed_d[0:bcCount*8]) create(r_fColl_d[m*n*9], b_fColl_d[m*n*9], p_in_d[n*m], p_out_d[n*m], num_in_d[m*n], num_out_d[m*n], h_divergence) \
-                create(drag_d[n*m], lift_d[m*n], fColl_d[9*m*n], temp9a_d[9*m*n], temp9b_d[9*m*n], tempA_d[m*n], tempB_d[m*n]) \
                 copyin(cg_directions[0:n*m], bcMask_d[0:n*m], f_prev_d[0:9*m*n])
 {
 	while (iter < args->iterations) {
@@ -307,7 +306,6 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 		}*/
 		////////////// BOUNDARIES ///////////////
 		if(args->multiPhase){
-			//#pragma acc routine(gpuBcPeriodic2D) gang
 			gpuBcPeriodic2D(bcIdxCollapsed_d, bcMaskCollapsed_d, r_f_d, b_f_d,bcCount, cg_directions, args->test_case, r_rho, b_rho, rho,
 					u, v);
 		} /*else{
@@ -351,8 +349,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			FLOAT_TYPE r;
 			if(args->multiPhase){
 				//				gpu_abs_sub(f_d, f_prev_d, temp9a_d, n * m * 9, h_divergence);
-				gpu_abs_relSub(f_d, f_prev_d, temp9a_d, n * m * 9, &h_divergence);
-				fMaxDiff = gpu_max_h(temp9a_d, temp9b_d, n * m * 9);
+				fMaxDiff = gpu_abs_relSub_max(f_d, f_prev_d, n * m * 9);
 				//	printf("MAX diff "FLOAT_FORMAT"\n", fMaxDiff);
 				#pragma acc update host(h_divergence)
 				if (h_divergence || fMaxDiff != fMaxDiff || !isfinite(fMaxDiff)) {
@@ -507,6 +504,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	printf("Final results were written to %s\n", finalFilename);
 
 	//	compareTestFiles("./TestValues/CUDA/rpert.txt", "./TestValues/CUDA/rpert_gpu.txt");
+#pragma acc exit data delete(nodeX[0:ms],nodeY[0:ms], rho[0:ms],r_rho[0:ms], b_rho[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:ms*9])
 	freeAllHost(hostArrays, sizeof(hostArrays) / sizeof(hostArrays[0]));
 	freeAllHost(gpuArrays, sizeof(gpuArrays) / sizeof(gpuArrays[0]));
 	}
