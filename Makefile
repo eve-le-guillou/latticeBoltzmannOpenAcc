@@ -1,6 +1,6 @@
 FLOAT_TYPE=USE_DOUBLE
 
-CFLAGS=-fast -Minfo=accel -acc -ta=tesla:cc35 
+CFLAGS=-Minfo=accel -acc -ta=tesla:cc35 -fast
 DEFINES=-D$(FLOAT_TYPE)
 INCLUDES=-Iinclude
 OS := $(shell uname)
@@ -28,8 +28,9 @@ all: $(EXEC)
 $(EXEC): $(OBJ_DIR) $(OBJ_FILES); \
 	$(CC) $(LDFLAGS) $(LIBDIR) -o $@ $(OBJ_FILES)
 
-debug: CFLAGS=-Minfo=accel -acc -g -ta=tesla:cc60
-debug: LDFLAGS=-acc -ta=tesla:cc60
+debug: CFLAGS= -g 
+debug: LDFLAGS=
+debug: DEFINES+=-DMAKE_SERIAL
 debug: all
 
 serial: CFLAGS=-fast

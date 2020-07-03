@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include "GpuFunctions.h"
 #include "GpuConstants.h"
-
+#include "ArrayUtils.h"
 /**
  * @brief Compute the equilibrum distribution without the collision frequency
  * @details ...
@@ -108,7 +108,7 @@ __device__ FLOAT_TYPE feqc3D(FLOAT_TYPE u, FLOAT_TYPE uc, FLOAT_TYPE v, FLOAT_TY
 
 	return res;
 }*/
-//#pragma acc routine(calculateColorGradient) seq 
+
 void calculateColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d,FLOAT_TYPE *rho_d, int cg_dir_d,
 		int index, FLOAT_TYPE *cg_x, FLOAT_TYPE *cg_y, FLOAT_TYPE *gr_x, FLOAT_TYPE *gr_y){
 	FLOAT_TYPE cgx = 0.0;
@@ -595,6 +595,8 @@ void gpuCollBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d
 	FLOAT_TYPE prod_c_g, pert;
 	FLOAT_TYPE f_CollPert;
 	FLOAT_TYPE mean_alpha, cu1, cu2, f_eq;
+        #pragma acc parallel present(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*9]) present(r_fColl_d[ms*9], b_fColl_d[ms*9], cg_dir_d[ms]) 
+        #pragma acc loop
 	for (int ind=0; ind < ms; ind++)
 	{
 		u =   u_d[ind];
@@ -631,9 +633,9 @@ void gpuCollBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d
 				if (k!=0){
 					cosin= prod_c_g / (color_gradient_norm*c_norms_d[k]);
 				}
-				else
+				else{
 					cosin=0.0;
-
+				}
 				// calculate perturbation terms
 				pert = A_d * color_gradient_norm * (w2D_d[k]* (prod_c_g *prod_c_g) / (color_gradient_norm * color_gradient_norm) - w_pert_d[k]);
 			}
@@ -662,13 +664,13 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_
 	int ms = depth_d*length_d;
 	int cx, cy;
 	FLOAT_TYPE r_r, b_r, r, u, v, cg_x, cg_y, gr_x, gr_y;
-	FLOAT_TYPE k_r, k_b, k_k, color_gradient_norm, cosin[9], mean_nu, omega_eff;
+	FLOAT_TYPE k_r, k_b, k_k, color_gradient_norm, mean_nu, omega_eff;
 	FLOAT_TYPE prod_c_g, pert;
 	FLOAT_TYPE f_CollPert;
 	int ind;
 	FLOAT_TYPE G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq;
-	#pragma acc parallel present(rho_d[depth_d*length_d], r_rho_d[depth_d*length_d], b_rho_d[depth_d*length_d], u_d[depth_d*length_d], v_d[depth_d*length_d], f_d[depth_d*length_d*9]) present(r_fColl_d, b_fColl_d, cg_dir_d)
-	#pragma acc loop private(cosin[0:9]) 
+        #pragma acc parallel present(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*9]) present(r_fColl_d, b_fColl_d, cg_dir_d) //create(cx, cy, r_r, b_r, r, u, v, k_r, k_b, k_k, color_gradient_norm, mean_nu, omega_eff, prod_c_g, pert, f_CollPert, G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq) 
+	#pragma acc loop 
 	for (ind = 0; ind < ms; ind++)
 	{
 		u =   u_d[ind];
@@ -680,7 +682,7 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_
 
 		if(high_order)
 			calculateHOColorGradient(r_rho_d,b_rho_d, rho_d, cg_dir_d[ind], ind, &cg_x, &cg_y, &gr_x, &gr_y);
-		else{   
+		else{  
 			calculateColorGradient(r_rho_d,b_rho_d, rho_d, cg_dir_d[ind], ind, &cg_x, &cg_y, &gr_x, &gr_y);
 		}
 
@@ -702,17 +704,17 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_
 		k_k= beta_d * r_r * b_r / r;
 
 		cu1 = u*u + v*v;
-
+		FLOAT_TYPE cosin;
 		for (int k=0;k<9;k++){
 			cx = cx2D_d[k];
 			cy = cy2D_d[k];
 			if (color_gradient_norm > g_limit_d){
 			prod_c_g=cx * cg_x + cy * cg_y;
-			cosin[k]= prod_c_g / (color_gradient_norm*c_norms_d[k]);
-			cosin[0]=0.0;
+			if (k!=0) cosin= prod_c_g / (color_gradient_norm*c_norms_d[k]);
+			else cosin=0.0;
 			pert= A_d * color_gradient_norm * (w2D_d[k]* (prod_c_g *prod_c_g) / (color_gradient_norm * color_gradient_norm) - w_pert_d[k]);
 			}else {
-				cosin[k] = 0.0;
+				cosin = 0.0;
 				pert = 0.0;
 			}
 			TC = 0.0;
@@ -728,8 +730,8 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_
 			// calculate updated distribution function
 			f_CollPert = omega_eff*f_eq + (1-omega_eff) * f_d[ind + k * ms] + pert;
 
-			r_fColl_d[ind + k * ms] = k_r * f_CollPert + k_k * cosin[k] * (phi_d[k] + teta_d[k] * mean_alpha);
-			b_fColl_d[ind + k * ms] = k_b * f_CollPert - k_k * cosin[k] * (phi_d[k] + teta_d[k] * mean_alpha);
+			r_fColl_d[ind + k * ms] = k_r * f_CollPert + k_k * cosin * (phi_d[k] + teta_d[k] * mean_alpha);
+			b_fColl_d[ind + k * ms] = k_b * f_CollPert - k_k * cosin * (phi_d[k] + teta_d[k] * mean_alpha);
 		}
 
 

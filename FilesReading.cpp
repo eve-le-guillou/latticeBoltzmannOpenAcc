@@ -482,12 +482,14 @@ FLOAT_TYPE getGridSpacing(int *ni, int *nj, FLOAT_TYPE *nx, int n) {
 	for (i = 0; i < n; ++i) {
 		if (ni[i] == 0 && nj[i] == 0) {
 			delta1 = nx[i];
+			//printf("Delta1 : %d\n", delta1);
 			break;
 		}
 	}
 	for (i = 0; i < n; ++i) {
 		if (ni[i] == 1 && nj[i] == 0) {
 			delta2 = nx[i];
+			//printf("Delta2 : %d\n", delta2);
 			break;
 		}
 	}

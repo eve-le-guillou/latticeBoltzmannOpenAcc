@@ -321,15 +321,13 @@ void initCGBubble(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *r_rho_d, FLOAT_T
 		FLOAT_TYPE *b_f_d, FLOAT_TYPE *f_d, int test_case){
 	int ms = length_d * depth_d;
 #pragma acc data present(x_d[0:ms],y_d[0:ms], rho_d[0:ms],r_rho_d[0:ms], b_rho_d[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:ms*9])
-#pragma acc parallel loop 
+#pragma acc parallel loop firstprivate(test_case) 
 	for(int index = 0; index < ms; index++){
 		FLOAT_TYPE aux1, aux2;
 		int index_x, index_y;
-		switch (test_case) {
-		case 0:
-			break;
-		case 1: //steady bubble
-			if( sqrt( (x_d[index]-0.5) * (x_d[index]-0.5) + (y_d[index]-0.5)*(y_d[index]-0.5)) <= bubble_radius_d){
+		//switch (test_case) {
+		if (test_case == 1) { //steady bubble
+			if(sqrt((x_d[index]-0.5) * (x_d[index]-0.5) + (y_d[index]-0.5)*(y_d[index]-0.5)) <= bubble_radius_d){
 				aux1 = (1 - r_alpha_d) / 5.0;
 				aux2 = (1 - r_alpha_d) / 20.0;
 				r_rho_d[index] = r_density_d;
@@ -357,38 +355,38 @@ void initCGBubble(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *r_rho_d, FLOAT_T
 				b_f_d[index + 7 * ms] = b_density_d * aux2;
 				b_f_d[index + 8 * ms] = b_density_d * aux2;
 			}
-			break;
-		case 2: // coulette
-			if(y_d[index] > 0.5){
-				aux1 = (1 - r_alpha_d) / 5.0;
-				aux2 = (1 - r_alpha_d) / 20.0;
-				r_rho_d[index] = r_density_d;
-				r_f_d[index + 0 * ms] = r_density_d * r_alpha_d;
-				r_f_d[index + 1 * ms] = r_density_d * aux1;
-				r_f_d[index + 2 * ms] = r_density_d * aux1;
-				r_f_d[index + 3 * ms] = r_density_d * aux1;
-				r_f_d[index + 4 * ms] = r_density_d * aux1;
-				r_f_d[index + 5 * ms] = r_density_d * aux2;
-				r_f_d[index + 6 * ms] = r_density_d * aux2;
-				r_f_d[index + 7 * ms] = r_density_d * aux2;
-				r_f_d[index + 8 * ms] = r_density_d * aux2;
 			}
-			else {
-				aux1 = (1 - b_alpha_d) / 5.0;
-				aux2 = (1 - b_alpha_d) / 20.0;
-				b_rho_d[index] = b_density_d;
-				b_f_d[index + 0 * ms] = b_density_d * b_alpha_d;
-				b_f_d[index + 1 * ms] = b_density_d * aux1;
-				b_f_d[index + 2 * ms] = b_density_d * aux1;
-				b_f_d[index + 3 * ms] = b_density_d * aux1;
-				b_f_d[index + 4 * ms] = b_density_d * aux1;
-				b_f_d[index + 5 * ms] = b_density_d * aux2;
-				b_f_d[index + 6 * ms] = b_density_d * aux2;
-				b_f_d[index + 7 * ms] = b_density_d * aux2;
-				b_f_d[index + 8 * ms] = b_density_d * aux2;
-			}
-			break;
-		case 3: //square
+	        if(test_case == 2){// couette
+                        if(y_d[index] > 0.5){
+                                aux1 = (1 - r_alpha_d) / 5.0;
+                                aux2 = (1 - r_alpha_d) / 20.0;
+                                r_rho_d[index] = r_density_d;
+                                r_f_d[index + 0 * ms] = r_density_d * r_alpha_d;
+                                r_f_d[index + 1 * ms] = r_density_d * aux1;
+                                r_f_d[index + 2 * ms] = r_density_d * aux1;
+                                r_f_d[index + 3 * ms] = r_density_d * aux1;
+                                r_f_d[index + 4 * ms] = r_density_d * aux1;
+                                r_f_d[index + 5 * ms] = r_density_d * aux2;
+                                r_f_d[index + 6 * ms] = r_density_d * aux2;
+                                r_f_d[index + 7 * ms] = r_density_d * aux2;
+                                r_f_d[index + 8 * ms] = r_density_d * aux2;
+                        }
+                        else {
+                                aux1 = (1 - b_alpha_d) / 5.0;
+                                aux2 = (1 - b_alpha_d) / 20.0;
+                                b_rho_d[index] = b_density_d;
+                                b_f_d[index + 0 * ms] = b_density_d * b_alpha_d;
+                                b_f_d[index + 1 * ms] = b_density_d * aux1;
+                                b_f_d[index + 2 * ms] = b_density_d * aux1;
+                                b_f_d[index + 3 * ms] = b_density_d * aux1;
+                                b_f_d[index + 4 * ms] = b_density_d * aux1;
+                                b_f_d[index + 5 * ms] = b_density_d * aux2;
+                                b_f_d[index + 6 * ms] = b_density_d * aux2;
+                                b_f_d[index + 7 * ms] = b_density_d * aux2;
+                                b_f_d[index + 8 * ms] = b_density_d * aux2;
+                        }
+                        }
+		if(test_case == 3){ //square
 			index_x = index % length_d;
 			index_y = (index - index_x) / length_d;
 
@@ -420,8 +418,8 @@ void initCGBubble(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *r_rho_d, FLOAT_T
 				b_f_d[index + 7 * ms] = b_density_d * aux2;
 				b_f_d[index + 8 * ms] = b_density_d * aux2;
 			}
-			break;
-		case 4: //coalescence
+			}
+		if(test_case == 4){ //coalescence
 			if( sqrt( (x_d[index]-0.5) * (x_d[index]-0.5) + (y_d[index]-0.5 + bubble_radius_d)*(y_d[index]-0.5 + bubble_radius_d)) <= bubble_radius_d ||
 					sqrt( (x_d[index]-0.5) * (x_d[index]-0.5) + (y_d[index]-0.5 - bubble_radius_d)*(y_d[index]-0.5 - bubble_radius_d)) <= bubble_radius_d	){
 				aux1 = (1 - r_alpha_d) / 5.0;
@@ -451,8 +449,8 @@ void initCGBubble(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *r_rho_d, FLOAT_T
 				b_f_d[index + 7 * ms] = b_density_d * aux2;
 				b_f_d[index + 8 * ms] = b_density_d * aux2;
 			}
-			break;
-		case 5: //oscilating
+			}
+		if(test_case == 5){ //oscilating
 			index_x = index % length_d;
 			index_y = (index - index_x) / length_d;
 			if( ( ((index_x - 0.5 * length_d) / (0.125 * length_d)) * ((index_x - 0.5 * length_d) / (0.125 * length_d)) +
@@ -483,9 +481,8 @@ void initCGBubble(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *r_rho_d, FLOAT_T
 				b_f_d[index + 6 * ms] = b_density_d * aux2;
 				b_f_d[index + 7 * ms] = b_density_d * aux2;
 				b_f_d[index + 8 * ms] = b_density_d * aux2;
-			}
-			break;
-		case 6:
+			}}
+		if (test_case == 6) {
 			if( y_d[index] > (2.0 + 0.1 * cos( 2*M_PI*x_d[index]))){
 				aux1 = (1 - r_alpha_d) / 5.0;
 				aux2 = (1 - r_alpha_d) / 20.0;
@@ -514,10 +511,8 @@ void initCGBubble(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *r_rho_d, FLOAT_T
 				b_f_d[index + 7 * ms] = b_density_d * aux2;
 				b_f_d[index + 8 * ms] = b_density_d * aux2;
 			}
-			break;
-		default:
-			break;
-		}
+			}
+		
 		// initialise density
 		rho_d[index] = r_rho_d[index] + b_rho_d[index];
 		f_d[index] = r_f_d[index] + b_f_d[index];

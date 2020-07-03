@@ -200,38 +200,22 @@ __global__ void gpu_max256(FLOAT_TYPE *A, FLOAT_TYPE *B, int size) {
 }*/
 
 FLOAT_TYPE gpu_sum_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size) {
-	FLOAT_TYPE result = 0.0;
+    FLOAT_TYPE result = 0.0;
+    #pragma acc parallel loop copyin(C[0:size],D[0:size]) reduction(+:result)
     for (int i = 0; i<size; i++){
         result+=C[i];
     }
 	return result;
 }
 
-/*__host__ int gpu_sum_int_h(int *C, int *D, int size) {
-	dim3 grid_dim;
-
-	int remaining = size;
-	int shared_size = 256 * sizeof(int);
-	int req_blocks = 0;
-
-	while (remaining > 1) {
-		req_blocks = (remaining - 1) / 256 / 2 + 1;
-		grid_dim.x = static_cast<int>(ceil(sqrt(req_blocks)));
-		grid_dim.y = (req_blocks - 1) / grid_dim.x + 1;
-		gpu_sum256_int<<<grid_dim, 256, shared_size>>>(C, D, remaining);
-
-		//swap
-		int *temp = C;
-		C = D;
-		D = temp;
-
-		remaining = req_blocks;
-	}
-
-	int result = 0;
-	CHECK(cudaMemcpy(&result, C, sizeof(int), cudaMemcpyDeviceToHost));
-	return result;
-}*/
+int gpu_sum_int_h(int *C, int *D, int size) {
+    int result = 0;
+    #pragma acc parallel loop copyin(C[0:size],D[0:size]) reduction(+:result)
+    for (int i = 0; i<size; i++){
+        result+=C[i];
+    }
+        return result;
+}
 
 FLOAT_TYPE gpu_max_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size) {
     FLOAT_TYPE maxi = C[0];

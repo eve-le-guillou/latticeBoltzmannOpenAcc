@@ -75,6 +75,6 @@ FLOAT_TYPE gpu_max_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size);
 void gpu_abs_relSub(FLOAT_TYPE *A, FLOAT_TYPE *B, FLOAT_TYPE *C,
 		int size, bool *divergence);
 
-/*__host__ int gpu_sum_int_h(int *C, int *D, int size);
-__global__ void gpu_sum256_int(int *A, int *B, int size);*/
+int gpu_sum_int_h(int *C, int *D, int size);
+/*__global__ void gpu_sum256_int(int *A, int *B, int size);*/
 #endif
