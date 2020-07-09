@@ -291,7 +291,7 @@ void calculateHOColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TY
 	(*gr_y) = gry;
 }
 
-/*__device__ void calculateColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, int cg_dir_d, int index,
+void calculateColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, int cg_dir_d, int index,
 		FLOAT_TYPE *cg_x, FLOAT_TYPE *cg_y, FLOAT_TYPE *cg_z, FLOAT_TYPE *gr_x, FLOAT_TYPE *gr_y, FLOAT_TYPE *gr_z){
 	FLOAT_TYPE cgx, cgy, cgz, grx,gry,grz;
 	FLOAT_TYPE aux1, aux2;
@@ -407,9 +407,9 @@ void calculateHOColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TY
 	(*gr_x) = grx;
 	(*gr_y) = gry;
 	(*gr_z) = grz;
-}*/
+}
 
-/*__device__ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, int cg_dir_d, int index,
+void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, int cg_dir_d, int index,
 		FLOAT_TYPE *cg_x, FLOAT_TYPE *cg_y, FLOAT_TYPE *cg_z, FLOAT_TYPE *gr_x, FLOAT_TYPE *gr_y, FLOAT_TYPE *gr_z){
 
 	FLOAT_TYPE cgx, cgy, cgz, grx,gry,grz;
@@ -535,7 +535,7 @@ void calculateHOColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TY
 	(*gr_y) = gry;
 	(*gr_z) = grz;
 }
-
+/*
 __device__ FLOAT_TYPE calcPerturb2D(FLOAT_TYPE cg_norm, FLOAT_TYPE w, FLOAT_TYPE prod_c_g, FLOAT_TYPE w_pert){
 	if(cg_norm > g_limit_d)
 		return 0.5 * A_d * cg_norm * (w * (prod_c_g *prod_c_g) / (cg_norm * cg_norm) - w_pert);
@@ -740,17 +740,16 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_
 	}
 }
 
-/*__global__ v id gpuCollBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
+void gpuCollBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order){
 
-	int ind =  (blockIdx.x + blockIdx.y * gridDim.x) * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
 	int ms = depth_d*length_d*height_d;
 	FLOAT_TYPE r_r, b_r, r, u, v, w, cg_x, cg_y, cg_z, gr_x, gr_y, gr_z;
 	FLOAT_TYPE k_r, k_b, k_k, color_gradient_norm, cosin, mean_nu, omega_eff, mean_alpha;
 	FLOAT_TYPE prod_c_g, pert, cu1, cu2;
 	FLOAT_TYPE f_CollPert, f_eq;
 	int cx, cy, cz;
-	if (ind < ms)
+	for (int ind = 0; ind < ms; ind++)
 	{
 		u =   u_d[ind];
 		v =   v_d[ind];
@@ -795,6 +794,7 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_
 			else{
 				// the perturbation terms are null
 				pert = 0.0;
+				cosin = 0.0;
 			}
 
 			cu2 = u*cx + v*cy + w*cz;
@@ -810,12 +810,11 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_
 		}
 	}
 
-}*/
+}
 
-/*__global__ void gpuCollEnhancedBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
+void gpuCollEnhancedBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *r_fColl_d, FLOAT_TYPE *b_fColl_d, int *cg_dir_d, bool high_order){
 
-	int ind =  (blockIdx.x + blockIdx.y * gridDim.x) * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
 	int ms = depth_d*length_d*height_d;
 	FLOAT_TYPE r_r, b_r, r, u, v, w, cg_x, cg_y, cg_z, gr_x, gr_y, gr_z;
 	FLOAT_TYPE k_r, k_b, k_k, color_gradient_norm, cosin, mean_nu, omega_eff, TC, mean_alpha;
@@ -823,7 +822,7 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_
 	FLOAT_TYPE f_CollPert, f_eq;
 	FLOAT_TYPE G1, G2, G3, G4, G5, G6, G7, G8, G9;
 	int cx, cy, cz;
-	if (ind < ms)
+	for (int ind = 0; ind < ms; ind++)
 	{
 		u =   u_d[ind];
 		v =   v_d[ind];
@@ -879,6 +878,7 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_
 			else{
 				// the perturbation terms are null
 				pert = 0.0;
+				cosin = 0.0;
 			}
 
 			// Auxiliar tensor: diadic product of the speed velcity:
@@ -909,7 +909,7 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_
 		}
 	}
 
-}*/
+}
 
 /*__global__ void gpuCollBgkw3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *u_d,
 		FLOAT_TYPE *v_d, FLOAT_TYPE *w_d, FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d)

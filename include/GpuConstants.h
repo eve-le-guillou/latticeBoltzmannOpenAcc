@@ -94,31 +94,36 @@ extern  int hocg_cx_d[25];
 extern  int hocg_cy_d[25];
 
 //#### 3D Color Gradient ####//
-/*extern __constant__ FLOAT_TYPE c_norms3D_d[19];
-extern __constant__ FLOAT_TYPE w_pert3D_d[19];
-extern __constant__ FLOAT_TYPE phi3D_d[19];
-extern __constant__ FLOAT_TYPE teta3D_d[19];
-extern __constant__ FLOAT_TYPE chi3D_d[19];
-extern __constant__ FLOAT_TYPE psi3D_d[19];
-extern __constant__ FLOAT_TYPE cg_w3D_d[19];
-extern __constant__ FLOAT_TYPE hocg_w3D_d[105];
-extern __constant__ int hocg_cx3D_d[105];
-extern __constant__ int hocg_cy3D_d[105];
-extern __constant__ int hocg_cz3D_d[105];
-extern __constant__ int hoc3D_d[105];
+extern FLOAT_TYPE c_norms3D_d[19];
+extern FLOAT_TYPE w_pert3D_d[19];
+extern FLOAT_TYPE phi3D_d[19];
+extern FLOAT_TYPE teta3D_d[19];
+extern FLOAT_TYPE chi3D_d[19];
+extern FLOAT_TYPE psi3D_d[19];
+extern FLOAT_TYPE cg_w3D_d[19];
+extern FLOAT_TYPE hocg_w3D_d[105];
+extern int hocg_cx3D_d[105];
+extern int hocg_cy3D_d[105];
+extern int hocg_cz3D_d[105];
+extern int hoc3D_d[105];
 
 //#### 3D d3q19 ####//
-extern __constant__ int cx3D_d[19];                   ///< velocity x unit vector components
-extern __constant__ int cy3D_d[19];                   ///< velocity y unit vector components
-extern __constant__ int cz3D_d[19];                   ///< velocity y unit vector components
-extern __constant__ int c3D_d[19];                    ///< direction offset levels
-extern __constant__ int opp3D_d[19];                  ///< opposite lattice offset
-extern __constant__ FLOAT_TYPE w3D_d[19];             ///< lattice weights
-extern __constant__ FLOAT_TYPE velMomMap3D_d[361];    ///< MRT constants: mapping between velocity and momentum space \f$ \mathbf{M} \f$
-extern __constant__ FLOAT_TYPE momCollMtx3D_d[361];   ///< MRT constants: collision matrix in momentum space \f$ \mathbf{M}^{-1}\mathbf{S} \f$
-*/
+extern int cx3D_d[19];                   ///< velocity x unit vector components
+extern int cy3D_d[19];                   ///< velocity y unit vector components
+extern int cz3D_d[19];                   ///< velocity y unit vector components
+extern int c3D_d[19];                    ///< direction offset levels
+extern int opp3D_d[19];                  ///< opposite lattice offset
+extern FLOAT_TYPE w3D_d[19];             ///< lattice weights
+extern FLOAT_TYPE velMomMap3D_d[361];    ///< MRT constants: mapping between velocity and momentum space \f$ \mathbf{M} \f$
+extern FLOAT_TYPE momCollMtx3D_d[361];   ///< MRT constants: collision matrix in momentum space \f$ \mathbf{M}^{-1}\mathbf{S} \f$
 
-#pragma acc declare create(c_norms_d, g_d, velMomMap2D_d, momCollMtx2D_d, minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c2D_d, cx2D_d, cy2D_d, opp2D_d, w2D_d, cg_w_d, hocg_w_d, hocg_cx_d, hocg_cy_d, r_viscosity_d, b_viscosity_d, external_force_d, r_density_d, b_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, w_pert_d, psi_d, chi_d, teta_d, phi_d, A_d, control_param_d, beta_d)
+// Color Gradient
+#pragma acc declare create(g_d, r_viscosity_d, b_viscosity_d, external_force_d, b_density_d, r_density_d, r_alpha_d, b_alpha_d, bubble_radius_d, g_limit_d, A_d, control_param_d, beta_d, minInletCoordY_d, maxInletCoordY_d, vIn_d, uIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d) 
+// 2D
+#pragma acc declare create(c_norms_d, velMomMap2D_d, momCollMtx2D_d, c2D_d, cx2D_d, cy2D_d, opp2D_d, w2D_d, cg_w_d, hocg_w_d, hocg_cx_d, hocg_cy_d, w_pert_d, psi_d, chi_d, teta_d, phi_d)
+// 3D
+#pragma acc declare create(c_norms3D_d[0:19], w_pert3D_d[0:19], psi3D_d[0:19], chi3D_d[0:19], teta3D_d[0:19], phi3D_d[0:19], cg_w3D_d[0:19], hocg_w3D_d[0:105], hocg_cx3D_d[0:105], hocg_cy3D_d[0:105], hocg_cz3D_d[0:105], hoc3D_d[0:105],velMomMap3D_d[0:361], momCollMtx3D_d[0:361], minInletCoordZ_d, maxInletCoordZ_d, wIn_d, height_d, c3D_d[0:19], cx3D_d[0:19], cy3D_d[0:19], cz3D_d[0:19], opp3D_d[0:19], w3D_d[0:19])
+
 #endif
 
 #endif

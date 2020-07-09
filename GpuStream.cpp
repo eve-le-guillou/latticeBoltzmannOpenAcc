@@ -158,18 +158,12 @@ void gpuStreaming2DCG(int* nodeType, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYP
 	}
 }
 
-/*__global__ void gpuStreaming3D(int* nodeType, bool* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d)
+void gpuStreaming3D(int* nodeType, bool* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d)
 {
-	int blockId = blockIdx.x
-			+ blockIdx.y * gridDim.x;
-	int ind =  blockId * (blockDim.x * blockDim.y)
-																+ (threadIdx.y * blockDim.x)
-																+ threadIdx.x;
-
 	int ms = depth_d*length_d*height_d;
 	FLOAT_TYPE *f, *mf;
-	if (ind < ms && nodeType[ind] == 1)
-	{
+	for (int ind = 0; ind < ms; ind++){
+	   if ( nodeType[ind] == 1){
 		f_d[ind] = fColl_d[ind];	//Update fNewStep = fColl
 		f = f_d + ms;				// f is f_d memory position but f starts in f_d 1st level==1st lattice direction
 		mf = fColl_d + ms;
@@ -192,4 +186,5 @@ void gpuStreaming2DCG(int* nodeType, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYP
 		f[ind+16 *ms]	=	(stream_d[ind+16 *ms]	==	1)	?	mf[ind+16 *ms +	c3D_d[17]]:	f[ind+16 *ms];
 		f[ind+17 *ms]	=	(stream_d[ind+17 *ms]	==	1)	?	mf[ind+17 *ms +	c3D_d[18]]:	f[ind+17 *ms];
 	}
-}*/
+    }
+}

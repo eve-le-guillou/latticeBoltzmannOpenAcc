@@ -215,19 +215,17 @@ void gpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
 
 }*/
 
-/*__global__ void gpuUpdateMacro3DCG(int *nodeType, FLOAT_TYPE* rho_d,
+void gpuUpdateMacro3DCG(int *nodeType, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, FLOAT_TYPE* w_d, int* bcBoundId_d,
 		FLOAT_TYPE* f_d, FLOAT_TYPE g, unsigned long long *bcMask_d,int updateInltOutl, FLOAT_TYPE* r_f_d, FLOAT_TYPE* b_f_d, FLOAT_TYPE* r_rho_d,
 		FLOAT_TYPE* b_rho_d, FLOAT_TYPE *p_in_d, FLOAT_TYPE *p_out_d,
 		int *num_in_d, int *num_out_d, int test_case)
 {
-	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
-	int ind = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
 	int ms = depth_d * length_d * height_d;
 
 	FLOAT_TYPE r_r, b_r, r, rU, rV, rW, aux1, mean_nu, omega_eff;
 
-	if (ind < ms) {
+	for(int ind = 0; ind < ms; ind++) {
 		//necessary because of sum
 		if(test_case == 1){
 			p_in_d[ind] = 0;
@@ -361,4 +359,4 @@ void gpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
 		}
 	}
 
-}*/
+}

@@ -70,11 +70,8 @@
 	}
 }*/
 
-/*__global__ void gpuBcInlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
+void gpuBcInlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
 		FLOAT_TYPE* f_d, FLOAT_TYPE* u1_d, FLOAT_TYPE* v1_d, FLOAT_TYPE* w1_d, int size) {
-	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
-	int bci = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x)
-																																									+ threadIdx.x;
 
 	int ms = depth_d * length_d * height_d;
 	FLOAT_TYPE uW, vW, wW, dW;
@@ -84,12 +81,12 @@
 	FLOAT_TYPE uB, vB, wB, dB;
 	FLOAT_TYPE uT, vT, wT, dT;
 	FLOAT_TYPE Nxy, Nxz, Nyx, Nyz, Nzx, Nzy;
-	if (bci < size) {
+	for (int bci = 0; bci < size; bci++) {
 		int ind = bcIdx_d[bci];
 		//    printf("bcMask[ind] |= BC3D_MASK((unsigned long long)bcType[bci], dir); %#016lX\n", (bcMask_d[bci] & BC3D_FLUID) );
 		if (bcMask_d[bci] & BC3D_FLUID) {
 			if (bcMask_d[bci] & BC3D_INLT_B) {
-				/*WEST*//*if ((bcMask_d[bci] & BC3D_INLT_2)
+				/*WEST*/if ((bcMask_d[bci] & BC3D_INLT_2)
 						&& ((bcMask_d[bci]
 						              & BC3D_MASK((unsigned long long)BC3D_ALL, 2))
 								== (bcMask_d[bci] & BC3D_INLT_2))
@@ -99,32 +96,17 @@
 					uW = u1_d[ind];
 					vW = v1_d[ind];
 					wW = w1_d[ind];
-					dW = 1.0 / (1.0 + uW)
-																																													* (f_d[ind + 0 * ms] + f_d[ind + 3 * ms]
-																																													                           + f_d[ind + 4 * ms] + f_d[ind + 5 * ms]
-																																													                                                     + f_d[ind + 6 * ms] + f_d[ind + 15 * ms]
-																																													                                                                               + f_d[ind + 16 * ms] + f_d[ind + 17 * ms]
-																																													                                                                                                          + f_d[ind + 18 * ms]
-																																													                                                                                                                + 2.0
-																																													                                                                                                                * (f_d[ind + 2 * ms]
-																																													                                                                                                                       + f_d[ind + 8 * ms]
-																																													                                                                                                                             + f_d[ind + 10 * ms]
-																																													                                                                                                                                   + f_d[ind + 12 * ms]
-																																													                                                                                                                                         + f_d[ind + 14 * ms]));
+					dW = 1.0 / (1.0 + uW) *(f_d[ind + 0 * ms] + f_d[ind + 3 * ms]
+						       	      + f_d[ind + 4 * ms] + f_d[ind + 5 * ms]										                                                     + f_d[ind + 6 * ms] + f_d[ind + 15 * ms]
+							      + f_d[ind + 16 * ms] + f_d[ind + 17 * ms]
+							      + f_d[ind + 18 * ms] + 2.0 * (f_d[ind + 2 * ms]
+						              + f_d[ind + 8 * ms] + f_d[ind + 10 * ms]
+							      + f_d[ind + 12 * ms] + f_d[ind + 14 * ms]));
+					Nxy = 0.5* (f_d[ind + 3 * ms] + f_d[ind + 15 * ms] + f_d[ind + 17 * ms]
+							              - (f_d[ind + 4 * ms] + f_d[ind + 16 * ms]
+							              + f_d[ind + 18 * ms]))- 1.0 / 3.0 * dW * vW;
 
-					Nxy = 0.5
-							* (f_d[ind + 3 * ms] + f_d[ind + 15 * ms]
-							                           + f_d[ind + 17 * ms]
-							                                 - (f_d[ind + 4 * ms] + f_d[ind + 16 * ms]
-							                                                            + f_d[ind + 18 * ms]))
-							                                                            - 1.0 / 3.0 * dW * vW;
-
-					Nxz = 0.5
-							* (f_d[ind + 5 * ms] + f_d[ind + 15 * ms]
-							                           + f_d[ind + 16 * ms]
-							                                 - (f_d[ind + 6 * ms] + f_d[ind + 17 * ms]
-							                                                            + f_d[ind + 18 * ms]))
-							                                                            - 1.0 / 3.0 * dW * wW;
+					Nxz = 0.5* (f_d[ind + 5 * ms] + f_d[ind + 15 * ms] + f_d[ind + 16 * ms] - (f_d[ind + 6 * ms] + f_d[ind + 17 * ms] + f_d[ind + 18 * ms])) - 1.0 / 3.0 * dW * wW;
 
 					f_d[ind + 1 * ms] = f_d[ind + 2 * ms] + 1.0 / 3.0 * dW * uW;
 					f_d[ind + 7 * ms] = f_d[ind + 10 * ms]
@@ -136,7 +118,7 @@
 					f_d[ind + 13 * ms] = f_d[ind + 12 * ms]
 					                         + 1.0 / 6.0 * dW * (uW - wW) + Nxz;
 				}
-				/*EAST*//*if ((bcMask_d[bci] & BC3D_INLT_1)
+				/*EAST*/if ((bcMask_d[bci] & BC3D_INLT_1)
 						&& ((bcMask_d[bci]
 						              & BC3D_MASK((unsigned long long)BC3D_ALL, 1))
 								== BC3D_INLT_1)
@@ -145,32 +127,23 @@
 					uE = u1_d[ind];
 					vE = v1_d[ind];
 					wE = w1_d[ind];
-					dE = 1.0 / (1.0 - uE)
-																																													* (f_d[ind + 0 * ms] + f_d[ind + 3 * ms]
-																																													                           + f_d[ind + 4 * ms] + f_d[ind + 5 * ms]
-																																													                                                     + f_d[ind + 6 * ms] + f_d[ind + 15 * ms]
-																																													                                                                               + f_d[ind + 16 * ms] + f_d[ind + 17 * ms]
-																																													                                                                                                          + f_d[ind + 18 * ms]
-																																													                                                                                                                + 2.0
-																																													                                                                                                                * (f_d[ind + 1 * ms]
-																																													                                                                                                                       + f_d[ind + 7 * ms]
-																																													                                                                                                                             + f_d[ind + 9 * ms]
-																																													                                                                                                                                   + f_d[ind + 11 * ms]
-																																													                                                                                                                                         + f_d[ind + 13 * ms]));
+					dE = 1.0 / (1.0 - uE)* (f_d[ind + 0 * ms] + f_d[ind + 3 * ms]
+				                           + f_d[ind + 4 * ms] + f_d[ind + 5 * ms]
+				                           + f_d[ind + 6 * ms] + f_d[ind + 15 * ms]
+				                           + f_d[ind + 16 * ms] + f_d[ind + 17 * ms]
+				                           + f_d[ind + 18 * ms] + 2.0 * (f_d[ind + 1 * ms]
+                                                           + f_d[ind + 7 * ms]  + f_d[ind + 9 * ms]
+							   + f_d[ind + 11 * ms] + f_d[ind + 13 * ms]));
+					Nxy = 0.5* (f_d[ind + 3 * ms] + f_d[ind + 15 * ms]
+						  + f_d[ind + 17 * ms]
+						  - (f_d[ind + 4 * ms] + f_d[ind + 16 * ms]
+						  + f_d[ind + 18 * ms])) - 1.0 / 3.0 * dE * vE;
 
-					Nxy = 0.5
-							* (f_d[ind + 3 * ms] + f_d[ind + 15 * ms]
-							                           + f_d[ind + 17 * ms]
-							                                 - (f_d[ind + 4 * ms] + f_d[ind + 16 * ms]
-							                                                            + f_d[ind + 18 * ms]))
-							                                                            - 1.0 / 3.0 * dE * vE;
-
-					Nxz = 0.5
-							* (f_d[ind + 5 * ms] + f_d[ind + 15 * ms]
-							                           + f_d[ind + 16 * ms]
-							                                 - (f_d[ind + 6 * ms] + f_d[ind + 17 * ms]
-							                                                            + f_d[ind + 18 * ms]))
-							                                                            - 1.0 / 3.0 * dE * wE;
+					Nxz = 0.5* (f_d[ind + 5 * ms] + f_d[ind + 15 * ms]
+						  + f_d[ind + 16 * ms]
+						  - (f_d[ind + 6 * ms] + f_d[ind + 17 * ms]
+						  + f_d[ind + 18 * ms]))
+						  - 1.0 / 3.0 * dE * wE;
 
 					f_d[ind + 2 * ms] = f_d[ind + 1 * ms] - 1.0 / 3.0 * dE * uE;
 					f_d[ind + 8 * ms] = f_d[ind + 9 * ms]
@@ -182,7 +155,7 @@
 					f_d[ind + 14 * ms] = f_d[ind + 11 * ms]
 					                         - 1.0 / 6.0 * dE * (uE + wE) + Nxz;
 				}
-				/*SOUTH*//*if ((bcMask_d[bci] & BC3D_INLT_4)
+				/*SOUTH*/if ((bcMask_d[bci] & BC3D_INLT_4)
 						&& ((bcMask_d[bci]
 						              & BC3D_MASK((unsigned long long)BC3D_ALL, 4))
 								== (bcMask_d[bci] & BC3D_INLT_4))
@@ -191,32 +164,25 @@
 					uS = u1_d[ind];
 					vS = v1_d[ind];
 					wS = w1_d[ind];
-					dS = 1.0 / (1.0 - vS)
-																																													* (f_d[ind + 0 * ms] + f_d[ind + 1 * ms]
-																																													                           + f_d[ind + 2 * ms] + f_d[ind + 5 * ms]
-																																													                                                     + f_d[ind + 6 * ms] + f_d[ind + 11 * ms]
-																																													                                                                               + f_d[ind + 12 * ms] + f_d[ind + 13 * ms]
-																																													                                                                                                          + f_d[ind + 14 * ms]
-																																													                                                                                                                + 2.0
-																																													                                                                                                                * (f_d[ind + 4 * ms]
-																																													                                                                                                                       + f_d[ind + 9 * ms]
-																																													                                                                                                                             + f_d[ind + 10 * ms]
-																																													                                                                                                                                   + f_d[ind + 16 * ms]
-																																													                                                                                                                                         + f_d[ind + 18 * ms]));
+					dS = 1.0 / (1.0 - vS)* (f_d[ind + 0 * ms] + f_d[ind + 1 * ms]
+							      + f_d[ind + 2 * ms] + f_d[ind + 5 * ms]
+							      + f_d[ind + 6 * ms] + f_d[ind + 11 * ms]
+							      + f_d[ind + 12 * ms] + f_d[ind + 13 * ms]
+							      + f_d[ind + 14 * ms] + 2.0* (f_d[ind + 4 * ms]
+							      + f_d[ind + 9 * ms]  + f_d[ind + 10 * ms]
+							      + f_d[ind + 16 * ms] + f_d[ind + 18 * ms]));
 
-					Nyx = 0.5
-							* (f_d[ind + 1 * ms] + f_d[ind + 11 * ms]
-							                           + f_d[ind + 13 * ms]
-							                                 - (f_d[ind + 2 * ms] + f_d[ind + 12 * ms]
-							                                                            + f_d[ind + 14 * ms]))
-							                                                            - 1.0 / 3.0 * dS * uS;
+					Nyx = 0.5* (f_d[ind + 1 * ms] + f_d[ind + 11 * ms]
+						 + f_d[ind + 13 * ms]
+						 - (f_d[ind + 2 * ms] + f_d[ind + 12 * ms]
+						 + f_d[ind + 14 * ms]))
+						 - 1.0 / 3.0 * dS * uS;
 
-					Nyz = 0.5
-							* (f_d[ind + 5 * ms] + f_d[ind + 11 * ms]
-							                           + f_d[ind + 12 * ms]
-							                                 - (f_d[ind + 6 * ms] + f_d[ind + 13 * ms]
-							                                                            + f_d[ind + 14 * ms]))
-							                                                            - 1.0 / 3.0 * dS * wS;
+					Nyz = 0.5* (f_d[ind + 5 * ms] + f_d[ind + 11 * ms]
+						  + f_d[ind + 12 * ms]
+						 - (f_d[ind + 6 * ms] + f_d[ind + 13 * ms]
+						 + f_d[ind + 14 * ms]))
+						- 1.0 / 3.0 * dS * wS;
 
 					f_d[ind + 3 * ms] = f_d[ind + 4 * ms] + 1.0 / 3.0 * dS * vS;
 					f_d[ind + 7 * ms] = f_d[ind + 10 * ms]
@@ -228,7 +194,7 @@
 					f_d[ind + 17 * ms] = f_d[ind + 16 * ms]
 					                         + 1.0 / 6.0 * dS * (vS - wS) + Nyz;
 				}
-				/*NORTH*//*if ((bcMask_d[bci] & BC3D_INLT_3)
+				/*NORTH*/if ((bcMask_d[bci] & BC3D_INLT_3)
 						&& ((bcMask_d[bci]
 						              & BC3D_MASK((unsigned long long)BC3D_ALL, 3))
 								== (bcMask_d[bci] & BC3D_INLT_3))
@@ -237,32 +203,25 @@
 					uN = u1_d[ind];
 					vN = v1_d[ind];
 					wN = w1_d[ind];
-					dN = 1.0 / (1.0 + vN)
-																																													* (f_d[ind + 0 * ms] + f_d[ind + 1 * ms]
-																																													                           + f_d[ind + 2 * ms] + f_d[ind + 5 * ms]
-																																													                                                     + f_d[ind + 6 * ms] + f_d[ind + 11 * ms]
-																																													                                                                               + f_d[ind + 12 * ms] + f_d[ind + 13 * ms]
-																																													                                                                                                          + f_d[ind + 14 * ms]
-																																													                                                                                                                + 2.0
-																																													                                                                                                                * (f_d[ind + 3 * ms]
-																																													                                                                                                                       + f_d[ind + 7 * ms]
-																																													                                                                                                                             + f_d[ind + 8 * ms]
-																																													                                                                                                                                   + f_d[ind + 15 * ms]
-																																													                                                                                                                                         + f_d[ind + 17 * ms]));
+					dN = 1.0 / (1.0 + vN)* (f_d[ind + 0 * ms] + f_d[ind + 1 * ms]
+							      + f_d[ind + 2 * ms] + f_d[ind + 5 * ms]
+						              + f_d[ind + 6 * ms] + f_d[ind + 11 * ms]
+						              + f_d[ind + 12 * ms] + f_d[ind + 13 * ms]
+						              + f_d[ind + 14 * ms] + 2.0* (f_d[ind + 3 * ms]
+							      + f_d[ind + 7 * ms]  + f_d[ind + 8 * ms]
+                                                              + f_d[ind + 15 * ms] + f_d[ind + 17 * ms]));
 
-					Nyx = 0.5
-							* (f_d[ind + 1 * ms] + f_d[ind + 11 * ms]
-							                           + f_d[ind + 13 * ms]
-							                                 - (f_d[ind + 2 * ms] + f_d[ind + 12 * ms]
-							                                                            + f_d[ind + 14 * ms]))
-							                                                            - 1.0 / 3.0 * dN * uN;
+					Nyx = 0.5 * (f_d[ind + 1 * ms] + f_d[ind + 11 * ms]
+						   + f_d[ind + 13 * ms]
+						  - (f_d[ind + 2 * ms] + f_d[ind + 12 * ms]
+						   + f_d[ind + 14 * ms]))
+						   - 1.0 / 3.0 * dN * uN;
 
-					Nyz = 0.5
-							* (f_d[ind + 5 * ms] + f_d[ind + 11 * ms]
-							                           + f_d[ind + 12 * ms]
-							                                 - (f_d[ind + 6 * ms] + f_d[ind + 13 * ms]
-							                                                            + f_d[ind + 14 * ms]))
-							                                                            - 1.0 / 3.0 * dN * wN;
+					Nyz = 0.5* (f_d[ind + 5 * ms] + f_d[ind + 11 * ms]
+						  + f_d[ind + 12 * ms]
+						 - (f_d[ind + 6 * ms] + f_d[ind + 13 * ms]
+						  + f_d[ind + 14 * ms]))
+						  - 1.0 / 3.0 * dN * wN;
 
 					f_d[ind + 4 * ms] = f_d[ind + 3 * ms] - 1.0 / 3.0 * dN * vN;
 					f_d[ind + 9 * ms] = f_d[ind + 8 * ms]
@@ -274,7 +233,7 @@
 					f_d[ind + 18 * ms] = f_d[ind + 15 * ms]
 					                         - 1.0 / 6.0 * dN * (vN + wN) + Nyz;
 				}
-				/*BOTTOM*//*if ((bcMask_d[bci] & BC3D_INLT_6)
+				/*BOTTOM*/if ((bcMask_d[bci] & BC3D_INLT_6)
 						&& ((bcMask_d[bci]
 						              & BC3D_MASK((unsigned long long)BC3D_ALL, 6))
 								== (bcMask_d[bci] & BC3D_INLT_6))
@@ -284,32 +243,25 @@
 					uB = u1_d[ind];
 					vB = v1_d[ind];
 					wB = w1_d[ind];
-					dB = 1.0 / (1.0 - wB)
-																																													* (f_d[ind + 0 * ms] + f_d[ind + 1 * ms]
-																																													                           + f_d[ind + 2 * ms] + f_d[ind + 3 * ms]
-																																													                                                     + f_d[ind + 4 * ms] + f_d[ind + 7 * ms]
-																																													                                                                               + f_d[ind + 8 * ms] + f_d[ind + 9 * ms]
-																																													                                                                                                         + f_d[ind + 10 * ms]
-																																													                                                                                                               + 2.0
-																																													                                                                                                               * (f_d[ind + 6 * ms]
-																																													                                                                                                                      + f_d[ind + 13 * ms]
-																																													                                                                                                                            + f_d[ind + 14 * ms]
-																																													                                                                                                                                  + f_d[ind + 17 * ms]
-																																													                                                                                                                                        + f_d[ind + 18 * ms]));
+					dB = 1.0 / (1.0 - wB)* (f_d[ind + 0 * ms] + f_d[ind + 1 * ms]
+							      + f_d[ind + 2 * ms] + f_d[ind + 3 * ms]
+						              + f_d[ind + 4 * ms] + f_d[ind + 7 * ms]
+						              + f_d[ind + 8 * ms] + f_d[ind + 9 * ms]
+						              + f_d[ind + 10 * ms] + 2.0 * (f_d[ind + 6 * ms]
+							      + f_d[ind + 13 * ms] + f_d[ind + 14 * ms]
+						              + f_d[ind + 17 * ms] + f_d[ind + 18 * ms]));
 
-					Nzx = 0.5
-							* (f_d[ind + 1 * ms] + f_d[ind + 7 * ms]
-							                           + f_d[ind + 9 * ms]
-							                                 - (f_d[ind + 2 * ms] + f_d[ind + 8 * ms]
-							                                                            + f_d[ind + 10 * ms]))
-							                                                            - 1.0 / 3.0 * dB * uB;
+					Nzx = 0.5* (f_d[ind + 1 * ms] + f_d[ind + 7 * ms]
+						  + f_d[ind + 9 * ms]
+						  - (f_d[ind + 2 * ms] + f_d[ind + 8 * ms]
+						  + f_d[ind + 10 * ms]))
+						  - 1.0 / 3.0 * dB * uB;
 
-					Nzy = 0.5
-							* (f_d[ind + 3 * ms] + f_d[ind + 7 * ms]
-							                           + f_d[ind + 8 * ms]
-							                                 - (f_d[ind + 4 * ms] + f_d[ind + 9 * ms]
-							                                                            + f_d[ind + 10 * ms]))
-							                                                            - 1.0 / 3.0 * dB * vB;
+					Nzy = 0.5* (f_d[ind + 3 * ms] + f_d[ind + 7 * ms]
+						  + f_d[ind + 8 * ms]
+						 - (f_d[ind + 4 * ms] + f_d[ind + 9 * ms]
+						  + f_d[ind + 10 * ms]))
+						  - 1.0 / 3.0 * dB * vB;
 
 					f_d[ind + 5 * ms] = f_d[ind + 6 * ms] + 1.0 / 3.0 * dB * wB;
 					f_d[ind + 11 * ms] = f_d[ind + 14 * ms]
@@ -322,7 +274,7 @@
 					                         + 1.0 / 6.0 * dB * (wB - vB) + Nzy;
 
 				}
-				/*TOP*//*if ((bcMask_d[bci] & BC3D_INLT_5)
+				/*TOP*/if ((bcMask_d[bci] & BC3D_INLT_5)
 						&& ((bcMask_d[bci]
 						              & BC3D_MASK((unsigned long long)BC3D_ALL, 5))
 								== (bcMask_d[bci] & BC3D_INLT_5))
@@ -333,32 +285,25 @@
 					uT = u1_d[ind];
 					vT = v1_d[ind];
 					wT = w1_d[ind];
-					dT = (1.0 / (1.0 + wT))
-																																													* (f_d[ind + 0 * ms] + f_d[ind + 1 * ms]
-																																													                           + f_d[ind + 2 * ms] + f_d[ind + 3 * ms]
-																																													                                                     + f_d[ind + 4 * ms] + f_d[ind + 7 * ms]
-																																													                                                                               + f_d[ind + 8 * ms] + f_d[ind + 9 * ms]
-																																													                                                                                                         + f_d[ind + 10 * ms]
-																																													                                                                                                               + 2.0
-																																													                                                                                                               * (f_d[ind + 5 * ms]
-																																													                                                                                                                      + f_d[ind + 11 * ms]
-																																													                                                                                                                            + f_d[ind + 12 * ms]
-																																													                                                                                                                                  + f_d[ind + 15 * ms]
-																																													                                                                                                                                        + f_d[ind + 16 * ms]));
+					dT = (1.0 / (1.0 + wT))	* (f_d[ind + 0 * ms] + f_d[ind + 1 * ms]
+							         + f_d[ind + 2 * ms] + f_d[ind + 3 * ms]
+							         + f_d[ind + 4 * ms] + f_d[ind + 7 * ms]
+							         + f_d[ind + 8 * ms] + f_d[ind + 9 * ms]
+							         + f_d[ind + 10 * ms] + 2.0 * (f_d[ind + 5 * ms]
+                                                                 + f_d[ind + 11 * ms] + f_d[ind + 12 * ms]
+								 + f_d[ind + 15 * ms] + f_d[ind + 16 * ms]));
 
-					Nzx = 0.5
-							* (f_d[ind + 1 * ms] + f_d[ind + 7 * ms]
-							                           + f_d[ind + 9 * ms]
-							                                 - (f_d[ind + 2 * ms] + f_d[ind + 8 * ms]
-							                                                            + f_d[ind + 10 * ms]))
-							                                                            - 1.0 / 3.0 * dT * uT;
+					Nzx = 0.5* (f_d[ind + 1 * ms] + f_d[ind + 7 * ms]
+						  + f_d[ind + 9 * ms]
+						  -(f_d[ind + 2 * ms] + f_d[ind + 8 * ms]
+						  + f_d[ind + 10 * ms]))
+						  - 1.0 / 3.0 * dT * uT;
 
-					Nzy = 0.5
-							* (f_d[ind + 3 * ms] + f_d[ind + 7 * ms]
-							                           + f_d[ind + 8 * ms]
-							                                 - (f_d[ind + 4 * ms] + f_d[ind + 9 * ms]
-							                                                            + f_d[ind + 10 * ms]))
-							                                                            - 1.0 / 3.0 * dT * vT;
+					Nzy = 0.5* (f_d[ind + 3 * ms] + f_d[ind + 7 * ms]
+						  + f_d[ind + 8 * ms]
+						 - (f_d[ind + 4 * ms] + f_d[ind + 9 * ms]
+						  + f_d[ind + 10 * ms]))
+						  - 1.0 / 3.0 * dT * vT;
 
 					f_d[ind + 6 * ms] = f_d[ind + 5 * ms] - 1.0 / 3.0 * dT * wT;
 					f_d[ind + 13 * ms] = f_d[ind + 12 * ms]
@@ -396,7 +341,7 @@
 			}
 		}
 	}
-}*/
+}
 /*__global__ void gpuBcWall2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
 		FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size) {
 	int bci = blockIdx.x * blockDim.x + threadIdx.x;
@@ -442,15 +387,12 @@
 	}
 }*/
 
-/*__global__ void gpuBcSimpleWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
+void gpuBcSimpleWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 		FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size) {
-	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
-	int bci = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x)
-																																									+ threadIdx.x;
 	int ms = depth_d * length_d * height_d;
 	int dir;
 
-	if (bci < size) {
+	for (int bci = 0; bci < size; bci++) {
 		int ind = bcIdx_d[bci];
 		if (bcMask_d[bci] & BC3D_FLUID) {
 			for (dir = 1; dir < 19; ++dir) {
@@ -487,7 +429,7 @@
 			}
 		}
 	}
-}*/
+}
 
 /*__global__ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 		FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size) {
@@ -2024,28 +1966,25 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 	}
 }
 
-/*__global__ void gpuBcPeriodic3D(int *bcIdx_d, unsigned long long *bcMask_d,
+void gpuBcPeriodic3D(int *bcIdx_d, unsigned long long *bcMask_d,
 		FLOAT_TYPE* f_d, int size) {
-	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
-	int bci = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x)
-																																									+ threadIdx.x;
 	int ms = depth_d * length_d * height_d;
 	int offsetX = length_d - 1; //to get from west to east pairs of periodic nodes
 	int offsetY = length_d * (depth_d - 1); //to get from north to south pairs of periodic nodes
 	int offsetZ = length_d * depth_d * (height_d - 1); //to get from north to south pairs of periodic nodes
 
-	if (bci < size) {
+	for (int bci = 0; bci < size; bci++) {
 		int ind = bcIdx_d[bci];
 		if (bcMask_d[bci] & BC3D_FLUID) {
 			if (bcMask_d[bci] & BC3D_CYCL_B) {
-				/*WEST*//*if ((bcMask_d[bci] & BC3D_CYCL_2)) {
+				/*WEST*/if ((bcMask_d[bci] & BC3D_CYCL_2)) {
 					f_d[ind + 1 * ms] = f_d[ind + 1 * ms + offsetX];
 					f_d[ind + 7 * ms] = f_d[ind + 7 * ms + offsetX];
 					f_d[ind + 9 * ms] = f_d[ind + 9 * ms + offsetX];
 					f_d[ind + 11 * ms] = f_d[ind + 11 * ms + offsetX];
 					f_d[ind + 13 * ms] = f_d[ind + 13 * ms + offsetX];
 				}
-				/*EAST*//*if ((bcMask_d[bci] & BC3D_CYCL_1)) {
+				/*EAST*/if ((bcMask_d[bci] & BC3D_CYCL_1)) {
 					f_d[ind + 2 * ms] = f_d[ind + 2 * ms - offsetX];
 					f_d[ind + 8 * ms] = f_d[ind + 8 * ms - offsetX];
 					f_d[ind + 10 * ms] = f_d[ind + 10 * ms - offsetX];
@@ -2053,28 +1992,28 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 					f_d[ind + 14 * ms] = f_d[ind + 14 * ms - offsetX];
 				}
 
-				/*SOUTH*//*if ((bcMask_d[bci] & BC3D_CYCL_4)) {
+				/*SOUTH*/if ((bcMask_d[bci] & BC3D_CYCL_4)) {
 					f_d[ind + 3 * ms] = f_d[ind + 3 * ms + offsetY];
 					f_d[ind + 7 * ms] = f_d[ind + 7 * ms + offsetY];
 					f_d[ind + 8 * ms] = f_d[ind + 8 * ms + offsetY];
 					f_d[ind + 15 * ms] = f_d[ind + 15 * ms + offsetY];
 					f_d[ind + 17 * ms] = f_d[ind + 17 * ms + offsetY];
 				}
-				/*NORTH*//*if ((bcMask_d[bci] & BC3D_CYCL_3)) {
+				/*NORTH*/if ((bcMask_d[bci] & BC3D_CYCL_3)) {
 					f_d[ind + 4 * ms] = f_d[ind + 4 * ms - offsetY];
 					f_d[ind + 9 * ms] = f_d[ind + 9 * ms - offsetY];
 					f_d[ind + 10 * ms] = f_d[ind + 10 * ms - offsetY];
 					f_d[ind + 16 * ms] = f_d[ind + 16 * ms - offsetY];
 					f_d[ind + 18 * ms] = f_d[ind + 18 * ms - offsetY];
 				}
-				/*BOTTOM*//*if ((bcMask_d[bci] & BC3D_CYCL_6)) {
+				/*BOTTOM*/if ((bcMask_d[bci] & BC3D_CYCL_6)) {
 					f_d[ind + 5 * ms] = f_d[ind + 5 * ms + offsetZ];
 					f_d[ind + 11 * ms] = f_d[ind + 11 * ms + offsetZ];
 					f_d[ind + 12 * ms] = f_d[ind + 12 * ms + offsetZ];
 					f_d[ind + 15 * ms] = f_d[ind + 15 * ms + offsetZ];
 					f_d[ind + 16 * ms] = f_d[ind + 16 * ms + offsetZ];
 				}
-				/*TOP*//*if ((bcMask_d[bci] & BC3D_CYCL_5)) {
+				/*TOP*/if ((bcMask_d[bci] & BC3D_CYCL_5)) {
 					f_d[ind + 6 * ms] = f_d[ind + 6 * ms - offsetZ];
 					f_d[ind + 13 * ms] = f_d[ind + 13 * ms - offsetZ];
 					f_d[ind + 14 * ms] = f_d[ind + 14 * ms - offsetZ];
@@ -2087,7 +2026,7 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
 			}
 		}
 	}
-}*/
+}
 /*__global__ void gpuBcSymm3D(int *bcIdx_d, unsigned long long *bcMask_d,
 		FLOAT_TYPE* f_d, int size) {
 	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
