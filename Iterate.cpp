@@ -30,6 +30,7 @@
 
 int Iterate2D(InputFilenames *inFn, Arguments *args) {
 
+	clock_t tStart = clock();
 	FILE* logFile;               // file for log
 	char autosaveFilename[768];  // autosave filename
 	char outputFilename[768];    // initial data will be written to this file
@@ -70,6 +71,9 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	for (i = 0; i < 9; ++i) {
 		taskTime[i] = 0.0;
 	}
+
+        clock_t tInstant1, tInstant2; // Time measurement points, universal
+        clock_t tIterStart, tIterEnd; // Time measurement points: main loop
 
 	numNodes = readNodeFile(inFn->node, &nodeIdX, &nodeIdY, &tempi, &nodeX,
 			&nodeY, &temp, &nodeType,args->TypeOfProblem);
@@ -253,6 +257,10 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	else
 		WriteResults3D(finalFilename, nodeType, nodeX, nodeY, nodeZ, u, v, w, rho, nodeType,
 				n, m, 1, args->outputFormat);
+
+        tInstant2 = clock();
+        taskTime[T_WRIT] += (FLOAT_TYPE) (tInstant2 - tInstant1) / CLOCKS_PER_SEC;
+
 	printf("\nInitialized data was written to %s\n", outputFilename);
 
 
@@ -268,6 +276,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
                 copyin(cg_directions[0:n*m], bcMask_d[0:n*m], f_prev_d[0:9*m*n])
 		//copyin(nodeX[0:ms],nodeY[0:ms], rho[0:ms],r_rho[0:ms], b_rho[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:ms*9])
 {
+        tIterStart = clock(); // Start measuring time of main loop
 	while (iter < args->iterations) {
 		switch (args->collisionModel) {
 
@@ -340,7 +349,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 		}
 		else; //gpuUpdateMacro2D<<<bpg1, tpb>>>(nodeType, rho, u, v_d, bcMask_d,
 			//	drag_d, lift_d, nodeX, nodeY, f_d);
-
+		tInstant2 = clock();
 		// COMPUTE RESIDUALS
 		if (AuxMacroDiff * args->ShowMacroDiff == iter + 1) {
 			FLOAT_TYPE r;
@@ -419,11 +428,17 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 					sprintf(finalFilename, "%s/Video/FinalData_%d.vti", inFn->result, autosaveIt);
 					break;
 				}
-				WriteResults3D(finalFilename, nodeType,nodeX, nodeY, nodeZ, u, v, w, rho,
-						nodeType, n, m, 1, args->outputFormat);
+				tInstant1 = clock();
+				WriteResults3D(finalFilename, nodeType,nodeX, nodeY, nodeZ, u, v, w, rho, nodeType, n, m, 1, args->outputFormat);
+				tInstant2 = clock();
+				taskTime[T_WRIT] += (FLOAT_TYPE) (tInstant2 - tInstant1);
 			}
 		}
 	}     ////////////// END OF MAIN WHILE CYCLE! ///////////////
+	tIterEnd = clock();
+	taskTime[T_ITER] = (FLOAT_TYPE) (tIterEnd - tIterStart) / CLOCKS_PER_SEC;
+	clock_t tEnd = clock();
+	taskTime[T_OALL] = (FLOAT_TYPE)(tEnd - tStart)/CLOCKS_PER_SEC;
 
 	fclose(logFile);
 	writeEndLog(logFilename, taskTime);

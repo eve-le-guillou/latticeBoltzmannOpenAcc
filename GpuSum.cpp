@@ -10,9 +10,9 @@
 #include <cmath>
 
 FLOAT_TYPE gpu_abs_relSub_max(FLOAT_TYPE *A, FLOAT_TYPE *B, int size){
-        FLOAT_TYPE maximum = abs(A[0] - B[0]) / A[0];
+        FLOAT_TYPE maximum = 0;
 	FLOAT_TYPE temp;
-	#pragma acc parallel loop reduction(max:maximum) present(A[1:size],B[1:size])
+	#pragma acc parallel loop reduction(max:maximum) present(A[0:size],B[0:size])
 	for (int ind = 1; ind < size; ind++) {
 		temp = abs(A[ind] - B[ind]) / A[ind];
        		if (temp>maximum) maximum = temp;

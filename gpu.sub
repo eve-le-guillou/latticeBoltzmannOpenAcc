@@ -19,7 +19,7 @@
 ## The Maximum value for ngpus is 1 
 ## e.g.	 1 GPU and 8 CPUs : select=1:ncpus=8:mpiprocs=8;ngpus=1
 ##
-#PBS -l select=1:ncpus=8:mpiprocs=8:ngpus=1
+#PBS -l select=1:ncpus=16:mpiprocs=16:ngpus=1
 ##
 ## STEP 3:
 ##
@@ -32,7 +32,7 @@
 ## In order to increase the walltime modify the #PBS -l walltime line below
 ## and remove one of the leading # characters 
 ##
-#PBS -l walltime=03:00:00
+##PBS -l walltime=03:00:00
 ##
 ## STEP 4:
 ##
