@@ -71,7 +71,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 	int numInletNodes;         // number of inlet nodes
 	FLOAT_TYPE uMaxDiff = -1, vMaxDiff = -1, wMaxDiff = -1, rhoMaxDiff = -1, fMaxDiff = -1;
 	int *nodeIdX, *nodeIdY, *nodeIdZ, *nodeType, *bcNodeIdX, *bcNodeIdY,
-	*bcNodeIdZ, *latticeId, *bcType, *bcBoundId;
+	*bcNodeIdZ, *latticeId, *bcType, *bcBoundId_d;
 	FLOAT_TYPE *nodeX, *nodeY, *nodeZ, *bcX, *bcY, *bcZ;
 
 	FLOAT_TYPE taskTime[9];
@@ -90,28 +90,13 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 		return 2;
 	}
 
-	//int *nodeType = createHostArrayInt(numNodes, ARRAY_COPY, 0, nodeType);
-	//FLOAT_TYPE *nodeX = createHostArrayFlt(numNodes, ARRAY_COPY, 0., nodeX);
-	//FLOAT_TYPE *nodeY = createHostArrayFlt(numNodes, ARRAY_COPY, 0., nodeY);
-	FLOAT_TYPE *coordZ_d = createHostArrayFlt(numNodes, ARRAY_COPY, 0., nodeZ);
-
 	numConns = readConnFile(inFn->bc, &bcNodeIdX, &bcNodeIdY, &bcNodeIdZ,
-			&latticeId, &bcType, &bcX, &bcY, &bcZ, &bcBoundId,
+			&latticeId, &bcType, &bcX, &bcY, &bcZ, &bcBoundId_d,
 			args->TypeOfProblem);
 	if (numConns == 0) {
 		printf("NEIGHBOURING NOT FOUND in file\n");
 		return 2;
 	}
-
-	/*int *bcNodeIdX_d = createGpuArrayInt(numConns, ARRAY_COPY, 0, bcNodeIdX);
-	int *bcNodeIdY_d = createGpuArrayInt(numConns, ARRAY_COPY, 0, bcNodeIdY);
-	int *bcNodeIdZ_d = createGpuArrayInt(numConns, ARRAY_COPY, 0, bcNodeIdZ);
-	int *latticeId_d = createGpuArrayInt(numConns, ARRAY_COPY, 0, latticeId);
-	int *bcType_d = createGpuArrayInt(numConns, ARRAY_COPY, 0, bcType);*/
-	int *bcBoundId_d = createHostArrayInt(numConns, ARRAY_COPY, 0, bcBoundId);
-	/*FLOAT_TYPE *bcX_d = createGpuArrayFlt(numConns, ARRAY_COPY, 0., bcX);
-	FLOAT_TYPE *bcY_d = createGpuArrayFlt(numConns, ARRAY_COPY, 0., bcY);
-	FLOAT_TYPE *bcZ_d = createGpuArrayFlt(numConns, ARRAY_COPY, 0., bcZ);*/
 
 	m = getLastValue(nodeIdY, numNodes);
 	n = getLastValue(nodeIdX, numNodes);
@@ -190,7 +175,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 				"Inlet profile is not currently available! Please initiate Inlet profile from file!\n");
 		return 0;
 		//		gpuInitInletProfile3D<<<(int) (m * h / THREADS) + 1, tpb>>>(u1_d, v1_d,
-		//				w1_d, nodeY, coordZ_d, m * h);
+		//				w1_d, nodeY, nodeZ, m * h);
 	}
 	FLOAT_TYPE *u_prev_d, *v_prev_d, *w_prev_d, *rho_prev_d, *f_prev_d;
 	if (args->TypeOfResiduals == MacroDiff) {
@@ -205,10 +190,8 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 	}
 
 	//Multiphase Color Gradient
-	FLOAT_TYPE *f, *r_rho, *b_rho, *st_error, *color_gradient, *r_f, *b_f, *r_fColl, *b_fColl;
+	FLOAT_TYPE *st_error;
 	if(args->multiPhase){
-		r_rho = createHostArrayFlt(m * n * h, ARRAY_ZERO);
-		b_rho = createHostArrayFlt(m * n * h, ARRAY_ZERO);
 		st_error = createHostArrayFlt(args->iterations, ARRAY_ZERO);
 	}
 
@@ -219,7 +202,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 
 	FLOAT_TYPE st_predicted = 4.0 * args->A / 9.0 / omega_eff;
 
-	int *cg_directions, *cg_dir_d;
+	int *cg_dir_d;
 	FLOAT_TYPE *r_rho_d, *b_rho_d, *r_f_d, *b_f_d, *r_fColl_d, *b_fColl_d, *p_in_d, *p_out_d;
 	int *num_in_d, *num_out_d;
 	if(args->multiPhase){
@@ -230,7 +213,6 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 		r_fColl_d = createHostArrayFlt(m * n * h * 19, ARRAY_ZERO);
 		b_fColl_d = createHostArrayFlt(m * n * h * 19, ARRAY_ZERO);
 		cg_dir_d = createHostArrayInt(m * n * h, ARRAY_ZERO);
-		cg_directions = createHostArrayInt(n * m * h, ARRAY_ZERO);
 		if(args->test_case == 1){
 			p_in_d = createHostArrayFlt(n*m*h, ARRAY_ZERO);
 			p_out_d = createHostArrayFlt(n*m*h, ARRAY_ZERO);
@@ -251,10 +233,10 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 	FLOAT_TYPE ms = n * m * h;
 	if(args->multiPhase){
 		if(args->high_order)
-			initHOColorGradient3D(cg_directions, n, m, h);
+			initHOColorGradient3D(cg_dir_d, n, m, h);
 		else
-			initColorGradient3D(cg_directions, n, m, h);
-		initCGBubble3D(nodeX,nodeY,coordZ_d,r_rho_d, b_rho_d, rho_d, r_f_d, b_f_d, f_d, args->test_case);
+			initColorGradient3D(cg_dir_d, n, m, h);
+		initCGBubble3D(nodeX,nodeY,nodeZ,r_rho_d, b_rho_d, rho_d, r_f_d, b_f_d, f_d, args->test_case);
 	}
 
 	if(args->multiPhase){
@@ -283,13 +265,12 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 	w_d = createHostArrayFlt(m * n * h, ARRAY_CPYD, 0, w1_d);
 
 
-
-	bool *stream = createHostArrayBool(18 * m * n * h, ARRAY_FILL, 1);
+        bool *stream_d = createHostArrayBool(18 * m * n * h, ARRAY_FILL,1);
 	FLOAT_TYPE *q = createHostArrayFlt(18 * m * n * h, ARRAY_FILL, 0.5);
 
 	int bcCount = initBoundaryConditions3D(bcNodeIdX, bcNodeIdY, bcNodeIdZ, q,
-			bcBoundId, nodeType, bcX, bcY, bcZ, nodeX, nodeY, nodeZ, latticeId,
-			stream, bcType, bcMask, bcIdx, mask, delta, m, n, h, numConns,
+			bcBoundId_d, nodeType, bcX, bcY, bcZ, nodeX, nodeY, nodeZ, latticeId,
+			stream_d, bcType, bcMask, bcIdx, mask, delta, m, n, h, numConns,
 			args->boundaryType);
 	unsigned long long *bcMask_d = createHostArrayLongLong(m * n * h, ARRAY_COPY,
 			0, bcMask);
@@ -301,12 +282,8 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 	if (args->boundaryType == CURVED)
 		qCollapsed_d = createHostArrayFlt(18 * bcCount, ARRAY_ZERO);
 
-	int *bcIdx_d = createHostArrayInt(m * n * h, ARRAY_COPY, 0, bcIdx);
-
 	collapseBc3D(bcIdx, bcIdxCollapsed_d, bcMask, bcMaskCollapsed_d, q,
 			qCollapsed_d, mask, m, n, h, bcCount, args->boundaryType);
-
-	bool *stream_d = createHostArrayBool(18 * m * n * h, ARRAY_COPY, 0, stream);
 
 	if(args->multiPhase){
 	}
@@ -316,23 +293,15 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 
 	void *hostArrays[] = { nodeIdX, nodeIdY, nodeIdZ, nodeX, nodeY, nodeZ,
 			nodeType, bcNodeIdX, bcNodeIdY, bcNodeIdZ, latticeId, bcType, bcX,
-			bcY, bcZ, bcBoundId, u, v, w, rho, mask, bcMask, bcIdx, stream, q,
+			bcY, bcZ, u, v, w, rho, mask, bcMask, bcIdx, q,
 			norm, dragSum, liftSum, latFSum};
 
-	void *gpuArrays[] =
-	{ nodeX, nodeY, coordZ_d, nodeType,
-			bcBoundId_d, u_d, v_d, w_d, rho_d, u1_d, v1_d, w1_d, f_d, fColl_d, tempA_d, tempB_d,
-			bcMaskCollapsed_d, bcIdx_d, bcIdxCollapsed_d,
-			stream_d, qCollapsed_d}; //drag_d, lift_d, latF_d,
+	void *gpuArrays[] ={ bcBoundId_d, u_d, v_d, w_d, rho_d, u1_d, v1_d, w1_d, f_d, fColl_d, tempA_d, tempB_d, bcMaskCollapsed_d, bcIdxCollapsed_d, stream_d/*, qCollapsed_d*/}; //drag_d, lift_d, latF_d,
 
 
-	void *mpHostArrays[] = {
-			r_rho, b_rho, st_error, color_gradient, r_f,b_f, r_fColl, b_fColl, cg_directions, f
-	};
+	void *mpHostArrays[] = {st_error};
 
-	void *mpGpuArrays[] = {
-			r_rho_d, b_rho_d, r_f_d, b_f_d, r_fColl_d, b_fColl_d, cg_dir_d
-	};
+	void *mpGpuArrays[] = {r_rho_d, b_rho_d, r_f_d, b_f_d, r_fColl_d, b_fColl_d, cg_dir_d };
 
 	void *mpTC1GpuArrays[] = {
 			p_in_d,	p_out_d, num_in_d, num_out_d
@@ -365,12 +334,10 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 
 	tInstant1 = clock(); // Start measuring time
 	if(args->multiPhase){
-		WriteResultsMultiPhase(outputFilename, nodeType, nodeX, nodeY, nodeZ, u, v, w, rho,r_rho,b_rho, nodeType,
-				n, m, h, args->outputFormat);
+		WriteResultsMultiPhase(outputFilename, nodeType, nodeX, nodeY, nodeZ, u_d, v_d, w_d, rho_d, r_rho_d, b_rho_d, nodeType, n, m, h, args->outputFormat);
 	}
 	else{
-		WriteResults3D(outputFilename, nodeType, nodeX, nodeY, nodeZ, u, v, w, rho,
-				nodeType, n, m, h, args->outputFormat);
+		WriteResults3D(outputFilename, nodeType, nodeX, nodeY, nodeZ, u_d, v_d, w_d, rho_d, nodeType, n, m, h, args->outputFormat);
 	}
 	tInstant2 = clock();
 	taskTime[T_WRIT] += (FLOAT_TYPE) (tInstant2 - tInstant1) / CLOCKS_PER_SEC;
@@ -385,7 +352,6 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 	printf("%d is the number of iterations \n", args->iterations);
 
 	tIterStart = clock(); // Start measuring time of main loop
-	size_t free, total;
 
 	int iter = 0;
 	while (iter < args->iterations) {
@@ -489,7 +455,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 		}
 		else{
 			//gpuUpdateMacro3D(nodeType, rho_d, u_d, v_d, w_d,
-			//		bcBoundId_d, nodeX, nodeY, coordZ_d, f_d, args->g,bcMask_d,args->UpdateInltOutl);
+			//		bcBoundId_d, nodeX, nodeY, nodeZ, f_d, args->g,bcMask_d,args->UpdateInltOutl);
 		}
 		tInstant2 = clock();
 		// COMPUTE RESIDUALS
@@ -613,7 +579,6 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 		iter++; // update loop variable
 
 		////////////// Autosave ///////////////
-
 		if (iter == (args->autosaveEvery * autosaveIt)) {
 			autosaveIt++;
 			if (iter > args->autosaveAfter) {
@@ -633,16 +598,14 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 							inFn->result, iter);
 					break;
 				}
-
 				tInstant1 = clock(); // Start measuring time
-				WriteResults3D(autosaveFilename, nodeType, nodeX, nodeY, coordZ_d,
+				WriteResults3D(autosaveFilename, nodeType, nodeX, nodeY, nodeZ,
 						u_d, v_d, w_d, rho_d, nodeType, n, m, h, args->outputFormat);
 				tInstant2 = clock();
 				taskTime[T_WRIT] += (FLOAT_TYPE) (tInstant2 - tInstant1)/ CLOCKS_PER_SEC;
 			}
 		}
 	}     ////////////// END OF MAIN WHILE CYCLE! ///////////////
-
 	tIterEnd = clock(); // End measuring time of main loop
 	taskTime[T_ITER] = (FLOAT_TYPE) (tIterEnd - tIterStart) / CLOCKS_PER_SEC;
 
@@ -653,7 +616,6 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 	taskTime[T_BNDC] /= 1000;
 	taskTime[T_MACR] /= 1000;
 	taskTime[T_RESI] /= 1000;
-
 	fclose(logFile);
 	writeEndLog(logFilename, taskTime);
 	writeTimerLog(timeFilename, taskTime);
@@ -697,16 +659,16 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 		default:
 			break;
 		}
-		WriteResultsMultiPhase(finalFilename, nodeType, nodeX, nodeY, coordZ_d, u_d, v_d, w_d, rho_d,r_rho_d,b_rho_d, nodeType,
+		WriteResultsMultiPhase(finalFilename, nodeType, nodeX, nodeY, nodeZ, u_d, v_d, w_d, rho_d,r_rho_d,b_rho_d, nodeType,
 				n, m, h, args->outputFormat);
 	}
 	else{
-		WriteResults3D(finalFilename, nodeType, nodeX, nodeY, coordZ_d, u_d, v_d, w_d, rho_d,
+		WriteResults3D(finalFilename, nodeType, nodeX, nodeY, nodeZ, u_d, v_d, w_d, rho_d,
 				nodeType, n, m, h, args->outputFormat);
 	}
 
-	WriteLidDrivenCavityMidLines3D(nodeX, nodeY, coordZ_d, u_d, w_d, n, m, h, args->u);
-	WriteChannelCrossSection3D(nodeX, nodeY, coordZ_d, u_d, v_d, w_d, n, m, h, args->u);
+	WriteLidDrivenCavityMidLines3D(nodeX, nodeY, nodeZ, u_d, w_d, n, m, h, args->u);
+	WriteChannelCrossSection3D(nodeX, nodeY, nodeZ, u_d, v_d, w_d, n, m, h, args->u);
 
 	// Write information for user
 	printf("\n\nLog was written to %s\n", logFilename);
@@ -730,5 +692,6 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 	if (args->TypeOfResiduals != MacroDiff) {
 		freeAllHost(nonMacroDiffGpuArrays, sizeof(nonMacroDiffGpuArrays) / sizeof(nonMacroDiffGpuArrays[0]));
 	}
+        if (args->boundaryType == (BoundaryType) CURVED) free(qCollapsed_d);
 	return 0;
 }

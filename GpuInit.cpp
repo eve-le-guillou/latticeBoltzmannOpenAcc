@@ -1214,8 +1214,7 @@ int initBoundaryConditions3D(int *bcNodeIdX, int *bcNodeIdY,
 }
 void collapseBc3D(int *bcIdx, int *bcIdxCollapsed_d,
 		unsigned long long *bcMask, unsigned long long *bcMaskCollapsed_d,
-		FLOAT_TYPE *q, FLOAT_TYPE *qCollapsed_d, int *mask, int m, int n, int h,
-		int size, int CurvedBCs) {
+		FLOAT_TYPE *q, FLOAT_TYPE *qCollapsed_d, int *mask, int m, int n, int h, int size, int CurvedBCs) {
 	int *bcIdxCollapsed = (int*) malloc(size * sizeof(int));
 	unsigned long long *bcMaskCollapsed = (unsigned long long*) malloc(
 			size * sizeof(unsigned long long));
