@@ -300,6 +300,7 @@ void calculateColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE
 	switch (cg_dir_d) {
 	case 0:
 #pragma unroll 18
+#pragma acc loop seq
 		for(i = 1; i < 19; i++){
 			ind = index - c3D_d[i];
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -316,6 +317,7 @@ void calculateColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE
 		break;
 	case 1: //NORTH
 #pragma unroll 18
+#pragma acc loop seq
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] - abs(cy3D_d[i]) * length_d + cz3D_d[i] * ms;
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -330,6 +332,7 @@ void calculateColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE
 		break;
 	case 2: //SOUTH
 #pragma unroll 18
+#pragma acc loop seq
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] + abs(cy3D_d[i]) * length_d + cz3D_d[i] * ms;
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -344,6 +347,7 @@ void calculateColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE
 		break;
 	case 3: //EAST
 #pragma unroll 18
+#pragma acc loop seq
 		for(i = 1; i < 19; i++){
 			ind = index - abs(cx3D_d[i]) + cy3D_d[i] * length_d + cz3D_d[i] * ms;
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -358,6 +362,7 @@ void calculateColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE
 		break;
 	case 4: //WEST
 #pragma unroll 18
+#pragma acc loop seq
 		for(i = 1; i < 19; i++){
 			ind = index + abs(cx3D_d[i]) + cy3D_d[i] * length_d + cz3D_d[i] * ms;
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -372,6 +377,7 @@ void calculateColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE
 		break;
 	case 5: // FRONT
 #pragma unroll 18
+#pragma acc loop seq
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] + cy3D_d[i] * length_d - abs(cz3D_d[i]) * ms;
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -386,6 +392,7 @@ void calculateColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE
 		break;
 	case 6: // BACK
 #pragma unroll 18
+#pragma acc loop seq
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] + cy3D_d[i] * length_d + abs(cz3D_d[i]) * ms;
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -418,6 +425,8 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 	int ind, i, ms = length_d * depth_d;
 	switch (cg_dir_d) {
 	case 0:
+		#pragma acc loop seq
+		{	
 		for(i = 1; i < 105; i++){
 			ind = index + hoc3D_d[i];
 			aux1 = hocg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -431,8 +440,11 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgy += aux1 * hocg_cy3D_d[i];
 			cgz += aux1 * hocg_cz3D_d[i];
 		}
+		}
 		break;
 	case 1: //NORTH
+		#pragma acc loop seq
+		{
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] - abs(cy3D_d[i]) * length_d + cz3D_d[i] * ms;
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -444,8 +456,11 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgx += aux1 * cx3D_d[i];
 			cgz += aux1 * cz3D_d[i];
 		}
+		}
 		break;
 	case 2: //SOUTH
+		#pragma acc loop seq
+		{
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] + abs(cy3D_d[i]) * length_d + cz3D_d[i] * ms;
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -457,8 +472,11 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgx += aux1 * cx3D_d[i];
 			cgz += aux1 * cz3D_d[i];
 		}
+		}
 		break;
 	case 3: //EAST
+		#pragma acc loop seq
+		{
 		for(i = 1; i < 19; i++){
 			ind = index - abs(cx3D_d[i]) + cy3D_d[i] * length_d + cz3D_d[i] * ms;
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -470,8 +488,11 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgy += aux1 * cy3D_d[i];
 			cgz += aux1 * cz3D_d[i];
 		}
+		}
 		break;
 	case 4: //WEST
+		#pragma acc loop seq
+		{
 		for(i = 1; i < 19; i++){
 			ind = index + abs(cx3D_d[i]) + cy3D_d[i] * length_d + cz3D_d[i] * ms;
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -483,8 +504,11 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgy += aux1 * cy3D_d[i];
 			cgz += aux1 * cz3D_d[i];
 		}
+		}
 		break;
 	case 5: // FRONT
+		#pragma acc loop seq
+		{
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] + cy3D_d[i] * length_d - abs(cz3D_d[i]) * ms;
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -496,8 +520,11 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgx += aux1 * cx3D_d[i];
 			cgy += aux1 * cy3D_d[i];
 		}
+		}
 		break;
 	case 6: // BACK
+		#pragma acc loop seq
+		{
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] + cy3D_d[i] * length_d + abs(cz3D_d[i]) * ms;
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -509,8 +536,11 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgx += aux1 * cx3D_d[i];
 			cgy += aux1 * cy3D_d[i];
 		}
+		}
 		break;
 	case 11:
+		#pragma acc loop seq
+		{
 		for(i = 1; i < 19; i++){
 			ind = index - c3D_d[i];
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -523,6 +553,7 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgx += aux1 * cx3D_d[i];
 			cgy += aux1 * cy3D_d[i];
 			cgz += aux1 * cz3D_d[i];
+		}
 		}
 		break;
 	default:
@@ -749,6 +780,8 @@ void gpuCollBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOA
 	FLOAT_TYPE prod_c_g, pert, cu1, cu2;
 	FLOAT_TYPE f_CollPert, f_eq;
 	int cx, cy, cz;
+#pragma acc parallel copy(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*19], w_d[ms]) copy(r_fColl_d[ms*19], b_fColl_d[ms*19], cg_dir_d[ms]) 
+        #pragma acc loop
 	for (int ind = 0; ind < ms; ind++)
 	{
 		u =   u_d[ind];

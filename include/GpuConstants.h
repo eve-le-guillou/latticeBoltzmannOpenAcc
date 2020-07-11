@@ -108,6 +108,7 @@ extern int hocg_cz3D_d[105];
 extern int hoc3D_d[105];
 
 //#### 3D d3q19 ####//
+extern FLOAT_TYPE wIn_d;
 extern int cx3D_d[19];                   ///< velocity x unit vector components
 extern int cy3D_d[19];                   ///< velocity y unit vector components
 extern int cz3D_d[19];                   ///< velocity y unit vector components
@@ -122,7 +123,7 @@ extern FLOAT_TYPE momCollMtx3D_d[361];   ///< MRT constants: collision matrix in
 // 2D
 #pragma acc declare create(c_norms_d, velMomMap2D_d, momCollMtx2D_d, c2D_d, cx2D_d, cy2D_d, opp2D_d, w2D_d, cg_w_d, hocg_w_d, hocg_cx_d, hocg_cy_d, w_pert_d, psi_d, chi_d, teta_d, phi_d)
 // 3D
-#pragma acc declare create(c_norms3D_d[0:19], w_pert3D_d[0:19], psi3D_d[0:19], chi3D_d[0:19], teta3D_d[0:19], phi3D_d[0:19], cg_w3D_d[0:19], hocg_w3D_d[0:105], hocg_cx3D_d[0:105], hocg_cy3D_d[0:105], hocg_cz3D_d[0:105], hoc3D_d[0:105],velMomMap3D_d[0:361], momCollMtx3D_d[0:361], minInletCoordZ_d, maxInletCoordZ_d, wIn_d, height_d, c3D_d[0:19], cx3D_d[0:19], cy3D_d[0:19], cz3D_d[0:19], opp3D_d[0:19], w3D_d[0:19])
+#pragma acc declare create(c_norms3D_d, w_pert3D_d, psi3D_d, chi3D_d, teta3D_d, wIn_d, phi3D_d, cg_w3D_d, hocg_w3D_d, hocg_cx3D_d, hocg_cy3D_d, hocg_cz3D_d, hoc3D_d,velMomMap3D_d, momCollMtx3D_d, minInletCoordZ_d, maxInletCoordZ_d, height_d, c3D_d, cx3D_d, cy3D_d, cz3D_d, opp3D_d, w3D_d)
 
 #endif
 

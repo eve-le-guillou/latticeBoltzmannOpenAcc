@@ -879,7 +879,7 @@ void initConstants3D(Arguments *args,
 		memcpy(momCollMtx3D_d, momCollMtx3D,
 				361 * sizeof(FLOAT_TYPE));
 	}
-        #pragma acc update device(g_d, velMomMap3D_d[0:361], momCollMtx3D_d[0:361], minInletCoordY_d, maxInletCoordY_d, minInletCoordZ_d, maxInletCoordZ_d, vIn_d, uIn_d, wIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, height_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c3D_d[0:19], cx3D_d[0:19], cy3D_d[0:19], cz3D_d[0:19], opp3D_d[0:19], w3D_d[0:19])
+       #pragma acc update device(g_d, velMomMap3D_d[0:361], momCollMtx3D_d[0:361], minInletCoordY_d, maxInletCoordY_d, minInletCoordZ_d, maxInletCoordZ_d, vIn_d, uIn_d, wIn_d, rhoIn_d, inletProfile_d, delta_d, length_d, depth_d, height_d, dlBoundaryId_d, boundaryType_d,outletProfile_d, omega_d, omegaA_d, c3D_d[0:19], cx3D_d[0:19], cy3D_d[0:19], cz3D_d[0:19], opp3D_d[0:19], w3D_d[0:19])
 
 	if(args->multiPhase){
 

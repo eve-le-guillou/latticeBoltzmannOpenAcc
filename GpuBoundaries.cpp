@@ -81,6 +81,7 @@ void gpuBcInlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
 	FLOAT_TYPE uB, vB, wB, dB;
 	FLOAT_TYPE uT, vT, wT, dT;
 	FLOAT_TYPE Nxy, Nxz, Nyx, Nyz, Nzx, Nzy;
+	//#pragma acc parallel loop present(f_d[0:ms*19], u1_d[0:ms], v1_d[0:ms], w1_d[0:ms], bcMask_d[0:size], bcIdx_d[0:size]) 
 	for (int bci = 0; bci < size; bci++) {
 		int ind = bcIdx_d[bci];
 		//    printf("bcMask[ind] |= BC3D_MASK((unsigned long long)bcType[bci], dir); %#016lX\n", (bcMask_d[bci] & BC3D_FLUID) );
@@ -391,7 +392,7 @@ void gpuBcSimpleWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 		FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size) {
 	int ms = depth_d * length_d * height_d;
 	int dir;
-
+        //#pragma acc parallel loop present(f_d[0:ms*19], bcMask_d[0:size], bcIdx_d[0:size], fColl_d[0:ms*19], q_d[0:18*size])
 	for (int bci = 0; bci < size; bci++) {
 		int ind = bcIdx_d[bci];
 		if (bcMask_d[bci] & BC3D_FLUID) {
@@ -1972,7 +1973,7 @@ void gpuBcPeriodic3D(int *bcIdx_d, unsigned long long *bcMask_d,
 	int offsetX = length_d - 1; //to get from west to east pairs of periodic nodes
 	int offsetY = length_d * (depth_d - 1); //to get from north to south pairs of periodic nodes
 	int offsetZ = length_d * depth_d * (height_d - 1); //to get from north to south pairs of periodic nodes
-
+	//#pragma acc parallel loop present(bcMask_d[0:size], f_d[0:19*ms], bcIdx_d[0:size]) firstprivate(offsetX, offsetY, offsetZ)
 	for (int bci = 0; bci < size; bci++) {
 		int ind = bcIdx_d[bci];
 		if (bcMask_d[bci] & BC3D_FLUID) {
