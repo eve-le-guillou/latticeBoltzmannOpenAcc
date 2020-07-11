@@ -1236,12 +1236,12 @@ void collapseBc3D(int *bcIdx, int *bcIdxCollapsed_d,
 			flyId++;
 		}
 	}
-
 	memcpy(bcIdxCollapsed_d, bcIdxCollapsed, size * sizeof(int));
 	memcpy(bcMaskCollapsed_d, bcMaskCollapsed,
 			size * sizeof(unsigned long long));
 	free(bcIdxCollapsed);
 	free(bcMaskCollapsed);
+
 	if (CurvedBCs == (BoundaryType) CURVED) {
 		memcpy(qCollapsed_d, QCollapsed, 18 * size * sizeof(FLOAT_TYPE));
 		free(QCollapsed);
