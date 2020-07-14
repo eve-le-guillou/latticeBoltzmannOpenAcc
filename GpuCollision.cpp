@@ -773,7 +773,7 @@ void gpuCollBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOA
 	FLOAT_TYPE prod_c_g, pert, cu1, cu2;
 	FLOAT_TYPE f_CollPert, f_eq;
 	int cx, cy, cz;
-#pragma acc parallel loop copy(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*19], w_d[ms]) copy(r_fColl_d[ms*19], b_fColl_d[ms*19], cg_dir_d[ms]) 
+#pragma acc parallel loop present(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*19], w_d[ms]) present(r_fColl_d[ms*19], b_fColl_d[ms*19], cg_dir_d[ms]) 
 	for (int ind = 0; ind < ms; ind++)
 	{
 		u =   u_d[ind];

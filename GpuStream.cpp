@@ -162,7 +162,7 @@ void gpuStreaming3D(int* nodeType, bool* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* 
 {
 	int ms = depth_d*length_d*height_d;
 	FLOAT_TYPE *f, *mf;
-#pragma acc data deviceptr(f, mf) copy(stream_d[0:ms*18], f_d[0:ms*19]) copy(fColl_d[0:19*ms])
+#pragma acc data deviceptr(f, mf) present(stream_d[0:ms*18], f_d[0:ms*19]) present(fColl_d[0:19*ms])
 #pragma acc parallel loop 	
 	for (int ind = 0; ind < ms; ind++){
 	   if ( nodeType[ind] == 1){

@@ -224,7 +224,7 @@ void gpuUpdateMacro3DCG(int *nodeType, FLOAT_TYPE* rho_d,
 	int ms = depth_d * length_d * height_d;
 
 	FLOAT_TYPE r_r, b_r, r, rU, rV, rW, aux1, mean_nu, omega_eff;
-	#pragma acc parallel loop copy(rho_d[0:ms], u_d[0:ms], v_d[0:ms], w_d[0:ms], r_f_d[0:ms*19], b_f_d[0:ms*19], f_d[0:19*ms], r_rho_d[0:ms], b_rho_d[0:ms], p_in_d[0:ms], p_out_d[0:ms], num_in_d[0:ms], num_out_d[0:ms], bcMask_d[0:ms]) firstprivate(g, updateInltOutl)
+	#pragma acc parallel loop present(rho_d[0:ms], u_d[0:ms], v_d[0:ms], w_d[0:ms], r_f_d[0:ms*19], b_f_d[0:ms*19], f_d[0:19*ms], r_rho_d[0:ms], b_rho_d[0:ms], p_in_d[0:ms], p_out_d[0:ms], num_in_d[0:ms], num_out_d[0:ms], bcMask_d[0:ms]) firstprivate(g, updateInltOutl)
 
 	for(int ind = 0; ind < ms; ind++) {
 		//necessary because of sum

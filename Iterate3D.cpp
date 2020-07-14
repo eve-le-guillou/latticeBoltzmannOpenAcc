@@ -227,6 +227,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 	if (args->TypeOfResiduals == FdRelDiff) {
 		fprev_d = createHostArrayFlt(19 * m * n * h, ARRAY_ZERO);
 	}
+	f1_d = createHostArrayFlt(19 * m * n * h, ARRAY_ZERO);
 
 	FLOAT_TYPE p_in_mean;
 	FLOAT_TYPE p_out_mean;
@@ -356,10 +357,10 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 	tIterStart = clock(); // Start measuring time of main loop
 
 	int iter = 0;
-//#pragma acc data copyin(u_d[0:ms], v_d[0:ms], w_d[0:ms],  nodeType[0:numNodes], stream_d[0:18*ms], bcIdxCollapsed_d[0:bcCount], bcMaskCollapsed_d[0:bcCount], qCollapsed_d[0:bcCount*18]) create(r_fColl_d[ms*19], b_fColl_d[ms*19], p_in_d[0:ms], p_out_d[0:ms], num_in_d[0:ms], num_out_d[0:ms], d_divergence[0:1]) \
+#pragma acc data copyin(u_d[0:ms], v_d[0:ms], w_d[0:ms],  nodeType[0:numNodes], stream_d[0:18*ms], bcIdxCollapsed_d[0:bcCount], bcMaskCollapsed_d[0:bcCount], qCollapsed_d[0:bcCount*18]) create(r_fColl_d[ms*19], b_fColl_d[ms*19], p_in_d[0:ms], p_out_d[0:ms], num_in_d[0:ms], num_out_d[0:ms], d_divergence[0:1]) \
                 copyin(cg_dir_d[0:ms], bcMask_d[0:ms], f_prev_d[0:19*ms], fprev_d[0:19],  f1_d[0:19*ms], temp19a_d[0:ms*19], temp19b_d[0:ms*19], u1_d[0:ms], v1_d[0:ms], w1_d[0:ms])\
                 copyin(nodeX[0:ms],nodeY[0:ms], nodeZ[0:ms],  rho_d[0:ms],r_rho_d[0:ms], b_rho_d[0:ms], r_f_d[0:ms*19], b_f_d[0:ms*19], f_d[0:ms*19])
-//{
+{
 	while (iter < args->iterations) {
 		////////////// COLLISION ///////////////
 		switch (args->collisionModel) {
@@ -469,7 +470,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 
 			if (args->TypeOfResiduals == L2) {
 				if(args->multiPhase){
-//				#pragma acc update device(f_d[0:19*ms], r_fColl_d[0:ms])
+				#pragma acc update device(f_d[0:19*ms], r_fColl_d[0:ms])
 				}
 				r = computeResidual3D(f_d, fColl_d, temp19a_d, temp19b_d, m, n, h);
 			}
@@ -480,28 +481,28 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 
 					if (firstIter) {
 						firstIter = false;
-/*#ifdef OPENACC
+#ifdef OPENACC
                                 #pragma acc host_data use_device(f_d, f1_d) 
                                 {
                                 cudaMemcpy(&f1_d,&f_d, ms*19,cudaMemcpyDeviceToDevice);
                                 }
-#else*/
+#else
                                 delete[] f1_d;
                                 f1_d = createHostArrayFlt(ms * 19, ARRAY_CPYD, 0, f_d);
-//#endif
+#endif
 
 					}
 					r = computeNewResidual3D(f_d, fprev_d, f1_d, temp19a_d, temp19b_d, m, n, h);
 					
-/*#ifdef OPENACC
+#ifdef OPENACC
                                 #pragma acc host_data use_device(f_d, fprev_d) 
                                 {
                                 cudaMemcpy(&fprev_d,&f_d, ms*19,cudaMemcpyDeviceToDevice);
                                 }
-#else*/
+#else
                                 delete[] fprev_d;
                                 fprev_d = createHostArrayFlt(ms * 19, ARRAY_CPYD, 0, f_d);
-//#endif
+#endif
 				} else {
 					bool d_divergence = false;
 					if(args->multiPhase){
@@ -541,15 +542,15 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 					}*/
 
 					if(args->multiPhase){
-/*#if OPENACC
+#if OPENACC
                                 #pragma acc host_data use_device(f_d, f_prev_d) 
                                 {
                                 cudaMemcpy(&f_prev_d,&f_d, ms*19,cudaMemcpyDeviceToDevice);
                                 }
-#else*/
+#else
                                 delete[] f_prev_d;
                                 f_prev_d = createHostArrayFlt(ms * 19, ARRAY_CPYD, 0, f_d);
-//#endif
+#endif
 					}else{/*
 						writeMacroDiffs(iter + 1, uMaxDiff, vMaxDiff, wMaxDiff,	rhoMaxDiff);
 						CHECK(cudaFree(u_prev_d));
@@ -578,15 +579,15 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 
 		}
 		if(args->multiPhase){
-/*#if OPENACC
+#if OPENACC
                                 #pragma acc host_data use_device(f_d, f_prev_d) 
                                 {
                                 cudaMemcpy(&f_prev_d,&f_d, ms*19,cudaMemcpyDeviceToDevice);
                                 }
-#else*/
+#else
                                 delete[] f_prev_d;
                                 f_prev_d = createHostArrayFlt(ms * 19, ARRAY_CPYD, 0, f_d);
-//#endif
+#endif
 		}
 		norm[iter] = r;
 		if(args->multiPhase){
@@ -633,7 +634,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 					break;
 				}
 				tInstant1 = clock(); // Start measuring time
-				//#pragma acc update host(u_d[0:ms], v_d[0:ms], w_d[0:ms], rho_d[0:ms])
+				#pragma acc update host(u_d[0:ms], v_d[0:ms], w_d[0:ms], rho_d[0:ms])
 				WriteResults3D(autosaveFilename, nodeType, nodeX, nodeY, nodeZ,
 						u_d, v_d, w_d, rho_d, nodeType, n, m, h, args->outputFormat);
 				tInstant2 = clock();
@@ -659,9 +660,9 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 				args->iterations);
 	}
 	// Write final data
-	//#pragma acc update host(u_d[0:ms], v_d[0:ms], w_d[0:ms], rho_d[0:ms])
+	#pragma acc update host(u_d[0:ms], v_d[0:ms], w_d[0:ms], rho_d[0:ms])
 	if(args->multiPhase){
-	//#pragma acc update host(r_rho_d[0:ms], b_rho_d[0:ms])
+	#pragma acc update host(r_rho_d[0:ms], b_rho_d[0:ms])
 	}
 
 	switch (args->outputFormat) {
@@ -706,7 +707,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 
 	WriteLidDrivenCavityMidLines3D(nodeX, nodeY, nodeZ, u_d, w_d, n, m, h, args->u);
 	WriteChannelCrossSection3D(nodeX, nodeY, nodeZ, u_d, v_d, w_d, n, m, h, args->u);
-	//}
+	}
 	// Write information for user
 	printf("\n\nLog was written to %s\n", logFilename);
 	printf("Last autosave result can be found at %s\n", autosaveFilename);
