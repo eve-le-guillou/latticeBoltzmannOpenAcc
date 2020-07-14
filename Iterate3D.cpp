@@ -261,8 +261,10 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 	FLOAT_TYPE *u_d, *v_d, *w_d;
 
 	u_d = createHostArrayFlt(m * n * h, ARRAY_CPYD, 0, u1_d);
-	v_d = createHostArrayFlt(m * n * h, ARRAY_CPYD, 0, v1_d);
-	w_d = createHostArrayFlt(m * n * h, ARRAY_CPYD, 0, w1_d);
+	v_d = createHostArrayFlt(m*n*h, ARRAY_ZERO);
+	w_d = createHostArrayFlt(m*n*h, ARRAY_ZERO);
+//	v_d = createHostArrayFlt(m * n * h,ARRAY_CPYD, 0, v1_d);
+//	w_d = createHostArrayFlt(m * n * h, ARRAY_CPYD, 0, w1_d);
 
 
         bool *stream_d = createHostArrayBool(18 * m * n * h, ARRAY_FILL,1);

@@ -20,11 +20,8 @@ FLOAT_TYPE *temp9a_d, FLOAT_TYPE *temp9b_d, int m, int n) {
 }
 FLOAT_TYPE computeResidual3D(FLOAT_TYPE *f_d, FLOAT_TYPE *fTemp_d,
 FLOAT_TYPE *temp19a_d, FLOAT_TYPE *temp19b_d, int m, int n, int h) {
-/*	dim3 bpg19((int) (sqrt(19 * m * n * h - 1) / THREADS) + 1,
-			(int) (sqrt(19 * m * n * h - 1) / THREADS) + 1);
-	dim3 tpb(THREADS, THREADS);
-	gpu_sqsub<<<bpg19, tpb>>>(f_d, fTemp_d, temp19a_d, 19 * m * n * h);
-	return sqrt(gpu_sum_h(temp19a_d, temp19b_d, 19 * m * n * h));*/
+	//gpu_sqsub<<<bpg19, tpb>>>(f_d, fTemp_d, temp19a_d, 19 * m * n * h);
+	//return sqrt(gpu_sum_h(temp19a_d, temp19b_d, 19 * m * n * h));
 	return 0;
 }
 FLOAT_TYPE computeNewResidual3D(FLOAT_TYPE *fn, FLOAT_TYPE *fnprev,

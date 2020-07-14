@@ -423,12 +423,11 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 	FLOAT_TYPE aux1, aux2;
 	cgx = cgy = cgz = grx = gry = grz = 0.0;
 	int ind, i, ms = length_d * depth_d;
-	switch (cg_dir_d) {
-	case 0:
-		#pragma acc loop seq
-		{	
+	if (cg_dir_d == 0){
+		#pragma acc loop seq	
 		for(i = 1; i < 105; i++){
 			ind = index + hoc3D_d[i];
+			if (ind <0|| rho_d[ind]==0) printf("Ind negative or rho_d null, i= %d, cg_dir_d=%d, index=%d\n", i, cg_dir_d, index);
 			aux1 = hocg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
 			aux2 = hocg_w3D_d[i] * rho_d[ind];
 
@@ -440,13 +439,12 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgy += aux1 * hocg_cy3D_d[i];
 			cgz += aux1 * hocg_cz3D_d[i];
 		}
-		}
-		break;
-	case 1: //NORTH
+	}
+	if (cg_dir_d == 1){ //NORTH
 		#pragma acc loop seq
-		{
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] - abs(cy3D_d[i]) * length_d + cz3D_d[i] * ms;
+                        if (ind <0|| rho_d[ind]==0) printf("Ind negative or rho_d null, i= %d, cg_dir_d=%d, index=%d\n", i, cg_dir_d, index);
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
 			aux2 = cg_w3D_d[i] * rho_d[ind];
 
@@ -456,13 +454,12 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgx += aux1 * cx3D_d[i];
 			cgz += aux1 * cz3D_d[i];
 		}
-		}
-		break;
-	case 2: //SOUTH
+	}
+	if (cg_dir_d == 2){ //SOUTH
 		#pragma acc loop seq
-		{
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] + abs(cy3D_d[i]) * length_d + cz3D_d[i] * ms;
+                        if (ind <0|| rho_d[ind]==0) printf("Ind negative or rho_d null, i= %d, cg_dir_d=%d, index=%d\n", i, cg_dir_d, index);
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
 			aux2 = cg_w3D_d[i] * rho_d[ind];
 
@@ -472,13 +469,12 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgx += aux1 * cx3D_d[i];
 			cgz += aux1 * cz3D_d[i];
 		}
-		}
-		break;
-	case 3: //EAST
+	}
+	if(cg_dir_d == 3){ //EAST
 		#pragma acc loop seq
-		{
 		for(i = 1; i < 19; i++){
 			ind = index - abs(cx3D_d[i]) + cy3D_d[i] * length_d + cz3D_d[i] * ms;
+                        if (ind <0|| rho_d[ind]==0) printf("Ind negative or rho_d null, i= %d, cg_dir_d=%d, index=%d\n", i, cg_dir_d, index);
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
 			aux2 = cg_w3D_d[i] * rho_d[ind];
 
@@ -488,13 +484,12 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgy += aux1 * cy3D_d[i];
 			cgz += aux1 * cz3D_d[i];
 		}
-		}
-		break;
-	case 4: //WEST
+	}
+	if(cg_dir_d == 4){ //WEST
 		#pragma acc loop seq
-		{
 		for(i = 1; i < 19; i++){
 			ind = index + abs(cx3D_d[i]) + cy3D_d[i] * length_d + cz3D_d[i] * ms;
+                        if (ind <0|| rho_d[ind]==0) printf("Ind negative or rho_d null, i= %d, cg_dir_d=%d, index=%d\n", i, cg_dir_d, index);
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
 			aux2 = cg_w3D_d[i] * rho_d[ind];
 
@@ -504,13 +499,12 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgy += aux1 * cy3D_d[i];
 			cgz += aux1 * cz3D_d[i];
 		}
-		}
-		break;
-	case 5: // FRONT
+	}
+	if(cg_dir_d == 5){ // FRONT
 		#pragma acc loop seq
-		{
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] + cy3D_d[i] * length_d - abs(cz3D_d[i]) * ms;
+                        if (ind <0|| rho_d[ind]==0) printf("Ind negative or rho_d null, i= %d, cg_dir_d=%d, index=%d\n", i, cg_dir_d, index);
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
 			aux2 = cg_w3D_d[i] * rho_d[ind];
 
@@ -520,11 +514,9 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgx += aux1 * cx3D_d[i];
 			cgy += aux1 * cy3D_d[i];
 		}
-		}
-		break;
-	case 6: // BACK
+	}
+	if(cg_dir_d == 6){ // BACK
 		#pragma acc loop seq
-		{
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] + cy3D_d[i] * length_d + abs(cz3D_d[i]) * ms;
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -536,29 +528,35 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgx += aux1 * cx3D_d[i];
 			cgy += aux1 * cy3D_d[i];
 		}
-		}
-		break;
-	case 11:
+	}
+	if (cg_dir_d == 11){
+		if (index >= length_d * depth_d + length_d){
 		#pragma acc loop seq
-		{
 		for(i = 1; i < 19; i++){
 			ind = index - c3D_d[i];
-			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
-			aux2 = cg_w3D_d[i] * rho_d[ind];
+                        if (ind>=length_d*height_d*depth_d){
+ 				cgx = 0;
+				cgy = 0;
+				cgz = 0;	
+				break;
+			}
+			else {
+				aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
+				aux2 = cg_w3D_d[i] * rho_d[ind];
+				grx += aux2 * cx3D_d[i];
+				gry += aux2 * cy3D_d[i];
+				grz += aux2 * cz3D_d[i];
 
-			grx += aux2 * cx3D_d[i];
-			gry += aux2 * cy3D_d[i];
-			grz += aux2 * cz3D_d[i];
-
-			cgx += aux1 * cx3D_d[i];
-			cgy += aux1 * cy3D_d[i];
-			cgz += aux1 * cz3D_d[i];
+				cgx += aux1 * cx3D_d[i];
+				cgy += aux1 * cy3D_d[i];
+				cgz += aux1 * cz3D_d[i];
+				}
+			}
 		}
-		}
-		break;
-	default:
-		break;
 	}
+	//default:
+	//	break;
+	//}
 	(*cg_x) = cgx;
 	(*cg_y) = cgy;
 	(*cg_z) = cgz;
@@ -780,8 +778,7 @@ void gpuCollBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOA
 	FLOAT_TYPE prod_c_g, pert, cu1, cu2;
 	FLOAT_TYPE f_CollPert, f_eq;
 	int cx, cy, cz;
-#pragma acc parallel copy(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*19], w_d[ms]) copy(r_fColl_d[ms*19], b_fColl_d[ms*19], cg_dir_d[ms]) 
-        #pragma acc loop
+#pragma acc parallel loop copy(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*19], w_d[ms]) copy(r_fColl_d[ms*19], b_fColl_d[ms*19], cg_dir_d[ms]) 
 	for (int ind = 0; ind < ms; ind++)
 	{
 		u =   u_d[ind];
@@ -790,7 +787,6 @@ void gpuCollBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOA
 		r_r = r_rho_d[ind];
 		b_r = b_rho_d[ind];
 		r = rho_d[ind];
-
 		if(high_order)
 			calculateHOColorGradient3D(rho_d, r_rho_d, b_rho_d, cg_dir_d[ind], ind, &cg_x, &cg_y, &cg_z, &gr_x, &gr_y, &gr_z);
 		else

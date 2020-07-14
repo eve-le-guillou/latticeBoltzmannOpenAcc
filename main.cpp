@@ -31,9 +31,9 @@ int main(int argc, char* argv[]) {
 
 	eraseAlertLog();
 	Arguments args;
-	args.u = 0.;
-	args.v = 0.;
-	args.w = 0.;
+	args.u = 0.0;
+	args.v = 0.0;
+	args.w = 0.0;
 	args.rho = 0.;
 	args.g=0.;
 	args.viscosity = 0.;

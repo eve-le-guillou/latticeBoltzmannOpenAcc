@@ -162,15 +162,16 @@ void gpuStreaming3D(int* nodeType, bool* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* 
 {
 	int ms = depth_d*length_d*height_d;
 	FLOAT_TYPE *f, *mf;
-//#pragma acc data deviceptr(f, mf) present(stream_d[0:ms*18], f_d[0:ms*19]) present(fColl_d[0:19*ms])
-//#pragma acc parallel loop 	
+#pragma acc data deviceptr(f, mf) copy(stream_d[0:ms*18], f_d[0:ms*19]) copy(fColl_d[0:19*ms])
+#pragma acc parallel loop 	
 	for (int ind = 0; ind < ms; ind++){
 	   if ( nodeType[ind] == 1){
 		f_d[ind] = fColl_d[ind];	//Update fNewStep = fColl
-		f = f_d + ms;				// f is f_d memory position but f starts in f_d 1st level==1st lattice direction
+		f = f_d + ms;
 		mf = fColl_d + ms;
-		f[ind+0  *ms]	=	(stream_d[ind+0	 *ms]	==	1)	?	mf[ind+0  *ms +	c3D_d[1	]]:	f[ind+0  *ms];
-		f[ind+1	 *ms]	=	(stream_d[ind+1	 *ms]	==	1)	?	mf[ind+1  *ms +	c3D_d[2	]]: f[ind+1  *ms];
+		if (ind+c3D_d[1]>=0) 
+			f[ind+0  *ms]	=	(stream_d[ind+0	 *ms]	==	1)	?	mf[ind+0  *ms +	c3D_d[1	]]:	f[ind+0  *ms];
+		f[ind+1	 *ms]	=	(stream_d[ind+1	 *ms]	==	1)	?	mf[ind+1  *ms +	c3D_d[2	]]:     f[ind+1  *ms];
 		f[ind+2	 *ms]	=	(stream_d[ind+2	 *ms]	==	1)	?	mf[ind+2  *ms +	c3D_d[3	]]:	f[ind+2  *ms];
 		f[ind+3	 *ms]	=	(stream_d[ind+3	 *ms]	==	1)	?	mf[ind+3  *ms +	c3D_d[4	]]:	f[ind+3  *ms];
 		f[ind+4	 *ms]	=	(stream_d[ind+4	 *ms]	==	1)	?	mf[ind+4  *ms +	c3D_d[5	]]:	f[ind+4  *ms];
