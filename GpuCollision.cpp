@@ -423,11 +423,11 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 	FLOAT_TYPE aux1, aux2;
 	cgx = cgy = cgz = grx = gry = grz = 0.0;
 	int ind, i, ms = length_d * depth_d;
-	if (cg_dir_d == 0){
+	switch (cg_dir_d){
+	case 0:
 		#pragma acc loop seq	
 		for(i = 1; i < 105; i++){
 			ind = index + hoc3D_d[i];
-			if (ind <0|| rho_d[ind]==0) printf("Ind negative or rho_d null, i= %d, cg_dir_d=%d, index=%d\n", i, cg_dir_d, index);
 			aux1 = hocg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
 			aux2 = hocg_w3D_d[i] * rho_d[ind];
 
@@ -439,12 +439,11 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgy += aux1 * hocg_cy3D_d[i];
 			cgz += aux1 * hocg_cz3D_d[i];
 		}
-	}
-	if (cg_dir_d == 1){ //NORTH
+		break;
+	case 1:
 		#pragma acc loop seq
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] - abs(cy3D_d[i]) * length_d + cz3D_d[i] * ms;
-                        if (ind <0|| rho_d[ind]==0) printf("Ind negative or rho_d null, i= %d, cg_dir_d=%d, index=%d\n", i, cg_dir_d, index);
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
 			aux2 = cg_w3D_d[i] * rho_d[ind];
 
@@ -454,12 +453,11 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgx += aux1 * cx3D_d[i];
 			cgz += aux1 * cz3D_d[i];
 		}
-	}
-	if (cg_dir_d == 2){ //SOUTH
+		break;
+	case 2:
 		#pragma acc loop seq
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] + abs(cy3D_d[i]) * length_d + cz3D_d[i] * ms;
-                        if (ind <0|| rho_d[ind]==0) printf("Ind negative or rho_d null, i= %d, cg_dir_d=%d, index=%d\n", i, cg_dir_d, index);
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
 			aux2 = cg_w3D_d[i] * rho_d[ind];
 
@@ -469,12 +467,11 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgx += aux1 * cx3D_d[i];
 			cgz += aux1 * cz3D_d[i];
 		}
-	}
-	if(cg_dir_d == 3){ //EAST
+		break;
+	case 3:
 		#pragma acc loop seq
 		for(i = 1; i < 19; i++){
 			ind = index - abs(cx3D_d[i]) + cy3D_d[i] * length_d + cz3D_d[i] * ms;
-                        if (ind <0|| rho_d[ind]==0) printf("Ind negative or rho_d null, i= %d, cg_dir_d=%d, index=%d\n", i, cg_dir_d, index);
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
 			aux2 = cg_w3D_d[i] * rho_d[ind];
 
@@ -484,12 +481,11 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgy += aux1 * cy3D_d[i];
 			cgz += aux1 * cz3D_d[i];
 		}
-	}
-	if(cg_dir_d == 4){ //WEST
+		break;
+	case 4:
 		#pragma acc loop seq
 		for(i = 1; i < 19; i++){
 			ind = index + abs(cx3D_d[i]) + cy3D_d[i] * length_d + cz3D_d[i] * ms;
-                        if (ind <0|| rho_d[ind]==0) printf("Ind negative or rho_d null, i= %d, cg_dir_d=%d, index=%d\n", i, cg_dir_d, index);
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
 			aux2 = cg_w3D_d[i] * rho_d[ind];
 
@@ -499,12 +495,11 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgy += aux1 * cy3D_d[i];
 			cgz += aux1 * cz3D_d[i];
 		}
-	}
-	if(cg_dir_d == 5){ // FRONT
+		break;
+	case 5:
 		#pragma acc loop seq
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] + cy3D_d[i] * length_d - abs(cz3D_d[i]) * ms;
-                        if (ind <0|| rho_d[ind]==0) printf("Ind negative or rho_d null, i= %d, cg_dir_d=%d, index=%d\n", i, cg_dir_d, index);
 			aux1 = cg_w3D_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
 			aux2 = cg_w3D_d[i] * rho_d[ind];
 
@@ -514,8 +509,8 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgx += aux1 * cx3D_d[i];
 			cgy += aux1 * cy3D_d[i];
 		}
-	}
-	if(cg_dir_d == 6){ // BACK
+		break;
+	case 6:
 		#pragma acc loop seq
 		for(i = 1; i < 19; i++){
 			ind = index + cx3D_d[i] + cy3D_d[i] * length_d + abs(cz3D_d[i]) * ms;
@@ -528,8 +523,8 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 			cgx += aux1 * cx3D_d[i];
 			cgy += aux1 * cy3D_d[i];
 		}
-	}
-	if (cg_dir_d == 11){
+		break;
+	case 11:
 		if (index >= length_d * depth_d + length_d){
 		#pragma acc loop seq
 		for(i = 1; i < 19; i++){
@@ -553,10 +548,10 @@ void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TY
 				}
 			}
 		}
+		break;
+	default:
+		break;
 	}
-	//default:
-	//	break;
-	//}
 	(*cg_x) = cgx;
 	(*cg_y) = cgy;
 	(*cg_z) = cgz;

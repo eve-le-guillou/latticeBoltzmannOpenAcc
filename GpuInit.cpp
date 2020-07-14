@@ -587,9 +587,6 @@ void initCGBubble3D(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *z_d, FLOAT_TYP
 			temp = (index - index_x) / length_d;
 			index_y = temp % depth_d;
 			index_z = (temp - index_y) / depth_d;
-			if (index == 257984) {
-			printf("Bouh\n");
-			}
 			if( index_x < 0.75 * length_d && index_x > 0.25 * length_d && index_y < 0.75 * depth_d && index_y > 0.25 * depth_d &&
 					index_z < 0.75 * height_d && index_z > 0.25 * height_d){
 				r_rho_d[index] = r_density_d;
