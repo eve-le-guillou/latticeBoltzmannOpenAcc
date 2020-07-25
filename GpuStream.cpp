@@ -4,6 +4,7 @@
 #include "BcMacros.h"
 #include "BcMacros3D.h"
 #include "GpuConstants.h"
+#include "ArrayUtils.h"
 
 /*__global__ void gpuStreaming2D(int* nodeType, int* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* fColl_d)
 {
@@ -32,8 +33,9 @@ void gpuStreaming2DCG(int* nodeType, int* stream_d, FLOAT_TYPE* r_f_d, FLOAT_TYP
 	int ms = depth_d*length_d;
 	FLOAT_TYPE *r_f, *r_mf, *b_f, *b_mf;
 	int n = length_d;
+	int gangs = ms/THREADS +1;
 #pragma acc data deviceptr(r_f, r_mf, b_f, b_mf) present(stream_d[0:ms*8], r_f_d[0:ms*9],b_f_d[0:ms*9]) present(r_fColl_d[0:9*ms], b_fColl_d[0:9*ms], cg_dir_d[0:ms])
-#pragma acc parallel loop 
+#pragma acc parallel loop //num_gangs(gangs) vector_length(THREADS)
 	for (int ind= 0;ind < ms; ind++)
 	{
 		int ori = cg_dir_d[ind];
@@ -162,7 +164,7 @@ void gpuStreaming3D(int* nodeType, bool* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* 
 {
 	int ms = depth_d*length_d*height_d;
 	FLOAT_TYPE *f, *mf;
-#pragma acc data deviceptr(f, mf) present(stream_d[0:ms*18], f_d[0:ms*19]) present(fColl_d[0:19*ms])
+#pragma acc data deviceptr(f, mf) present(stream_d[0:ms*18], f_d[0:ms*19], fColl_d[0:19*ms])
 #pragma acc parallel loop 	
 	for (int ind = 0; ind < ms; ind++){
 	   if ( nodeType[ind] == 1){

@@ -237,6 +237,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 			initHOColorGradient3D(cg_dir_d, n, m, h);
 		else
 			initColorGradient3D(cg_dir_d, n, m, h);
+#pragma acc enter data copyin(nodeX[0:ms], nodeY[0:ms], nodeZ[0:ms], rho_d[0:ms],r_rho_d[0:ms], b_rho_d[0:ms], r_f_d[0:ms*19], b_f_d[0:ms*19], f_d[0:ms*19])
 		initCGBubble3D(nodeX,nodeY,nodeZ,r_rho_d, b_rho_d, rho_d, r_f_d, b_f_d, f_d, args->test_case);
 	}
 
@@ -358,8 +359,8 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 
 	int iter = 0;
 #pragma acc data copyin(u_d[0:ms], v_d[0:ms], w_d[0:ms],  nodeType[0:numNodes], stream_d[0:18*ms], bcIdxCollapsed_d[0:bcCount], bcMaskCollapsed_d[0:bcCount], qCollapsed_d[0:bcCount*18]) create(r_fColl_d[ms*19], b_fColl_d[ms*19], p_in_d[0:ms], p_out_d[0:ms], num_in_d[0:ms], num_out_d[0:ms], d_divergence[0:1]) \
-                copyin(cg_dir_d[0:ms], bcMask_d[0:ms], f_prev_d[0:19*ms], fprev_d[0:19],  f1_d[0:19*ms], temp19a_d[0:ms*19], temp19b_d[0:ms*19], u1_d[0:ms], v1_d[0:ms], w1_d[0:ms])\
-                copyin(nodeX[0:ms],nodeY[0:ms], nodeZ[0:ms],  rho_d[0:ms],r_rho_d[0:ms], b_rho_d[0:ms], r_f_d[0:ms*19], b_f_d[0:ms*19], f_d[0:ms*19])
+                copyin(cg_dir_d[0:ms], bcMask_d[0:ms], f_prev_d[0:19*ms], fprev_d[0:19],  f1_d[0:19*ms], temp19a_d[0:ms*19], temp19b_d[0:ms*19], u1_d[0:ms], v1_d[0:ms], w1_d[0:ms])
+ //               copyin(nodeX[0:ms],nodeY[0:ms], nodeZ[0:ms],  rho_d[0:ms],r_rho_d[0:ms], b_rho_d[0:ms], r_f_d[0:ms*19], b_f_d[0:ms*19], f_d[0:ms*19])
 {
 	while (iter < args->iterations) {
 		////////////// COLLISION ///////////////
@@ -481,7 +482,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 
 					if (firstIter) {
 						firstIter = false;
-#ifdef OPENACC
+#if OPENACC
                                 #pragma acc host_data use_device(f_d, f1_d) 
                                 {
                                 cudaMemcpy(&f1_d,&f_d, ms*19,cudaMemcpyDeviceToDevice);
@@ -494,7 +495,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 					}
 					r = computeNewResidual3D(f_d, fprev_d, f1_d, temp19a_d, temp19b_d, m, n, h);
 					
-#ifdef OPENACC
+#if OPENACC
                                 #pragma acc host_data use_device(f_d, fprev_d) 
                                 {
                                 cudaMemcpy(&fprev_d,&f_d, ms*19,cudaMemcpyDeviceToDevice);

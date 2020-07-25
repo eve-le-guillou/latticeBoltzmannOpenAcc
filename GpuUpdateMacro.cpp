@@ -2,6 +2,7 @@
 #include "BcMacros.h"
 #include "BcMacros3D.h"
 #include "GpuConstants.h"
+#include "ArrayUtils.h"
 
 /*__global__ void gpuUpdateMacro2D(int *nodeType, FLOAT_TYPE* rho_d,
 		FLOAT_TYPE* u_d, FLOAT_TYPE* v_d, int *bcMask_d, FLOAT_TYPE* drag_d,
@@ -46,10 +47,10 @@ void gpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
 		int *num_in_d, int *num_out_d, int *cg_direction, int test_case) {
 
 	int ms = depth_d * length_d;
-
+	int gangs = ms/THREADS +1;
 	FLOAT_TYPE r_r, b_r, u, v, r, chi;
 	FLOAT_TYPE aux1, mean_nu, omega_eff;
-#pragma acc parallel loop present(rho_d[0:ms], u_d[0:ms], v_d[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:9*ms], r_rho_d[0:ms], b_rho_d[0:ms], p_in_d[0:ms], p_out_d[0:ms], num_in_d[0:ms], num_out_d[0:ms], cg_direction[0:ms])
+#pragma acc parallel loop present(rho_d[0:ms], u_d[0:ms], v_d[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:9*ms], r_rho_d[0:ms], b_rho_d[0:ms], p_in_d[0:ms], p_out_d[0:ms], num_in_d[0:ms], num_out_d[0:ms], cg_direction[0:ms]) //num_gangs(gangs) vector_length(THREADS) 
 	for (int ind = 0; ind < ms; ind++) {
 		//necessary because of sum
 		if(test_case == 1){
