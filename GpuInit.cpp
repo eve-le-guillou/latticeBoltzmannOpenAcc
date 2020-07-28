@@ -319,8 +319,9 @@ void initHOColorGradient3D(int *color_gradient_directions, int n, int m, int h){
 void initCGBubble(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_f_d,
 		FLOAT_TYPE *b_f_d, FLOAT_TYPE *f_d, int test_case){
 	int ms = length_d * depth_d;
+	int gangs = ms/THREADS +1;
 #pragma acc data present(x_d[0:ms],y_d[0:ms], rho_d[0:ms],r_rho_d[0:ms], b_rho_d[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:ms*9])
-#pragma acc parallel loop firstprivate(test_case) 
+#pragma acc parallel loop firstprivate(test_case) num_gangs(gangs) vector_length(THREADS) 
 	for(int index = 0; index < ms; index++){
 		FLOAT_TYPE aux1, aux2;
 		int index_x, index_y;

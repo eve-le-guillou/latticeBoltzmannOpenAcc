@@ -619,7 +619,8 @@ void gpuCollBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d
 	FLOAT_TYPE prod_c_g, pert;
 	FLOAT_TYPE f_CollPert;
 	FLOAT_TYPE mean_alpha, cu1, cu2, f_eq;
-        #pragma acc parallel loop present(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*9]) present(r_fColl_d[ms*9], b_fColl_d[ms*9], cg_dir_d[ms]) 
+	int gangs = ms/THREADS +1;
+        #pragma acc parallel loop present(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*9]) present(r_fColl_d[ms*9], b_fColl_d[ms*9], cg_dir_d[ms]) num_gangs(gangs) vector_length(THREADS) 
 	for (int ind=0; ind < ms; ind++)
 	{
 		#pragma acc cache(w2D_d, cx2D_d, cy2D_d, w_pert_d, c_norms_d, teta_d, phi_d) 
@@ -628,7 +629,6 @@ void gpuCollBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d
 		r_r = r_rho_d[ind];
 		b_r = b_rho_d[ind];
 		r = rho_d[ind];
-
 		if(high_order){ 
 			calculateHOColorGradient(r_rho_d,b_rho_d, rho_d, cg_dir_d[ind], ind, &cg_x, &cg_y, &gr_x, &gr_y);
 		}
@@ -694,7 +694,7 @@ void gpuCollEnhancedBgkwGC2D(FLOAT_TYPE *restrict rho_d, FLOAT_TYPE *restrict r_
 	int ind;
 	int gangs = ms/THREADS +1;
 	FLOAT_TYPE G1, G2, G3, G4, prod_u_grad_rho, mean_alpha, TC, cu1, cu2, f_eq;
-        #pragma acc parallel loop present(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*9]) present(r_fColl_d, b_fColl_d, cg_dir_d) //num_gangs(gangs) vector_length(THREADS)
+        #pragma acc parallel loop present(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*9]) present(r_fColl_d, b_fColl_d, cg_dir_d) num_gangs(gangs) vector_length(THREADS)
 	for (ind = 0; ind < ms; ind++)
 	{
 		#pragma acc cache(w2D_d, psi_d, cx2D_d, cy2D_d, w_pert_d, c_norms_d, teta_d, phi_d, chi_d) 
