@@ -777,6 +777,7 @@ void gpuCollBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOA
 #pragma acc parallel loop present(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*19], w_d[ms]) present(r_fColl_d[ms*19], b_fColl_d[ms*19], cg_dir_d[ms]) 
 	for (int ind = 0; ind < ms; ind++)
 	{
+	#pragma acc cache(cx3D_d[0:19], cy3D_d[0:19], cz3D_d[0:19], c_norms3D_d[0:19], w3D_d[0:19], w_pert3D_d[0:19], phi3D_d[0:19], teta3D_d[0:19])
 		u =   u_d[ind];
 		v =   v_d[ind];
 		w =   w_d[ind];
@@ -850,6 +851,7 @@ void gpuCollEnhancedBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho
 	#pragma acc parallel loop present(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*19], w_d[ms]) present(r_fColl_d[ms*19], b_fColl_d[ms*19], cg_dir_d[ms])
 	for (int ind = 0; ind < ms; ind++)
 	{
+		//#pragma acc cache(c_norms3D_d[0:19], w3D_d[0:19]/*, w_pert3D_d[0:19], phi3D_d[0:19], teta3D_d[0:19]*/)
 		u =   u_d[ind];
 		v =   v_d[ind];
 		w =   w_d[ind];

@@ -359,7 +359,8 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 
 	int iter = 0;
 #pragma acc data copyin(u_d[0:ms], v_d[0:ms], w_d[0:ms],  nodeType[0:numNodes], stream_d[0:18*ms], bcIdxCollapsed_d[0:bcCount], bcMaskCollapsed_d[0:bcCount], qCollapsed_d[0:bcCount*18]) create(r_fColl_d[ms*19], b_fColl_d[ms*19], p_in_d[0:ms], p_out_d[0:ms], num_in_d[0:ms], num_out_d[0:ms], d_divergence[0:1]) \
-                copyin(cg_dir_d[0:ms], bcMask_d[0:ms], f_prev_d[0:19*ms], fprev_d[0:19],  f1_d[0:19*ms], temp19a_d[0:ms*19], temp19b_d[0:ms*19], u1_d[0:ms], v1_d[0:ms], w1_d[0:ms])
+                copyin(cg_dir_d[0:ms], bcMask_d[0:ms], f_prev_d[0:19*ms], fprev_d[0:19],  f1_d[0:19*ms], temp19a_d[0:ms*19], temp19b_d[0:ms*19], u1_d[0:ms], v1_d[0:ms], w1_d[0:ms]) 
+		
  //               copyin(nodeX[0:ms],nodeY[0:ms], nodeZ[0:ms],  rho_d[0:ms],r_rho_d[0:ms], b_rho_d[0:ms], r_f_d[0:ms*19], b_f_d[0:ms*19], f_d[0:ms*19])
 {
 	while (iter < args->iterations) {
@@ -405,18 +406,19 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 					u1_d, v1_d, w1_d, bcCount);
 			switch (args->bcwallmodel) {
 			case SIMPLE:
+				
 				gpuBcSimpleWall3D(bcIdxCollapsed_d,
 						bcMaskCollapsed_d, r_f_d, r_fColl_d, qCollapsed_d, bcCount);
 				gpuBcSimpleWall3D(bcIdxCollapsed_d,
 						bcMaskCollapsed_d, b_f_d, b_fColl_d, qCollapsed_d, bcCount);
-
+				
 				break;
 			case COMPLEX:
-				/*gpuBcComplexWall3D<<<bpgB, tpb>>>(bcIdxCollapsed_d,
+				/*gpuBcComplexWall3D(bcIdxCollapsed_d,
 						bcMaskCollapsed_d, r_f_d, r_fColl_d, qCollapsed_d, bcCount);
-				gpuBcComplexWall3D<<<bpgB, tpb>>>(bcIdxCollapsed_d,
+				gpuBcComplexWall3D(bcIdxCollapsed_d,
 						bcMaskCollapsed_d, b_f_d, b_fColl_d, qCollapsed_d, bcCount);
-*/
+				*/
 				break;
 			}
 
