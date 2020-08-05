@@ -11,8 +11,8 @@
 #include <stdbool.h>  // bool variables
 #include "FloatType.h"
 
-#define THREADS 64 ///< number of threads used for kernels
-
+#define THREADS 128 ///< number of threads used for kernels
+#define GANGS 2048 
 /**
  * wraps sizeof(int)
  * @param a number of ints

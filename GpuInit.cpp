@@ -531,7 +531,7 @@ void initCGBubble3D(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *z_d, FLOAT_TYP
 		FLOAT_TYPE *b_f_d, FLOAT_TYPE *f_d, int test_case){
 	int ms = depth_d*length_d*height_d;
 	#pragma acc data present(x_d[0:ms],y_d[0:ms], z_d[0:ms], rho_d[0:ms],r_rho_d[0:ms], b_rho_d[0:ms], r_f_d[0:ms*19], b_f_d[0:ms*19], f_d[0:ms*19])
-	#pragma acc parallel loop firstprivate(test_case)
+	#pragma acc parallel loop firstprivate(test_case) num_gangs(GANGS) vector_length(256)
 	for(int index = 0; index < ms; index++){
 		int index_x, index_y, index_z, temp;
 		switch (test_case) {
