@@ -1203,8 +1203,8 @@ void initInletVelocity(FLOAT_TYPE *u, FLOAT_TYPE *v, FLOAT_TYPE u_veloc, FLOAT_T
 
 }
 
-FLOAT_TYPE getMaxYOscilating(FLOAT_TYPE *r_rho, FLOAT_TYPE *b_rho, int n, int m, FLOAT_TYPE *nodeY){
-
+#pragma acc routine seq
+void getMaxYOscilating(FLOAT_TYPE *oscilating_y, FLOAT_TYPE *r_rho, FLOAT_TYPE *b_rho, int n, int m, FLOAT_TYPE *nodeY){
 	int i, j_start, j;
 	if(n % 2 == 0)
 		i = n/2;
@@ -1231,10 +1231,11 @@ FLOAT_TYPE getMaxYOscilating(FLOAT_TYPE *r_rho, FLOAT_TYPE *b_rho, int n, int m,
 
 	FLOAT_TYPE aux_m = (phi1 - phi2) / (nodeY[j * n + i] - nodeY[(j - 1) * n + i]);
 	FLOAT_TYPE aux_b =  phi1 - aux_m * nodeY[j * n + i];
-	return -aux_b / aux_m;
+	(*oscilating_y) = -aux_b / aux_m;
 }
 
-FLOAT_TYPE getMinYRT(FLOAT_TYPE *r_rho, FLOAT_TYPE *b_rho, int n, int m, FLOAT_TYPE *nodeY){
+#pragma acc routine seq
+void getMinYRT(FLOAT_TYPE * oscilating_y, FLOAT_TYPE *r_rho, FLOAT_TYPE *b_rho, int n, int m, FLOAT_TYPE *nodeY){
 
 	int i, j_start, j;
 	if(n % 2 == 0)
@@ -1262,7 +1263,7 @@ FLOAT_TYPE getMinYRT(FLOAT_TYPE *r_rho, FLOAT_TYPE *b_rho, int n, int m, FLOAT_T
 
 	FLOAT_TYPE aux_m = (phi1 - phi2) / (nodeY[j * n + i] - nodeY[(j + 1) * n + i]);
 	FLOAT_TYPE aux_b =  phi1 - aux_m * nodeY[j * n + i];
-	return -aux_b / aux_m;
+	(*oscilating_y) =  -aux_b / aux_m;
 }
 
 FLOAT_TYPE validateOscilating(FLOAT_TYPE *r_rho, FLOAT_TYPE *b_rho, int n, int m, FLOAT_TYPE *extremes, int size,

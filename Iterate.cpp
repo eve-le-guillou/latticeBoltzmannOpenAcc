@@ -271,7 +271,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 
 	int iter = 0;
 #pragma acc data copyin(u[0:ms], v[0:ms], nodeType[0:numNodes], stream_d[0:8*ms], bcIdxCollapsed_d[0:bcCount], bcMaskCollapsed_d[0:bcCount], qCollapsed_d[0:bcCount*8]) \ 
-		create(r_fColl_d[m*n*9], b_fColl_d[m*n*9], p_in_d[n*m], p_out_d[n*m], num_in_d[m*n], num_out_d[m*n], h_divergence) \
+		create(r_fColl_d[m*n*9], b_fColl_d[m*n*9], p_in_d[n*m], p_out_d[n*m], num_in_d[m*n], num_out_d[m*n], h_divergence, oscilating_y[0:args->iterations]) \
                 copyin(cg_directions[0:n*m], bcMask_d[0:n*m], f_prev_d[0:9*m*n])
 {
         tIterStart = clock(); // Start measuring time of main loop
@@ -346,12 +346,19 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 				st_error[iter] = calculateSurfaceTension(p_in_mean, p_out_mean,args->r_alpha, args->b_alpha, args->bubble_radius * n, st_predicted);
 				break;
 			case 5:
-#pragma acc update host(r_rho[0:m*n], b_rho[0:m*n])
-				oscilating_y[iter] = getMaxYOscilating(r_rho, b_rho, n, m, nodeY);
+//#pragma acc update host(r_rho[0:m*n], b_rho[0:m*n])
+				//#pragma acc wait
+				#pragma acc parallel present(oscilating_y, r_rho, b_rho, nodeY) async 
+				{
+				getMaxYOscilating(&oscilating_y[iter],r_rho, b_rho, n, m, nodeY);
+				}
 				break;
 			case 6:
-#pragma acc update host(r_rho[0:m*n], b_rho[0:m*n])
-				oscilating_y[iter] = getMinYRT(r_rho, b_rho, n, m, nodeY);
+//#pragma acc update host(r_rho[0:m*n], b_rho[0:m*n])
+				#pragma acc parallel present(r_rho, b_rho, nodeY) async
+				{			
+				getMinYRT(&oscilating_y[iter], r_rho, b_rho, n, m, nodeY);
+				}
 				break;
 			default:
 				break;
@@ -499,11 +506,13 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			validateCoalescenceCase(r_rho, b_rho, n, m, args->bubble_radius);
 			break;
 		case 5:
+			#pragma acc update host(oscilating_y[0:args->iterations]) 
 			writeOscilatingSolution("Oscilating_frequency", oscilating_y, args->iterations);
 			printf("Oscilation frequency written to Oscilating_frequency in Results/\n");
 			printf("Error % : "FLOAT_FORMAT"\n", validateOscilating(r_rho, b_rho, n, m, oscilating_y, args->iterations,st_predicted, args->r_density, args->b_density));
 			break;
 		case 6:
+			#pragma acc update host(oscilating_y[0:args->iterations])
 			writeOscilatingSolution("RT_Interface", oscilating_y, args->iterations);
 			break;
 		default:

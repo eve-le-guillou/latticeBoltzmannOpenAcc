@@ -28,7 +28,7 @@ all: $(EXEC)
 $(EXEC): $(OBJ_DIR) $(OBJ_FILES); \
 	$(CC) $(LDFLAGS) $(LIBDIR) -o $@ $(OBJ_FILES)
 
-debug: CFLAGS= -g -Minfo=accel -acc -ta=tesla:cc60
+debug: CFLAGS=-g -Minfo=accel -acc -ta=tesla:cc60
 debug: LDFLAGS=-acc -ta=tesla:cc60
 #debug: DEFINES+=-DMAKE_SERIAL
 debug: all
