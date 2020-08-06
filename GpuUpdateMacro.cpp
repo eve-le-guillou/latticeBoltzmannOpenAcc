@@ -50,7 +50,7 @@ void gpuUpdateMacro2DCG(FLOAT_TYPE* rho_d,
 	int gangs = ms/THREADS +1;
 	FLOAT_TYPE r_r, b_r, u, v, r, chi;
 	FLOAT_TYPE aux1, mean_nu, omega_eff;
-#pragma acc parallel loop present(rho_d[0:ms], u_d[0:ms], v_d[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:9*ms], r_rho_d[0:ms], b_rho_d[0:ms], p_in_d[0:ms], p_out_d[0:ms], num_in_d[0:ms], num_out_d[0:ms], cg_direction[0:ms]) num_gangs(gangs) vector_length(THREADS) 
+#pragma acc parallel loop present(rho_d[0:ms], u_d[0:ms], v_d[0:ms], r_f_d[0:ms*9], b_f_d[0:ms*9], f_d[0:9*ms], r_rho_d[0:ms], b_rho_d[0:ms], p_in_d[0:ms], p_out_d[0:ms], num_in_d[0:ms], num_out_d[0:ms], cg_direction[0:ms]) num_gangs(gangs) vector_length(THREADS) async
 	for (int ind = 0; ind < ms; ind++) {
 		//necessary because of sum
 		if(test_case == 1){
@@ -225,7 +225,7 @@ void gpuUpdateMacro3DCG(int *nodeType, FLOAT_TYPE* rho_d,
 	int ms = depth_d * length_d * height_d;
 
 	FLOAT_TYPE r_r, b_r, r, rU, rV, rW, aux1, mean_nu, omega_eff;
-	#pragma acc parallel loop present(rho_d[0:ms], u_d[0:ms], v_d[0:ms], w_d[0:ms], r_f_d[0:ms*19], b_f_d[0:ms*19], f_d[0:19*ms], r_rho_d[0:ms], b_rho_d[0:ms], p_in_d[0:ms], p_out_d[0:ms], num_in_d[0:ms], num_out_d[0:ms], bcMask_d[0:ms]) firstprivate(g, updateInltOutl) num_gangs(GANGS) vector_length(512) 
+	#pragma acc parallel loop present(rho_d[0:ms], u_d[0:ms], v_d[0:ms], w_d[0:ms], r_f_d[0:ms*19], b_f_d[0:ms*19], f_d[0:19*ms], r_rho_d[0:ms], b_rho_d[0:ms], p_in_d[0:ms], p_out_d[0:ms], num_in_d[0:ms], num_out_d[0:ms], bcMask_d[0:ms]) firstprivate(g, updateInltOutl) num_gangs(GANGS) vector_length(512)  
 
 	for(int ind = 0; ind < ms; ind++) {
 		//necessary because of sum

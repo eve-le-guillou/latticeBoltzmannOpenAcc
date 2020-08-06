@@ -276,6 +276,18 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 {
         tIterStart = clock(); // Start measuring time of main loop
 	while (iter < args->iterations) {
+                if (iter == (args->autosaveEvery * autosaveIt)) {
+                        if (iter > args->autosaveAfter) {
+                                printf("autosave\n\n");
+                                //////////// COPY VARIABLES TO HOST ////////////////
+                                #pragma acc wait
+				#pragma acc update host(u[0:m*n], v[0:m*n], rho[0:m*n])
+                                if (args->multiPhase) {
+                                      #pragma acc update host(r_rho[0:m*n], b_rho[0:m*n])
+				}
+			}
+		}
+
 		switch (args->collisionModel) {
 
 		case BGKW:
@@ -406,15 +418,15 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 		iter++; // update loop variable
 		////////////// Autosave ///////////////
 
-		if (iter == (args->autosaveEvery * autosaveIt)) {
+		if (iter == (args->autosaveEvery *(autosaveIt+1))) {
 			autosaveIt++;
 			if (iter > args->autosaveAfter) {
 				printf("autosave\n\n");
 				//////////// COPY VARIABLES TO HOST ////////////////
-				#pragma acc update host(u[0:m*n], v[0:m*n], rho[0:m*n])
+				/*#pragma acc update host(u[0:m*n], v[0:m*n], rho[0:m*n])
 				                    if (args->multiPhase) {
-#pragma acc update host(r_rho[0:m*n], b_rho[0:m*n])
-      }
+							#pragma acc update host(r_rho[0:m*n], b_rho[0:m*n])
+						    }*/
 				switch (args->outputFormat) {
 				case CSV:
 					sprintf(finalFilename, "%sFinalData.csv", inFn->result);
@@ -433,6 +445,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			}
 		}
 	}     ////////////// END OF MAIN WHILE CYCLE! ///////////////
+	#pragma acc wait
 	tIterEnd = clock();
 	taskTime[T_ITER] = (FLOAT_TYPE) (tIterEnd - tIterStart) / CLOCKS_PER_SEC;
 	clock_t tEnd = clock();

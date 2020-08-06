@@ -620,7 +620,7 @@ void gpuCollBgkwGC2D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d
 	FLOAT_TYPE f_CollPert;
 	FLOAT_TYPE mean_alpha, cu1, cu2, f_eq;
 	int gangs = ms/THREADS +1;
-        #pragma acc parallel loop present(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*9]) present(r_fColl_d[ms*9], b_fColl_d[ms*9], cg_dir_d[ms]) num_gangs(gangs) vector_length(THREADS) 
+        #pragma acc parallel loop present(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*9]) present(r_fColl_d[ms*9], b_fColl_d[ms*9], cg_dir_d[ms]) num_gangs(gangs) vector_length(THREADS) async 
 	for (int ind=0; ind < ms; ind++)
 	{
 		#pragma acc cache(w2D_d, cx2D_d, cy2D_d, w_pert_d, c_norms_d, teta_d, phi_d) 
@@ -774,7 +774,7 @@ void gpuCollBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOA
 	FLOAT_TYPE prod_c_g, pert, cu1, cu2;
 	FLOAT_TYPE f_CollPert, f_eq;
 	int cx, cy, cz;
-#pragma acc parallel loop present(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*19], w_d[ms]) present(r_fColl_d[ms*19], b_fColl_d[ms*19], cg_dir_d[ms]) num_gangs(GANGS) vector_length(1024)
+#pragma acc parallel loop present(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*19], w_d[ms]) present(r_fColl_d[ms*19], b_fColl_d[ms*19], cg_dir_d[ms]) num_gangs(GANGS) vector_length(1024) 
 
 	for (int ind = 0; ind < ms; ind++)
 	{

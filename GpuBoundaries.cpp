@@ -1811,7 +1811,7 @@ void gpuBcPeriodic2D(int *bcIdx_d, int *bcMask_d,
         int offsetX = length_d - 1;
 	int ori;
 	int gangs = ms/THREADS +1;
-	#pragma acc parallel loop present(orientation_d[0:ms], r_f_d[0:9*ms], b_f_d[0:9*ms], r_rho_d[0:ms], b_rho_d[0:ms], u_d[0:ms], v_d[0:ms], rho_d[0:ms]) num_gangs(gangs) vector_length(THREADS) 
+	#pragma acc parallel loop present(orientation_d[0:ms], r_f_d[0:9*ms], b_f_d[0:9*ms], r_rho_d[0:ms], b_rho_d[0:ms], u_d[0:ms], v_d[0:ms], rho_d[0:ms]) num_gangs(gangs) vector_length(THREADS) async 
 	for (int ind = 0; ind < ms; ind++) {
 
 		ori = orientation_d[ind];
