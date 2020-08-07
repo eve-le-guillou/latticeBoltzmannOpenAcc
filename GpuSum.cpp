@@ -201,7 +201,7 @@ __global__ void gpu_max256(FLOAT_TYPE *A, FLOAT_TYPE *B, int size) {
 
 FLOAT_TYPE gpu_sum_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size) {
     FLOAT_TYPE result = 0.0;
-    #pragma acc parallel loop present(C[0:size]) reduction(+:result)
+    #pragma acc parallel loop present(C[0:size]) reduction(+:result) async
     for (int i = 0; i<size; i++){
         result+=C[i];
     }
@@ -210,7 +210,7 @@ FLOAT_TYPE gpu_sum_h(FLOAT_TYPE *C, FLOAT_TYPE *D, int size) {
 
 int gpu_sum_int_h(int *C, int *D, int size) {
     int result = 0;
-    #pragma acc parallel loop present(C[0:size]) reduction(+:result)
+    #pragma acc parallel loop present(C[0:size]) reduction(+:result) async
     for (int i = 0; i<size; i++){
         result+=C[i];
     }

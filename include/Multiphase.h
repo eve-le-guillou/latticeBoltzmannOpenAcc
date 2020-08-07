@@ -41,7 +41,8 @@ FLOAT_TYPE* convertArray(int n, int m, FLOAT_TYPE *arr);
 void updateSurfaceTension(FLOAT_TYPE *r_rho, FLOAT_TYPE *b_rho, FLOAT_TYPE control_param,
 		FLOAT_TYPE st_predicted, FLOAT_TYPE *st_error, int iteration, FLOAT_TYPE r_alpha, FLOAT_TYPE b_alpha, FLOAT_TYPE bubble_radius, int n, int m);
 
-FLOAT_TYPE calculateSurfaceTension(FLOAT_TYPE p_in_mean, FLOAT_TYPE p_out_mean, FLOAT_TYPE r_alpha, FLOAT_TYPE b_alpha, FLOAT_TYPE bubble_radius, FLOAT_TYPE st_predicted);
+#pragma acc routine seq
+void calculateSurfaceTension(FLOAT_TYPE * st, FLOAT_TYPE p_in_mean, FLOAT_TYPE p_out_mean, FLOAT_TYPE st_predicted);
 
 void validateCoalescenceCase(FLOAT_TYPE *r_rho, FLOAT_TYPE *b_rho, int n, int m, FLOAT_TYPE radius, int h = 0);
 

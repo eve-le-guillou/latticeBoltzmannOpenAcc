@@ -270,7 +270,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	printf("%d is the number of iterations \n", args->iterations);
 
 	int iter = 0;
-#pragma acc data copyin(u[0:ms], v[0:ms], nodeType[0:numNodes], stream_d[0:8*ms], bcIdxCollapsed_d[0:bcCount], bcMaskCollapsed_d[0:bcCount], qCollapsed_d[0:bcCount*8]) \ 
+#pragma acc data copyin(u[0:ms], v[0:ms], nodeType[0:numNodes], stream_d[0:8*ms], bcIdxCollapsed_d[0:bcCount], bcMaskCollapsed_d[0:bcCount], qCollapsed_d[0:bcCount*8], st_error[0:args->iterations]) \ 
 		create(r_fColl_d[m*n*9], b_fColl_d[m*n*9], p_in_d[n*m], p_out_d[n*m], num_in_d[m*n], num_out_d[m*n], h_divergence, oscilating_y[0:args->iterations]) \
                 copyin(cg_directions[0:n*m], bcMask_d[0:n*m], f_prev_d[0:9*m*n])
 {
@@ -341,9 +341,15 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			//gpu reduction is faster than serial surface tension
 			switch(args->test_case){
 			case 1:
+				//#pragma acc wait
 				p_in_mean = gpu_sum_h(p_in_d, p_in_d, ms) / gpu_sum_int_h(num_in_d, num_in_d, ms);
+				//#pragma acc wait
 				p_out_mean = gpu_sum_h(p_out_d, p_out_d, ms) / gpu_sum_int_h(num_out_d, num_out_d, ms);
-				st_error[iter] = calculateSurfaceTension(p_in_mean, p_out_mean,args->r_alpha, args->b_alpha, args->bubble_radius * n, st_predicted);
+				//#pragma acc wait
+				#pragma acc parallel present(st_error[0:args->iterations]) async
+				{
+				calculateSurfaceTension(&st_error[iter], p_in_mean, p_out_mean, st_predicted);
+				}
 				break;
 			case 5:
 //#pragma acc update host(r_rho[0:m*n], b_rho[0:m*n])
@@ -482,7 +488,8 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 		FLOAT_TYPE *analytical = createHostArrayFlt(m, ARRAY_ZERO);
 		switch (args->test_case) {
 		case 1:
-			printf("Suface tension error: "FLOAT_FORMAT"\n", st_error[iter-1]);
+			#pragma acc update host(st_error[0:args->iterations])
+			printf("Surface tension error: "FLOAT_FORMAT"\n", st_error[iter-1]);
 			printf("Pressure inside "FLOAT_FORMAT" Pressure outside "FLOAT_FORMAT" ST_predicted "FLOAT_FORMAT"\n", p_in_mean, p_out_mean, st_predicted);
 			WriteArray("surface tension",st_error, args->iterations,1);
 			break;
