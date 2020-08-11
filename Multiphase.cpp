@@ -1087,20 +1087,20 @@ void calculateSurfaceTension(FLOAT_TYPE * st, FLOAT_TYPE p_in_mean, FLOAT_TYPE p
 	FLOAT_TYPE st_laplace;
 	p_in_mean=(3.0/5.0)*(1.0-r_alpha_d)*p_in_mean;      // pressure average inside the bubble
 	p_out_mean=(3.0/5.0)*(1.0-b_alpha_d)*p_out_mean;   // pressure average outside the bubble
-	st_laplace=bubble_radius_d * (p_in_mean-p_out_mean);
+	st_laplace=bubble_radius_d* length_d * (p_in_mean-p_out_mean);
 
 	(*st) = abs(st_predicted-st_laplace)/(st_predicted)*100.0;
 }
 
-FLOAT_TYPE calculateSurfaceTension3D(FLOAT_TYPE p_in_mean, FLOAT_TYPE p_out_mean, FLOAT_TYPE r_alpha, FLOAT_TYPE b_alpha,
-		FLOAT_TYPE bubble_radius, FLOAT_TYPE st_predicted){
+#pragma acc routine seq
+void calculateSurfaceTension3D(FLOAT_TYPE * st, FLOAT_TYPE p_in_mean, FLOAT_TYPE p_out_mean, FLOAT_TYPE st_predicted){
 
 	FLOAT_TYPE st_laplace;
-	p_in_mean=(1.0/2.0)*(1.0-r_alpha)*p_in_mean;      // pressure average inside the bubble
-	p_out_mean=(1.0/2.0)*(1.0-b_alpha)*p_out_mean;   // pressure average outside the bubble
-	st_laplace=bubble_radius * (p_in_mean-p_out_mean);
+	p_in_mean=(1.0/2.0)*(1.0-r_alpha_d)*p_in_mean;      // pressure average inside the bubble
+	p_out_mean=(1.0/2.0)*(1.0-b_alpha_d)*p_out_mean;   // pressure average outside the bubble
+	st_laplace=bubble_radius_d* length_d * (p_in_mean-p_out_mean);
 
-	return abs(st_predicted-st_laplace)/(st_predicted)*100.0;
+	(*st) = abs(st_predicted-st_laplace)/(st_predicted)*100.0;
 }
 
 void validateCoalescenceCase(FLOAT_TYPE *r_rho, FLOAT_TYPE *b_rho, int n, int m, FLOAT_TYPE radius, int h){

@@ -164,8 +164,8 @@ void gpuStreaming3D(int* nodeType, bool* stream_d, FLOAT_TYPE* f_d, FLOAT_TYPE* 
 {
 	int ms = depth_d*length_d*height_d;
 	FLOAT_TYPE *f, *mf;
-#pragma acc data deviceptr(f, mf) present(stream_d[0:ms*18], f_d[0:ms*19], fColl_d[0:19*ms])
-#pragma acc parallel loop num_gangs(GANGS) vector_length(256)	
+#pragma acc data deviceptr(f, mf) present(stream_d[0:ms*18], f_d[0:ms*19], fColl_d[0:19*ms]) async
+#pragma acc parallel loop num_gangs(GANGS) vector_length(256) async
 	for (int ind = 0; ind < ms; ind++){
 	   if ( nodeType[ind] == 1){
 		f_d[ind] = fColl_d[ind];	//Update fNewStep = fColl

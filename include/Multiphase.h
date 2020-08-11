@@ -60,9 +60,8 @@ FLOAT_TYPE validateOscilating(FLOAT_TYPE *r_rho, FLOAT_TYPE *b_rho, int n, int m
 
 void analyticalPoiseuille(int m, int n, FLOAT_TYPE *analytical, FLOAT_TYPE r_density, FLOAT_TYPE b_density,
 		FLOAT_TYPE r_visc, FLOAT_TYPE b_visc, FLOAT_TYPE g, FLOAT_TYPE *y);
-
-FLOAT_TYPE calculateSurfaceTension3D(FLOAT_TYPE p_in_mean, FLOAT_TYPE p_out_mean, FLOAT_TYPE r_alpha, FLOAT_TYPE b_alpha,
-		FLOAT_TYPE bubble_radius, FLOAT_TYPE st_predicted);
+#pragma acc routine seq
+void calculateSurfaceTension3D(FLOAT_TYPE *st, FLOAT_TYPE p_in_mean, FLOAT_TYPE p_out_mean, FLOAT_TYPE st_predicted);
 
 #pragma acc routine seq
 void getMinYRT(FLOAT_TYPE* oscilating_y, FLOAT_TYPE *r_rho, FLOAT_TYPE *b_rho, int n, int m, FLOAT_TYPE *nodeY);

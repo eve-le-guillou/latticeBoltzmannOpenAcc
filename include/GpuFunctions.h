@@ -202,8 +202,8 @@ void gpuBcInlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
 void gpuBcSimpleWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 		FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size);
 
-/*__global__ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
-FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size);*/
+void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
+FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size);
 /**
  * @brief Outlet boundary conditions
  * @details Computes the effect of the outlet conditions, using ...
@@ -456,7 +456,6 @@ void gpuUpdateMacro3DCG(int *nodeType, FLOAT_TYPE* rho_d,
 		int *num_in_d, int *num_out_d,int test_case);
 void initCGBubble3D(FLOAT_TYPE *x_d, FLOAT_TYPE *y_d, FLOAT_TYPE *z_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_f_d,
 		FLOAT_TYPE *b_f_d, FLOAT_TYPE *f_d, int test_case);
-
 void calculateHOColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, int cg_dir_d, int index, FLOAT_TYPE *cg_x, FLOAT_TYPE *cg_y);
 
 void initHOColorGradient(int *color_gradient_directions, int n, int m);

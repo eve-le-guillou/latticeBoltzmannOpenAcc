@@ -359,11 +359,17 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 
 	int iter = 0;
 #pragma acc data copyin(u_d[0:ms], v_d[0:ms], w_d[0:ms],  nodeType[0:numNodes], stream_d[0:18*ms], bcIdxCollapsed_d[0:bcCount], bcMaskCollapsed_d[0:bcCount], qCollapsed_d[0:bcCount*18]) create(r_fColl_d[ms*19], b_fColl_d[ms*19], p_in_d[0:ms], p_out_d[0:ms], num_in_d[0:ms], num_out_d[0:ms], d_divergence[0:1]) \
-                copyin(cg_dir_d[0:ms], bcMask_d[0:ms], f_prev_d[0:19*ms], fprev_d[0:19],  f1_d[0:19*ms], temp19a_d[0:ms*19], temp19b_d[0:ms*19], u1_d[0:ms], v1_d[0:ms], w1_d[0:ms]) 
+                copyin(cg_dir_d[0:ms], bcMask_d[0:ms], f_prev_d[0:19*ms], fprev_d[0:19],  f1_d[0:19*ms], temp19a_d[0:ms*19], temp19b_d[0:ms*19], u1_d[0:ms], v1_d[0:ms], w1_d[0:ms], st_error[0:args->iterations]) 
 		
  //               copyin(nodeX[0:ms],nodeY[0:ms], nodeZ[0:ms],  rho_d[0:ms],r_rho_d[0:ms], b_rho_d[0:ms], r_f_d[0:ms*19], b_f_d[0:ms*19], f_d[0:ms*19])
 {
 	while (iter < args->iterations) {
+		if (iter == (args->autosaveEvery * autosaveIt)) {
+                        if (iter > args->autosaveAfter) {
+				#pragma acc wait
+				#pragma acc update host(u_d[0:ms], v_d[0:ms], w_d[0:ms], rho_d[0:ms])
+			}
+		}
 		////////////// COLLISION ///////////////
 		switch (args->collisionModel) {
 		case BGKW:
@@ -456,7 +462,10 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 			case 1:
 				p_in_mean = gpu_sum_h(p_in_d, p_in_d, ms) / gpu_sum_int_h(num_in_d, num_in_d, ms);
 				p_out_mean = gpu_sum_h(p_out_d, p_out_d, ms) / gpu_sum_int_h(num_out_d, num_out_d, ms);
-				st_error[iter] = calculateSurfaceTension3D(p_in_mean, p_out_mean,args->r_alpha, args->b_alpha, args->bubble_radius * n, st_predicted);
+				#pragma acc parallel present(st_error[0:args->iterations]) async 
+				{
+				calculateSurfaceTension3D(&st_error[iter], p_in_mean, p_out_mean, st_predicted);
+				}
 				break;
 			default:
 				break;
@@ -473,7 +482,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 
 			if (args->TypeOfResiduals == L2) {
 				if(args->multiPhase){
-				#pragma acc update device(f_d[0:19*ms], r_fColl_d[0:ms])
+				#pragma acc update device(f_d[0:19*ms], r_fColl_d[0:ms]) 
 				}
 				r = computeResidual3D(f_d, fColl_d, temp19a_d, temp19b_d, m, n, h);
 			}
@@ -583,7 +592,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 		}
 		if(args->multiPhase){
 #if OPENACC
-                                #pragma acc host_data use_device(f_d, f_prev_d) 
+                                #pragma acc host_data use_device(f_d, f_prev_d)  
                                 {
                                 cudaMemcpy(&f_prev_d,&f_d, ms*19,cudaMemcpyDeviceToDevice);
                                 }
@@ -617,7 +626,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 		iter++; // update loop variable
 
 		////////////// Autosave ///////////////
-		if (iter == (args->autosaveEvery * autosaveIt)) {
+		if (iter == (args->autosaveEvery * (autosaveIt+1))) {
 			autosaveIt++;
 			if (iter > args->autosaveAfter) {
 				printf("autosave\n\n");
@@ -625,19 +634,19 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 				switch (args->outputFormat) {
 				case CSV:
 					sprintf(autosaveFilename, "%sautosave_iter%05d.csv",
-							inFn->result, iter);
+							inFn->result, iter-args->autosaveEvery);
 					break;
 				case TECPLOT:
 					sprintf(autosaveFilename, "%sautosave_iter%05d.dat",
-							inFn->result, iter);
+							inFn->result, iter-args->autosaveEvery);
 					break;
 				case PARAVIEW:
 					sprintf(autosaveFilename, "%sautosave_iter%05d.vti",
-							inFn->result, iter);
+							inFn->result, iter-args->autosaveEvery);
 					break;
 				}
-				tInstant1 = clock(); // Start measuring time
-				#pragma acc update host(u_d[0:ms], v_d[0:ms], w_d[0:ms], rho_d[0:ms])
+				tInstant1 = clock(); // Start measuring time	
+				//#pragma acc update host(u_d[0:ms], v_d[0:ms], w_d[0:ms], rho_d[0:ms])
 				WriteResults3D(autosaveFilename, nodeType, nodeX, nodeY, nodeZ,
 						u_d, v_d, w_d, rho_d, nodeType, n, m, h, args->outputFormat);
 				tInstant2 = clock();
@@ -663,6 +672,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 				args->iterations);
 	}
 	// Write final data
+	#pragma acc wait
 	#pragma acc update host(u_d[0:ms], v_d[0:ms], w_d[0:ms], rho_d[0:ms])
 	if(args->multiPhase){
 	#pragma acc update host(r_rho_d[0:ms], b_rho_d[0:ms])
@@ -683,6 +693,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 		FLOAT_TYPE *analytical = createHostArrayFlt(m, ARRAY_ZERO);
 		switch (args->test_case) {
 		case 1:
+			#pragma acc update host(st_error[0: args->iterations])
 			printf("Suface tension error: "FLOAT_FORMAT"\n", st_error[iter-1]);
 			WriteArray("surface tension",st_error, args->iterations,1);
 			break;

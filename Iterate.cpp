@@ -278,7 +278,6 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 	while (iter < args->iterations) {
                 if (iter == (args->autosaveEvery * autosaveIt)) {
                         if (iter > args->autosaveAfter) {
-                                printf("autosave\n\n");
                                 //////////// COPY VARIABLES TO HOST ////////////////
                                 #pragma acc wait
 				#pragma acc update host(u[0:m*n], v[0:m*n], rho[0:m*n])
