@@ -14,11 +14,7 @@ CPP_FILES=argtable3.cpp main.cpp GpuSum.cpp GpuInit.cpp Iterate.cpp Iterate3D.cp
 HEADRF=FilesReading.h argtable3.h FilesWriting.h GpuConstants.h Iterate.h CellFunctions.h ComputeResiduals.h ShellFunctions.h \
        GpuFunctions.h LogWriter.h Arguments.h ArrayUtils.h GpuSum.h Multiphase.h
 HEADERS=$(patsubst %,include/%,$(HEADRF))
-ifeq ($(OS),Windows_NT)
-OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CPP_FILES:.cpp=.obj))
-else
 OBJ_FILES=$(patsubst %,$(OBJ_DIR)/%,$(CPP_FILES:.cpp=.o))
-endif
 OBJ_DIR=obj
 DOC_DIR=docs
 
@@ -30,7 +26,6 @@ $(EXEC): $(OBJ_DIR) $(OBJ_FILES); \
 
 debug: CFLAGS=-g -Minfo=accel -acc -ta=tesla:cc60
 debug: LDFLAGS=-acc -ta=tesla:cc60
-#debug: DEFINES+=-DMAKE_SERIAL
 debug: all
 
 serial: CFLAGS=-fast

@@ -1,76 +1,59 @@
-# CUDA LBM SOLVER
-## Cranfield University 2015
+# OpenACC LBM SOLVER
+## Cranfield University 2020
 This software is a Lattice Boltzmann solver for simple geometries.
 
 # Build
-To build the program use the provided Makefile. By default it will create object files and build the code with single precision (float)
+To build the program use the provided Makefile. By default it will create object files and build the code with double precision (float)
 
     $ make
-
 
 To build with double precision
 
     $ make FLOAT_TYPE=USE_DOUBLE
 
+To create a serial build:
 
-To build a more compact (and slightly faster) version without object files
-
-    $ make release
-
+    $ make serial
 
 To create Doxygen documentation (HTML, LaTeX)
 
     $ make doc
 
-
 To create Doxygen documentation and pdf
 
     $ made latexdoc
 
-
-To run unittests
-
-    $ make test
-
-
-To create a debug build
+To create a parallel debug build that executes on Crescent's front node
 
     $ make debug
-
 
 To clean the project
 
     $ make clean
 
-## Build on Windows
-The code is prepared to be built in Windows environment although success is not guaranteed. To build
-it you will need GNU make. You can use the Windows compliant MinGW version or the POSIX compliant
-Cygwin version, both should work without other changes the same way on Linux.
- * Visual C++ compiler suite (added to PATH) / also work with the free Express edition
- * CUDA Toolkit (added to PATH)
- * GNU make (added to PATH)
-
 # Dependencies
-## CuTest
-CuTest is a single file ANSI C unittest framework, which compiles together with the code so it does
-not need any special treatment.
-## Argtable 2
-Argtable is an ANSI C command line parser, whick use CMAKE for building configuration thus can be
-built on any environment. On windows it does not support regex so some parameters are defined as
-normal string parameters on windows. To build it, download and setup CMAKE than generate the
-project according to your environment and build it.
+## Argtable 3
+Argtable is an open source ANSI C library that parses GNU-style command-line options. It simplifies command-line parsing by defining a declarative-style API that can be used to specify what a program's command-line syntax should look like. Argtable3 is a single-file library. All that is needed to integrate it to the project is copying argtable3.c in the main directory and including argtable3.h in the source code. As PGC++ cis a compiler for C++ source code, argtable3.c was modified to argtable3.cpp.
 
-The repository contains already built version of the library for 64bit linux and 64bit Windows.
+# Running the program 
 
-# Running the program
+## Compare files
+To compare results in the default place with previous ones just run
+
+    $ ./lbmsolver compare <path to result file>
+
+To compare files at path different than the default
+
+    $ ./lbmsolver compare <path to result file1> <path to result file2>
+
 ## Input files
 The program needs at least 3 files to run if no parameters passed to the executable
  * SetUpData.ini
- * Mesh/D2node.dat
- * Mesh/BCconnectors.dat
+ * Mesh/<Lattice_name>_BC.dat
+ * Mesh/<Lattice_name>_Node.dat
 
 ## Input parameters
-To get the full list of parameters
+To get the full list of parameters (the following was not maintained and may not work)
 
     $ ./lbmsolver -h
     Usage: ./lbmsolver  [-ht] [-f <file>] [-n <file>] [-b <file>] [-o <file>] [-u <u>] [-v <v>] [-r <rho>] [-s <nu>] [--inlet=[yes|no|pulsatile]] [-c [BGKW|TRT|MRT]] [--curved] [-l [yes|second|first]] [-i <N>] [--every=<N>] [--after=<N>] [--format=[paraview|tecplot]] [-d <id>]
@@ -100,18 +83,6 @@ To get the full list of parameters
 
 If an init file is passed with -f all other parameters are discarded.
 
-## Compare files
-To compare results in the default place with previous ones just run
+# Author
 
-    $ ./lbmsolver compare <path to result file>
-
-To compare files at path different than the default
-
-    $ ./lbmsolver compare <path to result file1> <path to result file2>
-
-# Authors
-Adam Koleszar
-
-Tamas Istvan Jozsa
-
-Mate Tibor Szoke
+Eve Le Guillou
