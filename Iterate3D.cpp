@@ -361,9 +361,9 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 #pragma acc data copyin(u_d[0:ms], v_d[0:ms], w_d[0:ms],  nodeType[0:numNodes], stream_d[0:18*ms], bcIdxCollapsed_d[0:bcCount], bcMaskCollapsed_d[0:bcCount], qCollapsed_d[0:bcCount*18]) create(r_fColl_d[ms*19], b_fColl_d[ms*19], p_in_d[0:ms], p_out_d[0:ms], num_in_d[0:ms], num_out_d[0:ms], d_divergence[0:1]) \
                 copyin(cg_dir_d[0:ms], bcMask_d[0:ms], f_prev_d[0:19*ms], fprev_d[0:19],  f1_d[0:19*ms], temp19a_d[0:ms*19], temp19b_d[0:ms*19], u1_d[0:ms], v1_d[0:ms], w1_d[0:ms], st_error[0:args->iterations]) 
 		
- //               copyin(nodeX[0:ms],nodeY[0:ms], nodeZ[0:ms],  rho_d[0:ms],r_rho_d[0:ms], b_rho_d[0:ms], r_f_d[0:ms*19], b_f_d[0:ms*19], f_d[0:ms*19])
 {
 	while (iter < args->iterations) {
+		//////////// COPY VARIABLES TO HOST ////////////////
 		if (iter == (args->autosaveEvery * autosaveIt)) {
                         if (iter > args->autosaveAfter) {
 				#pragma acc wait
@@ -630,7 +630,7 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 			autosaveIt++;
 			if (iter > args->autosaveAfter) {
 				printf("autosave\n\n");
-				//////////// COPY VARIABLES TO HOST ////////////////
+				// The variables have already been updated on the host at the begginning of the loop
 				switch (args->outputFormat) {
 				case CSV:
 					sprintf(autosaveFilename, "%sautosave_iter%05d.csv",
@@ -646,7 +646,6 @@ int Iterate3D(InputFilenames *inFn, Arguments *args) {
 					break;
 				}
 				tInstant1 = clock(); // Start measuring time	
-				//#pragma acc update host(u_d[0:ms], v_d[0:ms], w_d[0:ms], rho_d[0:ms])
 				WriteResults3D(autosaveFilename, nodeType, nodeX, nodeY, nodeZ,
 						u_d, v_d, w_d, rho_d, nodeType, n, m, h, args->outputFormat);
 				tInstant2 = clock();

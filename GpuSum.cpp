@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include "BcMacros3D.h"
 #include "ArrayUtils.h"
-//#include "Check.h"
 #include <stdio.h>
 #include "math.h"
 #include <cmath>

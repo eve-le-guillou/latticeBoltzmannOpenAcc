@@ -432,12 +432,14 @@ void gpuBcSimpleWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 		}
 	}
 }
-
-void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
+/*
+__global__ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 		FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size) {
+	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
+	int bci = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x)
+																																									+ threadIdx.x;
 	int ms = depth_d * length_d * height_d;
 	int dir;
-
 	int NoOfDirs;
 	int x[3] = { 0, 0, 0 }; //normal vector
 	int y[3] = { 0, 0, 0 }; //normal vector
@@ -450,7 +452,7 @@ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 	FLOAT_TYPE uT, vT, wT, dT;
 	FLOAT_TYPE Nxy, Nxz, Nyx, Nyz, Nzx, Nzy;
 	FLOAT_TYPE Nx, Ny, Nz, C18, C27, C36, C45;
-	for (int bci=0; bci < size;bci++) {
+	if (bci < size) {
 		int ind = bcIdx_d[bci];
 
 		NoOfDirs = 0;
@@ -499,7 +501,7 @@ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 		if (NoOfDirs == 5) { //MIDDLE OF WALL, TODO
 			if (bcMask_d[bci] & BC3D_FLUID) {
 				if (bcMask_d[bci] & BC3D_WALL_B) {
-					/*WEST*/if ((bcMask_d[bci] & BC3D_WALL_2)
+					/*WEST*//*if ((bcMask_d[bci] & BC3D_WALL_2)
 							&& ((bcMask_d[bci]
 							              & BC3D_MASK((unsigned long long)BC3D_ALL, 2))
 									== (bcMask_d[bci] & BC3D_WALL_2))) {
@@ -540,7 +542,7 @@ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 						f_d[ind + 13 * ms] = f_d[ind + 12 * ms]
 						                         + 1.0 / 6.0 * dW * (uW - wW) + Nxz;
 					}
-					/*EAST*/if ((bcMask_d[bci] & BC3D_WALL_1)
+					/*EAST*//*if ((bcMask_d[bci] & BC3D_WALL_1)
 							&& ((bcMask_d[bci]
 							              & BC3D_MASK((unsigned long long)BC3D_ALL, 1))
 									== (bcMask_d[bci] & BC3D_WALL_1))) {
@@ -590,7 +592,7 @@ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 						f_d[ind + 14 * ms] = f_d[ind + 11 * ms]
 						                         - 1.0 / 6.0 * dE * (uE + wE) + Nxz;
 					}
-					/*SOUTH*/if ((bcMask_d[bci] & BC3D_WALL_4)
+					/*SOUTH*//*if ((bcMask_d[bci] & BC3D_WALL_4)
 							&& ((bcMask_d[bci]
 							              & BC3D_MASK((unsigned long long)BC3D_ALL, 4))
 									== (bcMask_d[bci] & BC3D_WALL_4))) {
@@ -640,7 +642,7 @@ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 						f_d[ind + 17 * ms] = f_d[ind + 16 * ms]
 						                         + 1.0 / 6.0 * dS * (vS - wS) + Nyz;
 					}
-					/*NORTH*/if ((bcMask_d[bci] & BC3D_WALL_3)
+					/*NORTH*//*if ((bcMask_d[bci] & BC3D_WALL_3)
 							&& ((bcMask_d[bci]
 							              & BC3D_MASK((unsigned long long)BC3D_ALL, 3))
 									== (bcMask_d[bci] & BC3D_WALL_3))) {
@@ -690,7 +692,7 @@ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 						f_d[ind + 18 * ms] = f_d[ind + 15 * ms]
 						                         - 1.0 / 6.0 * dN * (vN + wN) + Nyz;
 					}
-					/*BOTTOM*/if ((bcMask_d[bci] & BC3D_WALL_6)
+					/*BOTTOM*//*if ((bcMask_d[bci] & BC3D_WALL_6)
 							&& ((bcMask_d[bci]
 							              & BC3D_MASK((unsigned long long)BC3D_ALL, 6))
 									== (bcMask_d[bci] & BC3D_WALL_6))) {
@@ -740,7 +742,7 @@ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 						                         + 1.0 / 6.0 * dB * (wB - vB) + Nzy;
 
 					}
-					/*TOP*/if ((bcMask_d[bci] & BC3D_WALL_5)
+					/*TOP*//*if ((bcMask_d[bci] & BC3D_WALL_5)
 							&& ((bcMask_d[bci]
 							              & BC3D_MASK((unsigned long long)BC3D_ALL, 5))
 									== (bcMask_d[bci] & BC3D_WALL_5))) {
@@ -1489,7 +1491,7 @@ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 
 	}
 	//printf("bci:%d NoOfDirs:%d\n",bci, NoOfDirs);
-}
+}*/
 
 /*__global__ void gpuBcOutlet2D(int *bcIdx_d, int *bcMask_d, FLOAT_TYPE *f_d,
 		FLOAT_TYPE *u0_d, FLOAT_TYPE *v0_d, int size) {

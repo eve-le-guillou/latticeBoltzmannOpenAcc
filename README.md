@@ -33,7 +33,7 @@ To clean the project
 
 # Dependencies
 ## Argtable 3
-Argtable is an open source ANSI C library that parses GNU-style command-line options. It simplifies command-line parsing by defining a declarative-style API that can be used to specify what a program's command-line syntax should look like. Argtable3 is a single-file library. All that is needed to integrate it to the project is copying argtable3.c in the main directory and including argtable3.h in the source code. As PGC++ cis a compiler for C++ source code, argtable3.c was modified to argtable3.cpp.
+Argtable is an open source ANSI C library that parses GNU-style command-line options. It simplifies command-line parsing by defining a declarative-style API that can be used to specify what a program's command-line syntax should look like. Argtable3 is a single-file library. All that is needed to integrate it to the project is copying argtable3.c in the main directory and including argtable3.h in the source code. As PGC++ is a compiler for C++ source code, argtable3.c was modified to argtable3.cpp and sligthly differs from the original.
 
 # Running the program 
 
@@ -53,9 +53,12 @@ The program needs at least 3 files to run if no parameters passed to the executa
  * Mesh/<Lattice_name>_Node.dat
 
 ## Input parameters
-To get the full list of parameters (the following was not maintained and may not work)
+The following was not maintained and may not work.
+
+To get the full list of parameters
 
     $ ./lbmsolver -h
+
     Usage: ./lbmsolver  [-ht] [-f <file>] [-n <file>] [-b <file>] [-o <file>] [-u <u>] [-v <v>] [-r <rho>] [-s <nu>] [--inlet=[yes|no|pulsatile]] [-c [BGKW|TRT|MRT]] [--curved] [-l [yes|second|first]] [-i <N>] [--every=<N>] [--after=<N>] [--format=[paraview|tecplot]] [-d <id>]
     Usage: ./lbmsolver  compare <file> [<file>]
 

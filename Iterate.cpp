@@ -340,26 +340,20 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			//gpu reduction is faster than serial surface tension
 			switch(args->test_case){
 			case 1:
-				//#pragma acc wait
 				p_in_mean = gpu_sum_h(p_in_d, p_in_d, ms) / gpu_sum_int_h(num_in_d, num_in_d, ms);
-				//#pragma acc wait
 				p_out_mean = gpu_sum_h(p_out_d, p_out_d, ms) / gpu_sum_int_h(num_out_d, num_out_d, ms);
-				//#pragma acc wait
 				#pragma acc parallel present(st_error[0:args->iterations]) async
 				{
 				calculateSurfaceTension(&st_error[iter], p_in_mean, p_out_mean, st_predicted);
 				}
 				break;
 			case 5:
-//#pragma acc update host(r_rho[0:m*n], b_rho[0:m*n])
-				//#pragma acc wait
 				#pragma acc parallel present(oscilating_y, r_rho, b_rho, nodeY) async 
 				{
 				getMaxYOscilating(&oscilating_y[iter],r_rho, b_rho, n, m, nodeY);
 				}
 				break;
 			case 6:
-//#pragma acc update host(r_rho[0:m*n], b_rho[0:m*n])
 				#pragma acc parallel present(r_rho, b_rho, nodeY) async
 				{			
 				getMinYRT(&oscilating_y[iter], r_rho, b_rho, n, m, nodeY);
@@ -434,11 +428,7 @@ int Iterate2D(InputFilenames *inFn, Arguments *args) {
 			autosaveIt++;
 			if (iter > args->autosaveAfter) {
 				printf("autosave\n\n");
-				//////////// COPY VARIABLES TO HOST ////////////////
-				/*#pragma acc update host(u[0:m*n], v[0:m*n], rho[0:m*n])
-				                    if (args->multiPhase) {
-							#pragma acc update host(r_rho[0:m*n], b_rho[0:m*n])
-						    }*/
+				// The variables have already been updated on the host at the begginning of the loop
 				switch (args->outputFormat) {
 				case CSV:
 					sprintf(finalFilename, "%sFinalData.csv", inFn->result);

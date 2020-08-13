@@ -202,8 +202,8 @@ void gpuBcInlet3D(int *bcIdx_d, unsigned long long *bcMask_d,
 void gpuBcSimpleWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
 		FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size);
 
-void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
-FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size);
+/* __global__ void gpuBcComplexWall3D(int *bcIdx_d, unsigned long long *bcMask_d,
+FLOAT_TYPE *f_d, FLOAT_TYPE *fColl_d, FLOAT_TYPE *q_d, int size);*/
 /**
  * @brief Outlet boundary conditions
  * @details Computes the effect of the outlet conditions, using ...

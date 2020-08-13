@@ -208,7 +208,7 @@ void calculateHOColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TY
 	int ind, i;
 	switch (cg_dir_d) {
 	case 0:
-	#pragma acc loop seq	
+#pragma acc loop seq	
 		for(i = 1; i < 25; i++){
 			ind = index + hocg_cx_d[i] + hocg_cy_d[i] * length_d;
 			aux1 = hocg_w_d[i] * (r_rho_d[ind] - b_rho_d[ind]) / rho_d[ind];
@@ -291,7 +291,7 @@ void calculateHOColorGradient(FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, FLOAT_TY
 	(*gr_x) = grx;
 	(*gr_y) = gry;
 }
-
+#pragma acc routine seq
 void calculateColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, int cg_dir_d, int index,
 		FLOAT_TYPE *cg_x, FLOAT_TYPE *cg_y, FLOAT_TYPE *cg_z, FLOAT_TYPE *gr_x, FLOAT_TYPE *gr_y, FLOAT_TYPE *gr_z){
 	FLOAT_TYPE cgx, cgy, cgz, grx,gry,grz;
@@ -417,6 +417,7 @@ void calculateColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE
 	(*gr_z) = grz;
 }
 
+#pragma acc routine seq
 void calculateHOColorGradient3D(FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho_d, FLOAT_TYPE *b_rho_d, int cg_dir_d, int index,
 		FLOAT_TYPE *cg_x, FLOAT_TYPE *cg_y, FLOAT_TYPE *cg_z, FLOAT_TYPE *gr_x, FLOAT_TYPE *gr_y, FLOAT_TYPE *gr_z){
 
@@ -852,7 +853,7 @@ void gpuCollEnhancedBgkwGC3D(int *nodeType, FLOAT_TYPE *rho_d, FLOAT_TYPE *r_rho
 	#pragma acc parallel loop present(rho_d[ms], r_rho_d[ms], b_rho_d[ms], u_d[ms], v_d[ms], f_d[ms*19], w_d[ms]) present(r_fColl_d[ms*19], b_fColl_d[ms*19], cg_dir_d[ms]) async
 	for (int ind = 0; ind < ms; ind++)
 	{
-		//#pragma acc cache(c_norms3D_d[0:19], w3D_d[0:19]/*, w_pert3D_d[0:19], phi3D_d[0:19], teta3D_d[0:19]*/)
+		#pragma acc cache(c_norms3D_d[0:19], cx3D_d[0:19], cy3D_d[0:19], cz3D_d[0:19], w3D_d[0:19], w_pert3D_d[0:19], phi3D_d[0:19], teta3D_d[0:19], chi3D_d[0:19], psi3D_d[0:19])
 		u =   u_d[ind];
 		v =   v_d[ind];
 		w =   w_d[ind];
