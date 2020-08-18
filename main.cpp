@@ -61,23 +61,23 @@ int main(int argc, char* argv[]) {
 		//Read from file
 		args.r_density = 1.0;
 		args.gamma = 1.0;
-		args.kappa = 2.0;
+		args.kappa = 20.0;
 		args.b_alpha = 4.0/9.0;
 		args.r_viscosity = 0.5;
 		args.b_viscosity = args.r_viscosity / args.kappa * args.gamma;
-		//args.b_viscosity = 1.0/6.0;
+		//args.b_viscosity = 1.0/30.0;
 		args.beta = 0.8;
 		args.A = 0;
 		args.control_param = 0.9;
 		args.g_limit = 0;
-		args.bubble_radius = 12.5;
+		args.bubble_radius = 25;
 		args.test_case = 4;
 		//Not file
 		args.b_density = args.r_density / args.gamma;
 		args.r_alpha = (1.0 - ((1.0 - args.b_alpha) / args.gamma));
 		args.external_force = 0; //0 is gravity, 1 for pressure difference
 		args.high_order = 0; // order of color gradient
-		args.enhanced_distrib = 1; // 1 to use enhanced
+		args.enhanced_distrib = 0; // 1 to use enhanced
 	}
 
 	InputFilenames inFn;

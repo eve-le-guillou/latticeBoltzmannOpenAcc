@@ -31,6 +31,12 @@ To clean the project
 
     $ make clean
 
+#Submit to Crescent
+
+To have the software executed on a GPU node of Crescent, use the gpu.sub file.
+
+To have the software profiled on a GPU node of Crescent, use the profGpu.sub file.
+
 # Dependencies
 ## Argtable 3
 Argtable is an open source ANSI C library that parses GNU-style command-line options. It simplifies command-line parsing by defining a declarative-style API that can be used to specify what a program's command-line syntax should look like. Argtable3 is a single-file library. All that is needed to integrate it to the project is copying argtable3.c in the main directory and including argtable3.h in the source code. As PGC++ is a compiler for C++ source code, argtable3.c was modified to argtable3.cpp and sligthly differs from the original.
