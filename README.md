@@ -31,7 +31,7 @@ To clean the project
 
     $ make clean
 
-#Submit to Crescent
+# Submit to Crescent
 
 To have the software executed on a GPU node of Crescent, use the gpu.sub file.
 
